@@ -30,13 +30,6 @@ const ToggleSwitch = ( {
 		}
 	};
 
-	const handleKeyDown = ( event ) => {
-		if ( event.key === ' ' || event.key === 'Enter' ) {
-			event.preventDefault();
-			handleClick();
-		}
-	};
-
 	return (
 		<button
 			type="button"
@@ -49,7 +42,6 @@ const ToggleSwitch = ( {
 				checked ? 'is-checked' : ''
 			}` }
 			onClick={ handleClick }
-			onKeyDown={ handleKeyDown }
 		>
 			<span className="gslider-toggle-track">
 				<span className="gslider-toggle-thumb" />

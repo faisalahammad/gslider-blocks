@@ -7,7 +7,7 @@
  */
 
 import { useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { OverviewTabIcon, BlocksTabIcon } from '../icons';
 
 /**
@@ -112,7 +112,11 @@ const Navigation = ( {
 							role="tab"
 							id={ `gslider-tab-${ tab.id }` }
 							aria-selected={ isActive }
-							aria-controls={ `gslider-tabpanel-${ tab.id }` }
+							aria-controls={
+								isActive
+									? `gslider-tabpanel-${ tab.id }`
+									: undefined
+							}
 							tabIndex={ isActive ? 0 : -1 }
 							className={ `gslider-dashboard-tab ${
 								isActive ? 'is-active' : ''
@@ -128,9 +132,26 @@ const Navigation = ( {
 								{ tab.label }
 							</span>
 							{ badgeCount !== null && (
-								<span className="gslider-dashboard-tab-badge">
-									{ badgeCount }
-								</span>
+								<>
+									<span
+										className="gslider-dashboard-tab-badge"
+										aria-hidden="true"
+									>
+										{ badgeCount }
+									</span>
+									<span className="screen-reader-text">
+										{ sprintf(
+											/* translators: %d: number of active blocks */
+											_n(
+												'%d active block',
+												'%d active blocks',
+												badgeCount,
+												'gslider-blocks'
+											),
+											badgeCount
+										) }
+									</span>
+								</>
 							) }
 						</button>
 					);

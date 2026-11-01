@@ -115,6 +115,11 @@ body.toplevel_page_gslider-blocks {
 
 		.gslider-dashboard-tabpanel {
 			outline: none;
+
+			&:focus-visible {
+				outline: 2px solid $color-brand-primary;
+				outline-offset: 2px;
+			}
 		}
 	}
 }

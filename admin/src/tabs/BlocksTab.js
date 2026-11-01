@@ -462,14 +462,21 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 				) ) }
 			</div>
 
+			{ /* Live regions stay mounted so screen readers catch text changes */ }
+			<div className="screen-reader-text" role="status">
+				{ toast?.type === 'success' ? toast.message : '' }
+			</div>
+			<div className="screen-reader-text" role="alert">
+				{ toast?.type === 'error' ? toast.message : '' }
+			</div>
+
 			{ /* Transient Toast Notification */ }
 			{ toast && (
 				<div
 					className={ `gslider-dashboard-toast ${
 						toast.type === 'error' ? 'is-error' : 'is-success'
 					}` }
-					role="status"
-					aria-live="polite"
+					aria-hidden="true"
 				>
 					{ toast.type === 'success' ? (
 						<ToastSuccessIcon />
