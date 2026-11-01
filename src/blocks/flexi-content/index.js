@@ -10,6 +10,7 @@ import metadata from './block.json';
 import attributes from './attributes.js';
 import Icon from './icon';
 import deprecated from './deprecated';
+import transforms from './transforms';
 
 registerBlockType( metadata.name, {
 	attributes,
@@ -17,4 +18,5 @@ registerBlockType( metadata.name, {
 	save,
 	icon: Icon,
 	deprecated,
+	transforms,
 } );
