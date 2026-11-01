@@ -53,7 +53,7 @@ class BlocksControllerTest {
 			fwrite( STDERR, "FAIL: {$message}\n" );
 			exit( 1 );
 		}
-		echo "OK: {$message}\n";
+		echo esc_html( "OK: {$message}\n" );
 	}
 
 	/**
