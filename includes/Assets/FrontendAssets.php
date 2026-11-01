@@ -110,11 +110,11 @@ class FrontendAssets implements Registrable {
      *
      * @since 1.2.2
      *
-     * @param string $block_content Rendered block HTML.
-     * @param array  $block         Parsed block.
-     * @return string Unchanged block HTML.
+     * @param string|null $block_content Rendered block HTML.
+     * @param array       $block         Parsed block.
+     * @return string|null Unchanged block HTML.
      */
-    public function enqueue_slide_lightbox( $block_content, $block ) {
+    public function enqueue_slide_lightbox( ?string $block_content, array $block ): ?string {
         $lightbox = $block['attrs']['enableSlideLightbox'] ?? [];
 
         if ( is_array( $lightbox ) && in_array( true, $lightbox, true ) ) {
