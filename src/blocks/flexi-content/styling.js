@@ -54,16 +54,15 @@ const getShapeDividerCss = ( blockId, position, divider, device ) => {
 		return `${ selector } { display: none; }`;
 	}
 
-	// Bottom divider is the top shape turned upside down.
-	const rotate = position === 'bottom' ? 'rotate(180deg) ' : '';
 	const scaleX = flip?.[ device ] ? -1 : 1;
 	const isInverted = !! invert?.[ device ];
-	const scaleY = isInverted ? -1 : 1;
+	// Bottom divider is the top shape flipped vertically only, so Flip means the same on both edges.
+	const scaleY = ( isInverted ? -1 : 1 ) * ( position === 'bottom' ? -1 : 1 );
 
 	return `
 		${ selector } {
 			display: block;
-			transform: ${ rotate }scale(${ scaleX }, ${ scaleY });
+			transform: scale(${ scaleX }, ${ scaleY });
 		}
 		${ selector } svg {
 			${ height?.[ device ] ? `height: ${ height[ device ] }px;` : '' }

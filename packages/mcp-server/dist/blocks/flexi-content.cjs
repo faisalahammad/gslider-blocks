@@ -2317,14 +2317,13 @@ var getShapeDividerCss = (blockId, position, divider, device) => {
   if (!enable?.[device]) {
     return `${selector} { display: none; }`;
   }
-  const rotate = position === "bottom" ? "rotate(180deg) " : "";
   const scaleX = flip?.[device] ? -1 : 1;
   const isInverted = !!invert?.[device];
-  const scaleY = isInverted ? -1 : 1;
+  const scaleY = (isInverted ? -1 : 1) * (position === "bottom" ? -1 : 1);
   return `
 		${selector} {
 			display: block;
-			transform: ${rotate}scale(${scaleX}, ${scaleY});
+			transform: scale(${scaleX}, ${scaleY});
 		}
 		${selector} svg {
 			${height?.[device] ? `height: ${height[device]}px;` : ""}
