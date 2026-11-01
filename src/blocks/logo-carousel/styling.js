@@ -1,8 +1,64 @@
-/* eslint-disable no-unused-vars, no-nested-ternary, jsdoc/require-param, jsdoc/check-tag-names */
+/* eslint-disable no-unused-vars, jsdoc/require-param, jsdoc/check-tag-names */
 /**
  * Logo carousel Slider Block - Style Generation
  * Returns Dynamic Generated CSS
  */
+
+const resolveGradient = ( customEnabled, customValue, gradient, classic ) => {
+	if ( customEnabled && customValue ) {
+		return customValue;
+	}
+	if ( gradient ) {
+		return gradient;
+	}
+	return classic;
+};
+
+const getPaginationPositionCss = (
+	paginationType,
+	progressbarPosition,
+	progressbarUnits,
+	dotsPosition,
+	dotsUnits,
+	device
+) => {
+	if ( paginationType === 'progressbar' ) {
+		return progressbarPosition[ device ]
+			? `top: ${ progressbarPosition[ device ] }${ progressbarUnits[ device ] } !important;`
+			: '';
+	}
+	return dotsPosition[ device ]
+		? `bottom: ${ dotsPosition[ device ] }${ dotsUnits[ device ] } !important;`
+		: '';
+};
+
+const getResponsiveOutsideOffset = ( offsetObj, unitObj, devices ) => {
+	for ( const device of devices ) {
+		if ( offsetObj?.[ device ] ) {
+			return `${ offsetObj[ device ] }${ unitObj?.[ device ] || 'px' }`;
+		}
+	}
+	return '30px';
+};
+
+const getHasPaginationCss = (
+	blockId,
+	showPagination,
+	device,
+	fallbackDevices,
+	offset
+) => {
+	const rule = ( marginBottom ) =>
+		`.${ blockId }.gslider-logo-carousel-wrapper.has-pagination { margin-bottom: ${ marginBottom }; }`;
+
+	if ( showPagination?.[ device ] ) {
+		return rule( offset );
+	}
+	if ( fallbackDevices.some( ( d ) => showPagination?.[ d ] ) ) {
+		return rule( '0' );
+	}
+	return '';
+};
 
 /**
  * Generate block styles from attributes
@@ -1036,14 +1092,12 @@ const generateLogoCarouselStyle = ( attributes ) => {
             ${
 				logoCaptionNormalBackgroundType === 'gradient'
 					? `  
-                background: ${
-					logoCaptionNormalCustomGradientSwitcher &&
-					logoCaptionNormalCustomGradientInputValue
-						? logoCaptionNormalCustomGradientInputValue
-						: logoCaptionNormalGradientColor
-						? logoCaptionNormalGradientColor
-						: logoCaptionNormalClassicColor
-				};
+                background: ${ resolveGradient(
+					logoCaptionNormalCustomGradientSwitcher,
+					logoCaptionNormalCustomGradientInputValue,
+					logoCaptionNormalGradientColor,
+					logoCaptionNormalClassicColor
+				) };
             `
 					: `
                 ${
@@ -1086,14 +1140,12 @@ const generateLogoCarouselStyle = ( attributes ) => {
             ${
 				logoCaptionHoverBackgroundType === 'gradient'
 					? `  
-                background: ${
-					logoCaptionHoverCustomGradientSwitcher &&
-					logoCaptionHoverCustomGradientInputValue
-						? logoCaptionHoverCustomGradientInputValue
-						: logoCaptionHoverGradientColor
-						? logoCaptionHoverGradientColor
-						: logoCaptionHoverClassicColor
-				};
+                background: ${ resolveGradient(
+					logoCaptionHoverCustomGradientSwitcher,
+					logoCaptionHoverCustomGradientInputValue,
+					logoCaptionHoverGradientColor,
+					logoCaptionHoverClassicColor
+				) };
             `
 					: `
                 ${
@@ -1387,14 +1439,12 @@ const generateLogoCarouselStyle = ( attributes ) => {
             ${
 				navigationArrowNormalBackgroundType === 'gradient'
 					? `  
-                background: ${
-					navigationArrowNormalCustomGradientSwitcher &&
-					navigationArrowNormalCustomGradientInputValue
-						? navigationArrowNormalCustomGradientInputValue
-						: navigationArrowNormalGradientColor
-						? navigationArrowNormalGradientColor
-						: navigationArrowNormalClassicColor
-				};
+                background: ${ resolveGradient(
+					navigationArrowNormalCustomGradientSwitcher,
+					navigationArrowNormalCustomGradientInputValue,
+					navigationArrowNormalGradientColor,
+					navigationArrowNormalClassicColor
+				) };
             `
 					: `
                 ${
@@ -1451,14 +1501,12 @@ const generateLogoCarouselStyle = ( attributes ) => {
             ${
 				navigationArrowHoverBackgroundType === 'gradient'
 					? `
-                background: ${
-					navigationArrowHoverCustomGradientSwitcher &&
-					navigationArrowHoverCustomGradientInputValue
-						? navigationArrowHoverCustomGradientInputValue
-						: navigationArrowHoverGradientColor
-						? navigationArrowHoverGradientColor
-						: navigationArrowHoverClassicColor
-				};
+                background: ${ resolveGradient(
+					navigationArrowHoverCustomGradientSwitcher,
+					navigationArrowHoverCustomGradientInputValue,
+					navigationArrowHoverGradientColor,
+					navigationArrowHoverClassicColor
+				) };
             `
 					: `
                 ${
@@ -1528,15 +1576,14 @@ const generateLogoCarouselStyle = ( attributes ) => {
         }
 
         .${ blockId } .swiper-pagination {
-            ${
-				paginationType === 'progressbar'
-					? paginationProgressbarPosition.Desktop
-						? `top: ${ paginationProgressbarPosition.Desktop }${ paginationProgressbarPositionUnits.Desktop } !important;`
-						: ''
-					: paginationDotsPosition.Desktop
-					? `bottom: ${ paginationDotsPosition.Desktop }${ paginationDotsPositionUnits.Desktop } !important;`
-					: ''
-			}
+            ${ getPaginationPositionCss(
+				paginationType,
+				paginationProgressbarPosition,
+				paginationProgressbarPositionUnits,
+				paginationDotsPosition,
+				paginationDotsPositionUnits,
+				'Desktop'
+			) }
             ${
 				paginationDotsDesktopMarginCssStyle
 					? `margin: ${ paginationDotsDesktopMarginCssStyle };`
@@ -2160,15 +2207,14 @@ const generateLogoCarouselStyle = ( attributes ) => {
             }
 
             .${ blockId } .swiper-pagination {
-                ${
-					paginationType === 'progressbar'
-						? paginationProgressbarPosition.Tablet
-							? `top: ${ paginationProgressbarPosition.Tablet }${ paginationProgressbarPositionUnits.Tablet } !important;`
-							: ''
-						: paginationDotsPosition.Tablet
-						? `bottom: ${ paginationDotsPosition.Tablet }${ paginationDotsPositionUnits.Tablet } !important;`
-						: ''
-				}
+                ${ getPaginationPositionCss(
+					paginationType,
+					paginationProgressbarPosition,
+					paginationProgressbarPositionUnits,
+					paginationDotsPosition,
+					paginationDotsPositionUnits,
+					'Tablet'
+				) }
                 ${
 					paginationDotsTabletMarginCssStyle
 						? `margin: ${ paginationDotsTabletMarginCssStyle };`
@@ -2264,18 +2310,11 @@ const generateLogoCarouselStyle = ( attributes ) => {
                 .${ blockId }.gslider-logo-carousel-wrapper .swiper-pagination-bullets.swiper-pagination-horizontal,
                 .${ blockId }.gslider-logo-carousel-wrapper .swiper-pagination-custom,
                 .${ blockId }.gslider-logo-carousel-wrapper .swiper-pagination-fraction {
-                    bottom: -${
-						paginationOutsideOffset?.Tablet
-							? `${ paginationOutsideOffset.Tablet }${
-									paginationOutsideOffsetUnits?.Tablet || 'px'
-							  }`
-							: paginationOutsideOffset?.Desktop
-							? `${ paginationOutsideOffset.Desktop }${
-									paginationOutsideOffsetUnits?.Desktop ||
-									'px'
-							  }`
-							: '30px'
-					} !important;
+                    bottom: -${ getResponsiveOutsideOffset(
+						paginationOutsideOffset,
+						paginationOutsideOffsetUnits,
+						[ 'Tablet', 'Desktop' ]
+					) } !important;
                 }
             `
 					: ''
@@ -2284,33 +2323,17 @@ const generateLogoCarouselStyle = ( attributes ) => {
             ${
 				paginationPositionType === 'outside'
 					? `
-                ${
-					showPagination?.Tablet
-						? `
-                    .${ blockId }.gslider-logo-carousel-wrapper.has-pagination {
-                        margin-bottom: ${
-							paginationOutsideOffset?.Tablet
-								? `${ paginationOutsideOffset.Tablet }${
-										paginationOutsideOffsetUnits?.Tablet ||
-										'px'
-								  }`
-								: paginationOutsideOffset?.Desktop
-								? `${ paginationOutsideOffset.Desktop }${
-										paginationOutsideOffsetUnits?.Desktop ||
-										'px'
-								  }`
-								: '30px'
-						};
-                    }
-                `
-						: showPagination?.Desktop
-						? `
-                    .${ blockId }.gslider-logo-carousel-wrapper.has-pagination {
-                        margin-bottom: 0;
-                    }
-                `
-						: ''
-				}
+                ${ getHasPaginationCss(
+					blockId,
+					showPagination,
+					'Tablet',
+					[ 'Desktop' ],
+					getResponsiveOutsideOffset(
+						paginationOutsideOffset,
+						paginationOutsideOffsetUnits,
+						[ 'Tablet', 'Desktop' ]
+					)
+				) }
             `
 					: ''
 			}
@@ -2717,15 +2740,14 @@ const generateLogoCarouselStyle = ( attributes ) => {
             }
 
             .${ blockId } .swiper-pagination {
-                ${
-					paginationType === 'progressbar'
-						? paginationProgressbarPosition.Mobile
-							? `top: ${ paginationProgressbarPosition.Mobile }${ paginationProgressbarPositionUnits.Mobile } !important;`
-							: ''
-						: paginationDotsPosition.Mobile
-						? `bottom: ${ paginationDotsPosition.Mobile }${ paginationDotsPositionUnits.Mobile } !important;`
-						: ''
-				}
+                ${ getPaginationPositionCss(
+					paginationType,
+					paginationProgressbarPosition,
+					paginationProgressbarPositionUnits,
+					paginationDotsPosition,
+					paginationDotsPositionUnits,
+					'Mobile'
+				) }
                 ${
 					paginationDotsMobileMarginCssStyle
 						? `margin: ${ paginationDotsMobileMarginCssStyle };`
@@ -2821,22 +2843,11 @@ const generateLogoCarouselStyle = ( attributes ) => {
                 .${ blockId }.gslider-logo-carousel-wrapper .swiper-pagination-bullets.swiper-pagination-horizontal,
                 .${ blockId }.gslider-logo-carousel-wrapper .swiper-pagination-custom,
                 .${ blockId }.gslider-logo-carousel-wrapper .swiper-pagination-fraction {
-                    bottom: -${
-						paginationOutsideOffset?.Mobile
-							? `${ paginationOutsideOffset.Mobile }${
-									paginationOutsideOffsetUnits?.Mobile || 'px'
-							  }`
-							: paginationOutsideOffset?.Tablet
-							? `${ paginationOutsideOffset.Tablet }${
-									paginationOutsideOffsetUnits?.Tablet || 'px'
-							  }`
-							: paginationOutsideOffset?.Desktop
-							? `${ paginationOutsideOffset.Desktop }${
-									paginationOutsideOffsetUnits?.Desktop ||
-									'px'
-							  }`
-							: '30px'
-					} !important;
+                    bottom: -${ getResponsiveOutsideOffset(
+						paginationOutsideOffset,
+						paginationOutsideOffsetUnits,
+						[ 'Mobile', 'Tablet', 'Desktop' ]
+					) } !important;
                 }
             `
 					: ''
@@ -2845,38 +2856,17 @@ const generateLogoCarouselStyle = ( attributes ) => {
             ${
 				paginationPositionType === 'outside'
 					? `
-                ${
-					showPagination?.Mobile
-						? `
-                    .${ blockId }.gslider-logo-carousel-wrapper.has-pagination {
-                        margin-bottom: ${
-							paginationOutsideOffset?.Mobile
-								? `${ paginationOutsideOffset.Mobile }${
-										paginationOutsideOffsetUnits?.Mobile ||
-										'px'
-								  }`
-								: paginationOutsideOffset?.Tablet
-								? `${ paginationOutsideOffset.Tablet }${
-										paginationOutsideOffsetUnits?.Tablet ||
-										'px'
-								  }`
-								: paginationOutsideOffset?.Desktop
-								? `${ paginationOutsideOffset.Desktop }${
-										paginationOutsideOffsetUnits?.Desktop ||
-										'px'
-								  }`
-								: '30px'
-						};
-                    }
-                `
-						: showPagination?.Desktop || showPagination?.Tablet
-						? `
-                    .${ blockId }.gslider-logo-carousel-wrapper.has-pagination {
-                        margin-bottom: 0;
-                    }
-                `
-						: ''
-				}
+                ${ getHasPaginationCss(
+					blockId,
+					showPagination,
+					'Mobile',
+					[ 'Desktop', 'Tablet' ],
+					getResponsiveOutsideOffset(
+						paginationOutsideOffset,
+						paginationOutsideOffsetUnits,
+						[ 'Mobile', 'Tablet', 'Desktop' ]
+					)
+				) }
             `
 					: ''
 			}
