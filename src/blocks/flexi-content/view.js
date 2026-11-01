@@ -106,10 +106,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					true
 				);
 			} );
-
-		if ( typeof refreshFsLightbox === 'function' ) {
-			refreshFsLightbox();
-		}
 	};
 
 	const initializeSliders = () => {
@@ -117,6 +113,29 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const sliders = document.querySelectorAll(
 			'.gslider-flexi-content-wrapper'
 		);
+
+		// Bind and refresh before Swiper init, loop mode reorders the slides in the DOM
+		const lightboxSliders = [ ...sliders ].filter( ( sliderContainer ) => {
+			const swiperElement = sliderContainer.querySelector( '.swiper' );
+			return (
+				sliderContainer.dataset.slideLightbox &&
+				swiperElement &&
+				! swiperElement.classList.contains( 'swiper-initialized' )
+			);
+		} );
+		lightboxSliders.forEach( ( sliderContainer ) =>
+			initializeSlideLightbox(
+				sliderContainer,
+				sliderContainer.querySelector( '.swiper' )
+			)
+		);
+		// One refresh builds the galleries of all sliders
+		if (
+			lightboxSliders.length &&
+			typeof refreshFsLightbox === 'function'
+		) {
+			refreshFsLightbox();
+		}
 
 		sliders.forEach( ( sliderContainer ) => {
 			try {
@@ -193,13 +212,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 					// Initialize Swiper with parsed settings
 					new Swiper( swiperElement, settings );
-
-					if ( sliderContainer.dataset.slideLightbox ) {
-						initializeSlideLightbox(
-							sliderContainer,
-							swiperElement
-						);
-					}
 				}
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
