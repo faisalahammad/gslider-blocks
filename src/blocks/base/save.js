@@ -165,7 +165,10 @@ export default function Save( { attributes } ) {
 
 		pagination: {
 			enabled: anyPaginationEnabled,
-			el: `.${ blockId } .swiper-pagination-base-slider`,
+			// Patterns keep blockId empty, so fall back to an unscoped selector.
+			el: blockId
+				? `.${ blockId } .swiper-pagination-base-slider`
+				: '.swiper-pagination-base-slider',
 			type: paginationType,
 			dynamicBullets:
 				paginationType === 'bullets' ? dynamicBullets : false,
@@ -476,7 +479,9 @@ export default function Save( { attributes } ) {
 			{ anyPaginationEnabled && paginationPositionType === 'outside' && (
 				<>
 					<div
-						className={ `swiper-pagination swiper-pagination-base-slider swiper-pagination-${ blockId }` }
+						className={ `swiper-pagination swiper-pagination-base-slider${
+							blockId ? ` swiper-pagination-${ blockId }` : ''
+						}` }
 						aria-label="Carousel pagination"
 					></div>
 				</>
