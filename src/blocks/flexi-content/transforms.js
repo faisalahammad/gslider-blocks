@@ -19,12 +19,32 @@ const toFlexiContent = ( name ) => ( attributes, innerBlocks ) =>
 	);
 
 const transforms = {
-	from: [ 'core/cover', 'core/group' ].map( ( name ) => ( {
-		type: 'block',
-		isMultiBlock: true,
-		blocks: [ name ],
-		transform: toFlexiContent( name ),
-	} ) ),
+	from: [
+		...[ 'core/cover', 'core/group' ].map( ( name ) => ( {
+			type: 'block',
+			isMultiBlock: true,
+			blocks: [ name ],
+			transform: toFlexiContent( name ),
+		} ) ),
+		{
+			type: 'block',
+			blocks: [ 'core/gallery' ],
+			// Dynamic and empty galleries have no image blocks, so there is nothing to convert.
+			isMatch: ( { dynamicContent }, block ) =>
+				! dynamicContent && block?.innerBlocks?.length > 0,
+			// Each gallery image becomes its own slide. Image attributes hold url, alt and caption.
+			transform: ( { anchor }, innerBlocks ) =>
+				createBlock(
+					'gslider-blocks/flexi-content',
+					{ globalID: anchor || '' },
+					innerBlocks.map( ( image ) =>
+						createBlock( 'gslider-blocks/flexi-content-item', {}, [
+							createBlock( 'core/image', image.attributes ),
+						] )
+					)
+				),
+		},
+	],
 };
 
 export default transforms;
