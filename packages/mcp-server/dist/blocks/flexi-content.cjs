@@ -192,6 +192,14 @@ var attributes = {
       Mobile: true
     }
   },
+  enableSlideLightbox: {
+    type: "object",
+    default: {
+      Desktop: false,
+      Tablet: false,
+      Mobile: false
+    }
+  },
   paginationPositionType: {
     type: "string",
     default: "inside"
@@ -1871,7 +1879,8 @@ function Save({ attributes: attributes2 }) {
     navigationArrowsIconRight,
     navigationArrowsIconRightImageUrl,
     navigationArrowsIconRightImageAlt,
-    layoutHeightSwitcher
+    layoutHeightSwitcher,
+    enableSlideLightbox
   } = attributes2;
   const blockProps = import_block_editor.useBlockProps.save({
     className: `gslider-flexi-content-wrapper ${blockId} ${navigationArrowPositionType} ${navigationArrowPosition} ${showPagination?.Desktop || showPagination?.Tablet || showPagination?.Mobile ? "has-pagination" : ""}`
@@ -1891,6 +1900,7 @@ function Save({ attributes: attributes2 }) {
     Desktop: !!showPagination?.Desktop
   };
   const anyPaginationEnabled = paginationEnabled.Mobile || paginationEnabled.Tablet || paginationEnabled.Desktop;
+  const lightboxDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableSlideLightbox?.[device] === true).join(" ");
   const swiperSettings = JSON.stringify({
     effect: sliderType === "carousel" ? carouselEffect : slideEffect,
     // Responsive breakpoints for Desktop, Tablet, and Mobile
@@ -1970,164 +1980,174 @@ function Save({ attributes: attributes2 }) {
       }
     }
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { ...blockProps, "data-swiper-settings": swiperSettings, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-      "div",
-      {
-        className: `swiper ${globalClass}`,
-        ...globalID && { id: globalID },
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { ...innerBlocksProps }),
-          anyNavigationEnabled && !navigationArrowsIconSwitcher && navigationArrowPositionType === "inside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-            "div",
-            {
-              className: `gslider-navigation-default-icon-wrapper ${navigationArrowPositionType} ${navigationArrowPosition}`,
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                  "div",
-                  {
-                    className: "swiper-button-prev",
-                    role: "button",
-                    tabIndex: 0,
-                    "aria-label": "Previous slide"
-                  }
-                ),
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                  "div",
-                  {
-                    className: "swiper-button-next",
-                    role: "button",
-                    tabIndex: 0,
-                    "aria-label": "Next slide"
-                  }
-                )
-              ]
-            }
-          ) }),
-          anyNavigationEnabled && navigationArrowsIconSwitcher && navigationArrowPositionType === "inside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-            "div",
-            {
-              className: `gslider-navigation-custom-icon-wrapper ${navigationArrowPositionType} ${navigationArrowPosition}`,
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                  "div",
-                  {
-                    className: "swiper-button-prev",
-                    role: "button",
-                    tabIndex: 0,
-                    "aria-label": "Previous slide",
-                    children: navigationArrowsIconLeftAlign === "image" && navigationArrowsIconLeftImageUrl ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                      "img",
-                      {
-                        src: navigationArrowsIconLeftImageUrl,
-                        alt: navigationArrowsIconLeftImageAlt
-                      }
-                    ) : renderIcon_default(navigationArrowsIconLeft)
-                  }
-                ),
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                  "div",
-                  {
-                    className: "swiper-button-next",
-                    role: "button",
-                    tabIndex: 0,
-                    "aria-label": "Next slide",
-                    children: navigationArrowsIconRightAlign === "image" && navigationArrowsIconRightImageUrl ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                      "img",
-                      {
-                        src: navigationArrowsIconRightImageUrl,
-                        alt: navigationArrowsIconRightImageAlt
-                      }
-                    ) : renderIcon_default(navigationArrowsIconRight)
-                  }
-                )
-              ]
-            }
-          ),
-          anyPaginationEnabled && paginationPositionType === "inside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-            "div",
-            {
-              className: "swiper-pagination swiper-pagination-flexi-content",
-              "aria-label": "Carousel pagination"
-            }
-          ) })
-        ]
-      }
-    ),
-    anyNavigationEnabled && !navigationArrowsIconSwitcher && navigationArrowPositionType === "outside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-      "div",
-      {
-        className: `gslider-navigation-default-icon-wrapper ${navigationArrowPositionType} ${navigationArrowPosition}`,
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-            "div",
-            {
-              className: "swiper-button-prev",
-              role: "button",
-              tabIndex: 0,
-              "aria-label": "Previous slide"
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-            "div",
-            {
-              className: "swiper-button-next",
-              role: "button",
-              tabIndex: 0,
-              "aria-label": "Next slide"
-            }
-          )
-        ]
-      }
-    ) }),
-    anyNavigationEnabled && navigationArrowsIconSwitcher && navigationArrowPositionType === "outside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-      "div",
-      {
-        className: `gslider-navigation-custom-icon-wrapper ${navigationArrowPositionType} ${navigationArrowPosition}`,
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-            "div",
-            {
-              className: "swiper-button-prev",
-              role: "button",
-              tabIndex: 0,
-              "aria-label": "Previous slide",
-              children: navigationArrowsIconLeftAlign === "image" && navigationArrowsIconLeftImageUrl ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                "img",
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+    "div",
+    {
+      ...blockProps,
+      "data-swiper-settings": swiperSettings,
+      ...lightboxDevices && {
+        "data-slide-lightbox": lightboxDevices
+      },
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+          "div",
+          {
+            className: `swiper ${globalClass}`,
+            ...globalID && { id: globalID },
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { ...innerBlocksProps }),
+              anyNavigationEnabled && !navigationArrowsIconSwitcher && navigationArrowPositionType === "inside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+                "div",
                 {
-                  src: navigationArrowsIconLeftImageUrl,
-                  alt: navigationArrowsIconLeftImageAlt
+                  className: `gslider-navigation-default-icon-wrapper ${navigationArrowPositionType} ${navigationArrowPosition}`,
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                      "div",
+                      {
+                        className: "swiper-button-prev",
+                        role: "button",
+                        tabIndex: 0,
+                        "aria-label": "Previous slide"
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                      "div",
+                      {
+                        className: "swiper-button-next",
+                        role: "button",
+                        tabIndex: 0,
+                        "aria-label": "Next slide"
+                      }
+                    )
+                  ]
                 }
-              ) : renderIcon_default(navigationArrowsIconLeft)
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-            "div",
-            {
-              className: "swiper-button-next",
-              role: "button",
-              tabIndex: 0,
-              "aria-label": "Next slide",
-              children: navigationArrowsIconRightAlign === "image" && navigationArrowsIconRightImageUrl ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-                "img",
+              ) }),
+              anyNavigationEnabled && navigationArrowsIconSwitcher && navigationArrowPositionType === "inside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+                "div",
                 {
-                  src: navigationArrowsIconRightImageUrl,
-                  alt: navigationArrowsIconRightImageAlt
+                  className: `gslider-navigation-custom-icon-wrapper ${navigationArrowPositionType} ${navigationArrowPosition}`,
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                      "div",
+                      {
+                        className: "swiper-button-prev",
+                        role: "button",
+                        tabIndex: 0,
+                        "aria-label": "Previous slide",
+                        children: navigationArrowsIconLeftAlign === "image" && navigationArrowsIconLeftImageUrl ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                          "img",
+                          {
+                            src: navigationArrowsIconLeftImageUrl,
+                            alt: navigationArrowsIconLeftImageAlt
+                          }
+                        ) : renderIcon_default(navigationArrowsIconLeft)
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                      "div",
+                      {
+                        className: "swiper-button-next",
+                        role: "button",
+                        tabIndex: 0,
+                        "aria-label": "Next slide",
+                        children: navigationArrowsIconRightAlign === "image" && navigationArrowsIconRightImageUrl ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                          "img",
+                          {
+                            src: navigationArrowsIconRightImageUrl,
+                            alt: navigationArrowsIconRightImageAlt
+                          }
+                        ) : renderIcon_default(navigationArrowsIconRight)
+                      }
+                    )
+                  ]
                 }
-              ) : renderIcon_default(navigationArrowsIconRight)
-            }
-          )
-        ]
-      }
-    ),
-    anyPaginationEnabled && paginationPositionType === "outside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-      "div",
-      {
-        className: `swiper-pagination swiper-pagination-flexi-content swiper-pagination-${blockId}`,
-        "aria-label": "Carousel pagination"
-      }
-    ) })
-  ] });
+              ),
+              anyPaginationEnabled && paginationPositionType === "inside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                "div",
+                {
+                  className: "swiper-pagination swiper-pagination-flexi-content",
+                  "aria-label": "Carousel pagination"
+                }
+              ) })
+            ]
+          }
+        ),
+        anyNavigationEnabled && !navigationArrowsIconSwitcher && navigationArrowPositionType === "outside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+          "div",
+          {
+            className: `gslider-navigation-default-icon-wrapper ${navigationArrowPositionType} ${navigationArrowPosition}`,
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                "div",
+                {
+                  className: "swiper-button-prev",
+                  role: "button",
+                  tabIndex: 0,
+                  "aria-label": "Previous slide"
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                "div",
+                {
+                  className: "swiper-button-next",
+                  role: "button",
+                  tabIndex: 0,
+                  "aria-label": "Next slide"
+                }
+              )
+            ]
+          }
+        ) }),
+        anyNavigationEnabled && navigationArrowsIconSwitcher && navigationArrowPositionType === "outside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+          "div",
+          {
+            className: `gslider-navigation-custom-icon-wrapper ${navigationArrowPositionType} ${navigationArrowPosition}`,
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                "div",
+                {
+                  className: "swiper-button-prev",
+                  role: "button",
+                  tabIndex: 0,
+                  "aria-label": "Previous slide",
+                  children: navigationArrowsIconLeftAlign === "image" && navigationArrowsIconLeftImageUrl ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                    "img",
+                    {
+                      src: navigationArrowsIconLeftImageUrl,
+                      alt: navigationArrowsIconLeftImageAlt
+                    }
+                  ) : renderIcon_default(navigationArrowsIconLeft)
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                "div",
+                {
+                  className: "swiper-button-next",
+                  role: "button",
+                  tabIndex: 0,
+                  "aria-label": "Next slide",
+                  children: navigationArrowsIconRightAlign === "image" && navigationArrowsIconRightImageUrl ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                    "img",
+                    {
+                      src: navigationArrowsIconRightImageUrl,
+                      alt: navigationArrowsIconRightImageAlt
+                    }
+                  ) : renderIcon_default(navigationArrowsIconRight)
+                }
+              )
+            ]
+          }
+        ),
+        anyPaginationEnabled && paginationPositionType === "outside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          "div",
+          {
+            className: `swiper-pagination swiper-pagination-flexi-content swiper-pagination-${blockId}`,
+            "aria-label": "Carousel pagination"
+          }
+        ) })
+      ]
+    }
+  );
 }
 
 // ../../src/blocks/flexi-content/styling.js

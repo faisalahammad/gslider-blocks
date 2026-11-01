@@ -43,6 +43,7 @@ export default function Save( { attributes } ) {
 		navigationArrowsIconRightImageAlt,
 
 		layoutHeightSwitcher,
+		enableSlideLightbox,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -78,6 +79,11 @@ export default function Save( { attributes } ) {
 		paginationEnabled.Mobile ||
 		paginationEnabled.Tablet ||
 		paginationEnabled.Desktop;
+
+	// Only output the attribute when enabled, so markup of existing blocks stays the same
+	const lightboxDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
+		.filter( ( device ) => enableSlideLightbox?.[ device ] === true )
+		.join( ' ' );
 
 	// Configure Swiper settings for frontend rendering
 	const swiperSettings = JSON.stringify( {
@@ -179,7 +185,13 @@ export default function Save( { attributes } ) {
 	} );
 
 	return (
-		<div { ...blockProps } data-swiper-settings={ swiperSettings }>
+		<div
+			{ ...blockProps }
+			data-swiper-settings={ swiperSettings }
+			{ ...( lightboxDevices && {
+				'data-slide-lightbox': lightboxDevices,
+			} ) }
+		>
 			<div
 				className={ `swiper ${ globalClass }` }
 				{ ...( globalID && { id: globalID } ) }

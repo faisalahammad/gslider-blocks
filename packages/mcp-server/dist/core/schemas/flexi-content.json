@@ -23,7 +23,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 260,
+  "totalAttributes": 261,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -295,6 +295,14 @@
         "Desktop": true,
         "Tablet": true,
         "Mobile": true
+      }
+    },
+    "enableSlideLightbox": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
       }
     },
     "paginationPositionType": {
