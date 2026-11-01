@@ -38,6 +38,20 @@ document.addEventListener( 'DOMContentLoaded', () => {
 							}
 						}
 
+						// Resolve pagination inside this wrapper: an unscoped selector
+						// matches every id-less slider of the same type on the page.
+						if (
+							settings.pagination &&
+							typeof settings.pagination.el === 'string'
+						) {
+							const paginationEl = sliderContainer.querySelector(
+								settings.pagination.el
+							);
+							if ( paginationEl ) {
+								settings.pagination.el = paginationEl;
+							}
+						}
+
 						// Initialize Swiper with parsed settings
 						new Swiper( swiperEl, settings );
 					}
