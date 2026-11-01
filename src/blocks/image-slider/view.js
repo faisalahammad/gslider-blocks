@@ -44,6 +44,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 							settings.pagination &&
 							typeof settings.pagination.el === 'string'
 						) {
+							// Content saved with an empty blockId holds ". .swiper-pagination-…".
+							settings.pagination.el =
+								settings.pagination.el.replace( /^\.\s+/, '' );
 							const paginationEl = sliderContainer.querySelector(
 								settings.pagination.el
 							);
