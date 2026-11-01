@@ -4,8 +4,10 @@ import {
 	useBlockProps,
 	BlockControls,
 	useInnerBlocksProps,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import renderSVG from '@Components/icon-picker/components/icon-picker/controls/renderIcon';
 import SwitchToBlockSettings from '@Utils/switchToBlockSettings';
@@ -109,6 +111,12 @@ export default function Edit( {
 	const nextRef = useRef( null );
 	const paginationInsideRef = useRef( null );
 	const paginationOutsideRef = useRef( null );
+
+	// Slide count, so Swiper is rebuilt when a slide is added, duplicated or removed.
+	const slideCount = useSelect(
+		( select ) => select( blockEditorStore ).getBlockCount( clientId ),
+		[ clientId ]
+	);
 
 	/**
 	 * Vanilla JS Swiper initialization
@@ -247,6 +255,7 @@ export default function Edit( {
 		navigationArrowsIconLeft,
 		navigationArrowsIconRight,
 		layoutHeightSwitcher,
+		slideCount,
 	] );
 
 	const getSliderTemplate = [
