@@ -155,7 +155,7 @@
 
 	&.is-recommended {
 		background-color: $color-brand-subtle;
-		color: $color-brand-primary;
+		color: $color-brand-hover;
 	}
 
 	&.is-active-security {
@@ -321,7 +321,7 @@
 		}
 
 		.gslider-settings-radio-title {
-			color: $color-brand-primary;
+			color: $color-brand-hover;
 		}
 	}
 }

@@ -86,7 +86,7 @@
 	&:hover:not(:disabled) {
 		background-color: #f8fafc;
 		border-color: #cbd5e1;
-		color: $color-brand-primary;
+		color: $color-brand-hover;
 	}
 }
 
@@ -96,7 +96,7 @@
 	gap: 6px;
 	padding: 5px 12px;
 	background-color: $color-brand-subtle;
-	color: $color-brand-primary;
+	color: $color-brand-hover;
 	font-family: $font-family-sans;
 	font-size: 12px;
 	font-weight: 600;
@@ -167,7 +167,6 @@
 
 	&.is-disabled {
 		background-color: #fafbfc;
-		opacity: 0.85;
 
 		.gslider-dashboard-block-icon {
 			background-color: #f1f5f9;
@@ -228,7 +227,7 @@
 
 	&.is-disabled {
 		background-color: #f1f5f9;
-		color: #64748b;
+		color: $color-text-muted-strong;
 	}
 }
 

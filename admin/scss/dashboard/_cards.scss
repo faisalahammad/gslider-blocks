@@ -36,7 +36,7 @@ body.toplevel_page_gslider-blocks {
 			font-weight: 600;
 			text-transform: uppercase;
 			letter-spacing: 0.05em;
-			color: $color-brand-primary;
+			color: $color-brand-hover;
 			background-color: rgba(0, 124, 186, 0.1);
 			padding: 4px 10px;
 			border-radius: 9999px;
@@ -169,7 +169,7 @@ body.toplevel_page_gslider-blocks {
 			font-size: 11px;
 			font-weight: 600;
 			line-height: 1;
-			color: $color-text-muted;
+			color: $color-text-muted-strong;
 			background-color: $color-surface-hover;
 			padding: 4px 8px;
 			border-radius: 9999px;
@@ -203,7 +203,7 @@ body.toplevel_page_gslider-blocks {
 		.gslider-dashboard-metric-empty {
 			margin: 0;
 			font-size: 13px;
-			color: $color-text-muted;
+			color: $color-text-muted-strong;
 			line-height: 1.5;
 			padding: 8px 12px;
 			background-color: $color-surface-hover;
@@ -314,7 +314,7 @@ body.toplevel_page_gslider-blocks {
 			font-weight: 600;
 			text-transform: uppercase;
 			letter-spacing: 0.05em;
-			color: $color-brand-primary;
+			color: $color-brand-hover;
 			background-color: rgba(0, 124, 186, 0.1);
 			padding: 4px 10px;
 			border-radius: 9999px;
