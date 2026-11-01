@@ -2310,7 +2310,7 @@ var getResponsiveOutsideOffset = (offsetObj, unitObj, devices) => {
 };
 var getShapeDividerCss = (blockId, position, divider, device) => {
   const { enable, color, height, flip, invert } = divider;
-  const selector = `.${blockId} .gslider-shape-divider-${position}`;
+  const selector = `.${blockId} > .swiper > .gslider-shape-divider-${position}`;
   if (!enable?.Desktop && !enable?.Tablet && !enable?.Mobile) {
     return "";
   }

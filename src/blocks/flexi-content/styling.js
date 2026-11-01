@@ -43,7 +43,7 @@ const getResponsiveOutsideOffset = ( offsetObj, unitObj, devices ) => {
 
 const getShapeDividerCss = ( blockId, position, divider, device ) => {
 	const { enable, color, height, flip, invert } = divider;
-	const selector = `.${ blockId } .gslider-shape-divider-${ position }`;
+	const selector = `.${ blockId } > .swiper > .gslider-shape-divider-${ position }`;
 
 	// No markup is saved when every device is off, so skip the CSS too.
 	if ( ! enable?.Desktop && ! enable?.Tablet && ! enable?.Mobile ) {
