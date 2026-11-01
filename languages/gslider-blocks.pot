@@ -1609,7 +1609,6 @@ msgstr ""
 
 #. translators: %d: slider item number
 #: src/blocks/base/sortableItem.js:66
-#, js-format
 msgid "Slider Item %d"
 msgstr ""
 
@@ -2157,7 +2156,6 @@ msgstr ""
 
 #. translators: %d: testimonial item number
 #: src/blocks/testimonial/sortableItem.js:85
-#, js-format
 msgid "Testimonial Item %d"
 msgstr ""
 
