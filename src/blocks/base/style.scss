@@ -19,30 +19,28 @@
 		}
 	}
 
-	.swiper-backface-hidden {
-
-		.swiper-slide {
-			backface-visibility: visible !important;
-		}
+	// Child combinators keep these rules off sliders nested in a slide.
+	> .swiper-backface-hidden > .swiper-wrapper > .swiper-slide {
+		backface-visibility: visible !important;
 	}
 
-	.swiper:not(.swiper-initialized) {
+	> .swiper:not(.swiper-initialized) {
 		overflow: hidden;
 
-		.swiper-wrapper {
+		> .swiper-wrapper {
 			display: flex;
 			flex-wrap: nowrap;
 			width: 100%;
 			box-sizing: border-box;
-		}
 
-		.swiper-slide {
-			flex-shrink: 0;
-			box-sizing: border-box;
+			> .swiper-slide {
+				flex-shrink: 0;
+				box-sizing: border-box;
+			}
 		}
 	}
 
-	.swiper.swiper-initialized {
+	> .swiper.swiper-initialized {
 		overflow: hidden;
 	}
 }

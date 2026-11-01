@@ -102,40 +102,6 @@
 		}
 	}
 
-	// Edit button in editor (for Link and/or Tooltip)
-	.gslider-image-edit-button,
-	.gslider-image-link-button {
-		position: absolute;
-		top: 8px;
-		right: 8px;
-		z-index: 10;
-		border: 1px solid #2271b1;
-		border-radius: 4px;
-		padding: 4px 8px;
-		cursor: pointer;
-		font-size: 16px;
-		opacity: 0;
-		transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
-		background: #fff;
-		color: #2271b1;
-
-		&.has-content,
-		&.has-link {
-			opacity: 1;
-			background: #2271b1;
-			color: #fff;
-		}
-
-		&:hover {
-			opacity: 1;
-		}
-	}
-
-	.gslider-image-slider-content-wrapper:hover .gslider-image-edit-button,
-	.gslider-image-slider-content-wrapper:hover .gslider-image-link-button {
-		opacity: 1;
-	}
-
 	// Custom Tooltip - Default Styles (Can be overridden by Inspector)
 	.gslider-image-tooltip {
 		position: absolute;
