@@ -41,6 +41,45 @@ const getResponsiveOutsideOffset = ( offsetObj, unitObj, devices ) => {
 	return '30px';
 };
 
+const getShapeDividerCss = ( blockId, position, divider, device ) => {
+	const { enable, color, height, flip, invert } = divider;
+	const selector = `.${ blockId } .gslider-shape-divider-${ position }`;
+
+	// No markup is saved when every device is off, so skip the CSS too.
+	if ( ! enable?.Desktop && ! enable?.Tablet && ! enable?.Mobile ) {
+		return '';
+	}
+
+	if ( ! enable?.[ device ] ) {
+		return `${ selector } { display: none; }`;
+	}
+
+	// Bottom divider is the top shape turned upside down.
+	const rotate = position === 'bottom' ? 'rotate(180deg) ' : '';
+	const scaleX = flip?.[ device ] ? -1 : 1;
+	const isInverted = !! invert?.[ device ];
+	const scaleY = isInverted ? -1 : 1;
+
+	return `
+		${ selector } {
+			display: block;
+			transform: ${ rotate }scale(${ scaleX }, ${ scaleY });
+		}
+		${ selector } svg {
+			${ height?.[ device ] ? `height: ${ height[ device ] }px;` : '' }
+		}
+		${ selector } path {
+			fill: ${ color || '#ffffff' };
+		}
+		${ selector } .gslider-shape-divider-fill {
+			display: ${ isInverted ? 'none' : 'inline' };
+		}
+		${ selector } .gslider-shape-divider-fill-invert {
+			display: ${ isInverted ? 'inline' : 'none' };
+		}
+	`;
+};
+
 const getHasPaginationCss = (
 	blockId,
 	showPagination,
@@ -427,7 +466,35 @@ const generateFlexiContentStyle = ( attributes ) => {
 		globalBoxShadowHoverValues,
 		globalBoxShadowHoverCssValue,
 		/** End Global Box Shadow */
+
+		/** Start Shape Dividers */
+		enableTopDivider,
+		topDividerColor,
+		topDividerHeight,
+		topDividerFlip,
+		topDividerInvert,
+		enableBottomDivider,
+		bottomDividerColor,
+		bottomDividerHeight,
+		bottomDividerFlip,
+		bottomDividerInvert,
+		/** End Shape Dividers */
 	} = attributes;
+
+	const topDivider = {
+		enable: enableTopDivider,
+		color: topDividerColor,
+		height: topDividerHeight,
+		flip: topDividerFlip,
+		invert: topDividerInvert,
+	};
+	const bottomDivider = {
+		enable: enableBottomDivider,
+		color: bottomDividerColor,
+		height: bottomDividerHeight,
+		flip: bottomDividerFlip,
+		invert: bottomDividerInvert,
+	};
 
 	/**
 	 * Get global background normal styles
@@ -1241,6 +1308,9 @@ const generateFlexiContentStyle = ( attributes ) => {
 		}
 
 
+        ${ getShapeDividerCss( blockId, 'top', topDivider, 'Desktop' ) }
+        ${ getShapeDividerCss( blockId, 'bottom', bottomDivider, 'Desktop' ) }
+
         @media only screen and (max-width: 1024px) {
 
             .${ blockId }.gslider-flexi-content-wrapper {
@@ -1687,6 +1757,13 @@ const generateFlexiContentStyle = ( attributes ) => {
             `
 					: ''
 			}
+            ${ getShapeDividerCss( blockId, 'top', topDivider, 'Tablet' ) }
+            ${ getShapeDividerCss(
+				blockId,
+				'bottom',
+				bottomDivider,
+				'Tablet'
+			) }
         }
         
         @media only screen and (max-width: 767px) {
@@ -2135,6 +2212,13 @@ const generateFlexiContentStyle = ( attributes ) => {
             `
 					: ''
 			}
+            ${ getShapeDividerCss( blockId, 'top', topDivider, 'Mobile' ) }
+            ${ getShapeDividerCss(
+				blockId,
+				'bottom',
+				bottomDivider,
+				'Mobile'
+			) }
         }
     `;
 	/** End All Block Style */

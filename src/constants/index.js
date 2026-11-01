@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { Dashicon } from '@wordpress/components';
 
+export { SHAPE_DIVIDER_OPTIONS } from './shapeDividers';
+
 export const STORE_NAME = 'gslider-blocks';
 
 export const UNIT_TYPES = [

@@ -1,5 +1,6 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import renderSVG from '@Components/icon-picker/components/icon-picker/controls/renderIcon';
+import { renderShapeDivider } from '@Constants/shapeDividers';
 
 export default function Save( { attributes } ) {
 	const {
@@ -43,6 +44,11 @@ export default function Save( { attributes } ) {
 		navigationArrowsIconRightImageAlt,
 
 		layoutHeightSwitcher,
+
+		enableTopDivider,
+		topDividerShape,
+		enableBottomDivider,
+		bottomDividerShape,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -78,6 +84,16 @@ export default function Save( { attributes } ) {
 		paginationEnabled.Mobile ||
 		paginationEnabled.Tablet ||
 		paginationEnabled.Desktop;
+
+	// Per device show/hide is handled in styling.js.
+	const anyTopDivider =
+		enableTopDivider?.Desktop ||
+		enableTopDivider?.Tablet ||
+		enableTopDivider?.Mobile;
+	const anyBottomDivider =
+		enableBottomDivider?.Desktop ||
+		enableBottomDivider?.Tablet ||
+		enableBottomDivider?.Mobile;
 
 	// Configure Swiper settings for frontend rendering
 	const swiperSettings = JSON.stringify( {
@@ -185,6 +201,11 @@ export default function Save( { attributes } ) {
 				{ ...( globalID && { id: globalID } ) }
 			>
 				<div { ...innerBlocksProps } />
+
+				{ anyTopDivider &&
+					renderShapeDivider( 'top', topDividerShape ) }
+				{ anyBottomDivider &&
+					renderShapeDivider( 'bottom', bottomDividerShape ) }
 
 				{ anyNavigationEnabled &&
 					! navigationArrowsIconSwitcher &&

@@ -14,6 +14,7 @@ import SwitchToBlockSettings from '@Utils/switchToBlockSettings';
 import Inspector from './inspector';
 import useBlockIdGenerator from '@Utils/useBlockIdGenerator';
 import generateFlexiContentStyle from './styling';
+import { renderShapeDivider } from '@Constants/shapeDividers';
 
 const ALLOWED_BLOCKS = [ 'gslider-blocks/flexi-content-item' ];
 
@@ -66,6 +67,11 @@ export default function Edit( {
 		navigationArrowsIconRightImageAlt,
 
 		layoutHeightSwitcher,
+
+		enableTopDivider,
+		topDividerShape,
+		enableBottomDivider,
+		bottomDividerShape,
 	} = attributes;
 
 	/** Handle block ID generation (handles duplication and initial ID) */
@@ -292,6 +298,11 @@ export default function Edit( {
 					{ ...( globalID && { id: globalID } ) }
 				>
 					<div { ...innerBlocksProps } />
+
+					{ enableTopDivider?.[ deviceType ] &&
+						renderShapeDivider( 'top', topDividerShape ) }
+					{ enableBottomDivider?.[ deviceType ] &&
+						renderShapeDivider( 'bottom', bottomDividerShape ) }
 
 					{ showNavigation?.[ deviceType ] &&
 						! navigationArrowsIconSwitcher &&

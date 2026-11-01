@@ -1241,6 +1241,89 @@ const attributes = {
 	},
 	/** End Progressbar */
 
+	/** Start Shape Dividers */
+	enableTopDivider: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	topDividerShape: {
+		type: 'string',
+		default: 'wave-1',
+	},
+	topDividerColor: {
+		type: 'string',
+		default: '#ffffff',
+	},
+	topDividerHeight: {
+		type: 'object',
+		default: {
+			Desktop: '50',
+			Tablet: '50',
+			Mobile: '50',
+		},
+	},
+	topDividerFlip: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	topDividerInvert: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	enableBottomDivider: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	bottomDividerShape: {
+		type: 'string',
+		default: 'wave-1',
+	},
+	bottomDividerColor: {
+		type: 'string',
+		default: '#ffffff',
+	},
+	bottomDividerHeight: {
+		type: 'object',
+		default: {
+			Desktop: '50',
+			Tablet: '50',
+			Mobile: '50',
+		},
+	},
+	bottomDividerFlip: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	bottomDividerInvert: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	/** End Shape Dividers */
+
 	/** Start Global Setting */
 
 	/** Start Global Margin */

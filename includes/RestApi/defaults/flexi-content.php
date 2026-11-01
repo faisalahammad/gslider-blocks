@@ -595,6 +595,50 @@ return [
 		'Tablet' => 'px',
 		'Mobile' => 'px',
 	],
+	'enableTopDivider' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'topDividerShape' => 'wave-1',
+	'topDividerColor' => '#ffffff',
+	'topDividerHeight' => [
+		'Desktop' => '50',
+		'Tablet' => '50',
+		'Mobile' => '50',
+	],
+	'topDividerFlip' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'topDividerInvert' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'enableBottomDivider' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'bottomDividerShape' => 'wave-1',
+	'bottomDividerColor' => '#ffffff',
+	'bottomDividerHeight' => [
+		'Desktop' => '50',
+		'Tablet' => '50',
+		'Mobile' => '50',
+	],
+	'bottomDividerFlip' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'bottomDividerInvert' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
 	'globalMarginUnits' => [
 		'Desktop' => 'px',
 		'Tablet' => 'px',

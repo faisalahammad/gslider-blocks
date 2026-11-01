@@ -29,6 +29,7 @@ import {
 	NAVIGATION_ARROW_DIRECTION,
 	LAYOUT_HEIGHT_SWITCHER,
 	PAGINATION_POSITION_TYPE,
+	SHAPE_DIVIDER_OPTIONS,
 } from '@Constants';
 
 import './editor.scss';
@@ -411,6 +412,21 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		globalBoxShadowHoverValues,
 		globalBoxShadowHoverCssValue,
 		/** End Global Box Shadow */
+
+		/** Start Shape Dividers */
+		enableTopDivider,
+		topDividerShape,
+		topDividerColor,
+		topDividerHeight,
+		topDividerFlip,
+		topDividerInvert,
+		enableBottomDivider,
+		bottomDividerShape,
+		bottomDividerColor,
+		bottomDividerHeight,
+		bottomDividerFlip,
+		bottomDividerInvert,
+		/** End Shape Dividers */
 	} = attributes;
 
 	/** Get Current Device Type */
@@ -2860,6 +2876,151 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					) }
 				</PanelBody>
 			) }
+
+			<PanelBody
+				title={ __( 'Shape Dividers', 'gslider-blocks' ) }
+				opened={ openPanels.styles === 'shape-dividers' }
+				onToggle={ () => togglePanel( 'styles', 'shape-dividers' ) }
+			>
+				<ResponsiveToggleControl
+					label={ __( 'Top Shape Divider', 'gslider-blocks' ) }
+					toggleValue={ enableTopDivider }
+					setToggleValue={ ( value ) =>
+						setAttributes( { enableTopDivider: value } )
+					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
+				/>
+				{ enableTopDivider?.[ deviceType ] && (
+					<>
+						<SelectControls
+							label={ __( 'Divider Shape', 'gslider-blocks' ) }
+							options={ SHAPE_DIVIDER_OPTIONS }
+							value={ topDividerShape }
+							onChange={ ( value ) =>
+								setAttributes( { topDividerShape: value } )
+							}
+						/>
+						<ColorControl
+							label={ __( 'Divider Color', 'gslider-blocks' ) }
+							color={ topDividerColor }
+							onChangeColor={ ( value ) =>
+								setAttributes( { topDividerColor: value } )
+							}
+							defaultColor="#ffffff"
+						/>
+						<ResponsiveRangeControl
+							min={ 10 }
+							max={ 300 }
+							label={ __(
+								'Divider Height (px)',
+								'gslider-blocks'
+							) }
+							rangeValue={ topDividerHeight }
+							onChangeValue={ ( value ) =>
+								setAttributes( { topDividerHeight: value } )
+							}
+							deviceType={ deviceType }
+							step={ 1 }
+							resetFallbackValue={ '50' }
+							isRangeUnit={ false }
+						/>
+						<ResponsiveToggleControl
+							label={ __(
+								'Flip Horizontally',
+								'gslider-blocks'
+							) }
+							toggleValue={ topDividerFlip }
+							setToggleValue={ ( value ) =>
+								setAttributes( { topDividerFlip: value } )
+							}
+							deviceType={ deviceType }
+							setAttributes={ setAttributes }
+						/>
+						<ResponsiveToggleControl
+							label={ __(
+								'Invert Vertically',
+								'gslider-blocks'
+							) }
+							toggleValue={ topDividerInvert }
+							setToggleValue={ ( value ) =>
+								setAttributes( { topDividerInvert: value } )
+							}
+							deviceType={ deviceType }
+							setAttributes={ setAttributes }
+						/>
+					</>
+				) }
+				<ResponsiveToggleControl
+					label={ __( 'Bottom Shape Divider', 'gslider-blocks' ) }
+					toggleValue={ enableBottomDivider }
+					setToggleValue={ ( value ) =>
+						setAttributes( { enableBottomDivider: value } )
+					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
+				/>
+				{ enableBottomDivider?.[ deviceType ] && (
+					<>
+						<SelectControls
+							label={ __( 'Divider Shape', 'gslider-blocks' ) }
+							options={ SHAPE_DIVIDER_OPTIONS }
+							value={ bottomDividerShape }
+							onChange={ ( value ) =>
+								setAttributes( { bottomDividerShape: value } )
+							}
+						/>
+						<ColorControl
+							label={ __( 'Divider Color', 'gslider-blocks' ) }
+							color={ bottomDividerColor }
+							onChangeColor={ ( value ) =>
+								setAttributes( { bottomDividerColor: value } )
+							}
+							defaultColor="#ffffff"
+						/>
+						<ResponsiveRangeControl
+							min={ 10 }
+							max={ 300 }
+							label={ __(
+								'Divider Height (px)',
+								'gslider-blocks'
+							) }
+							rangeValue={ bottomDividerHeight }
+							onChangeValue={ ( value ) =>
+								setAttributes( { bottomDividerHeight: value } )
+							}
+							deviceType={ deviceType }
+							step={ 1 }
+							resetFallbackValue={ '50' }
+							isRangeUnit={ false }
+						/>
+						<ResponsiveToggleControl
+							label={ __(
+								'Flip Horizontally',
+								'gslider-blocks'
+							) }
+							toggleValue={ bottomDividerFlip }
+							setToggleValue={ ( value ) =>
+								setAttributes( { bottomDividerFlip: value } )
+							}
+							deviceType={ deviceType }
+							setAttributes={ setAttributes }
+						/>
+						<ResponsiveToggleControl
+							label={ __(
+								'Invert Vertically',
+								'gslider-blocks'
+							) }
+							toggleValue={ bottomDividerInvert }
+							setToggleValue={ ( value ) =>
+								setAttributes( { bottomDividerInvert: value } )
+							}
+							deviceType={ deviceType }
+							setAttributes={ setAttributes }
+						/>
+					</>
+				) }
+			</PanelBody>
 		</>
 	);
 
