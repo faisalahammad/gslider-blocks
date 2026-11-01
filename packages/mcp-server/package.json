@@ -48,7 +48,8 @@
     "watch": "tsc --watch",
     "start": "node dist/index.js",
     "prepare": "npm run build",
-    "test:generate": "node scripts/test-generate.js"
+    "test:generate": "node scripts/test-generate.js",
+    "test:patterns": "node scripts/test-patterns.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1",

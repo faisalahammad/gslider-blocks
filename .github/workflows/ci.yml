@@ -49,6 +49,9 @@ jobs:
       - name: Run MCP Block Generation Test
         run: npm --prefix packages/mcp-server run test:generate
 
+      - name: Validate Bundled Block Patterns
+        run: npm --prefix packages/mcp-server run test:patterns
+
       - name: Verify Committed MCP Schemas Match a Fresh Extract
         run: |
           if ! git diff --exit-code -- packages/mcp-server/src/core/schemas packages/mcp-server/dist/core/schemas packages/mcp-server/dist/blocks; then
