@@ -212,7 +212,7 @@ class FontLoaderTest {
 		);
 		$loader->fonts_loader();
 
-		$this->assert_font_url( 'Lato:400|Open+Sans:600italic', 'Font' );
+		$this->assert_font_url( 'Lato:400|Open Sans:600italic', 'Font' );
 		echo "OK: Font URL sorts families, encodes spaces, adds italic variants and falls back to 400\n";
 
 		global $enqueued_styles;
@@ -390,8 +390,9 @@ class FontLoaderTest {
 	 *
 	 * The raw URL is parsed, so host, path and each query parameter are
 	 * checked on their own. A family value cannot fake the display parameter.
+	 * The raw URL must not contain spaces, since family names use '+'.
 	 *
-	 * @param string $family  Expected decoded family parameter.
+	 * @param string $family  Expected decoded family parameter, where '+' reads as a space.
 	 * @param string $context Scenario name for the failure message.
 	 * @return void
 	 */
@@ -410,6 +411,8 @@ class FontLoaderTest {
 		}
 
 		$valid = is_array( $parts )
+			&& false === strpos( $src, ' ' )
+			&& ( ! isset( $parts['scheme'] ) || 'https' === $parts['scheme'] )
 			&& 'fonts.googleapis.com' === ( $parts['host'] ?? '' )
 			&& '/css' === ( $parts['path'] ?? '' )
 			&& [ 'family' => $family, 'display' => 'swap' ] === $query;
