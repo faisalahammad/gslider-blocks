@@ -129,7 +129,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const devices = sliderContainer.dataset.cursorFollower.split( ' ' );
 		// Clicks on these keep their own action, the follower hides over them
 		const interactiveSelector =
-			'a, button, input, select, textarea, label, summary, iframe, video, [role="button"], .swiper-pagination';
+			'a, button, input, select, textarea, label, summary, iframe, video, [role="button"], [contenteditable], .swiper-pagination';
 
 		const follower = document.createElement( 'div' );
 		follower.className = 'gslider-cursor-follower';
@@ -142,6 +142,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		// Nested sliders and buttons inside slides handle the pointer themselves
 		const isFreeArea = ( target ) =>
+			!! target &&
 			target.closest( '.swiper' ) === swiperElement &&
 			! target.closest( interactiveSelector );
 
@@ -152,10 +153,16 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		const render = () => {
 			frame = 0;
+			// Look up the element again, the slide under a still mouse can change
 			const active =
 				pointer &&
 				devices.includes( getCurrentDevice() ) &&
-				isFreeArea( pointer.target );
+				isFreeArea(
+					document.elementFromPoint(
+						pointer.clientX,
+						pointer.clientY
+					)
+				);
 
 			swiperElement.classList.toggle( 'gslider-cursor-active', active );
 			if ( ! active ) {
@@ -194,6 +201,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			pointer = null;
 			scheduleRender();
 		} );
+
+		swiper.on( 'slideChangeTransitionEnd', scheduleRender );
 
 		swiperElement.addEventListener( 'click', ( event ) => {
 			// allowClick is false right after a drag, the drag already moved the slide

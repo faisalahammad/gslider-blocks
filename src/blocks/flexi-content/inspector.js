@@ -550,7 +550,9 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					deviceType={ deviceType }
 					setAttributes={ setAttributes }
 				/>
-				{ enableCursorFollower?.[ deviceType ] && (
+				{ Object.values( enableCursorFollower || {} ).some(
+					Boolean
+				) && (
 					<>
 						<ColorControl
 							label={ __(
