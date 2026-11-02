@@ -1317,6 +1317,22 @@ var attributes = {
       Mobile: "50"
     }
   },
+  topDividerHeightUnits: {
+    type: "object",
+    default: {
+      Desktop: "px",
+      Tablet: "px",
+      Mobile: "px"
+    }
+  },
+  topDividerOpacity: {
+    type: "object",
+    default: {
+      Desktop: 1,
+      Tablet: 1,
+      Mobile: 1
+    }
+  },
   topDividerFlip: {
     type: "object",
     default: {
@@ -1355,6 +1371,22 @@ var attributes = {
       Desktop: "50",
       Tablet: "50",
       Mobile: "50"
+    }
+  },
+  bottomDividerHeightUnits: {
+    type: "object",
+    default: {
+      Desktop: "px",
+      Tablet: "px",
+      Mobile: "px"
+    }
+  },
+  bottomDividerOpacity: {
+    type: "object",
+    default: {
+      Desktop: 1,
+      Tablet: 1,
+      Mobile: 1
     }
   },
   bottomDividerFlip: {
@@ -1941,6 +1973,10 @@ var SHAPE_DIVIDER_OPTIONS = [
   { label: (0, import_i18n2.__)("Zigzag", "gslider-blocks"), value: "zigzag" },
   { label: (0, import_i18n2.__)("Scallops", "gslider-blocks"), value: "scallops" }
 ];
+var SHAPE_DIVIDER_POSITION = [
+  { label: (0, import_i18n2.__)("Top", "gslider-blocks"), value: "top" },
+  { label: (0, import_i18n2.__)("Bottom", "gslider-blocks"), value: "bottom" }
+];
 var SHAPE_DIVIDER_PATHS = {
   "wave-1": "M0,0 V40 C150,90 350,90 500,50 C650,10 850,10 1000,60 V0 Z",
   "wave-2": "M0,0 V50 Q125,100 250,50 T500,50 T750,50 T1000,50 V0 Z",
@@ -2329,7 +2365,7 @@ var getResponsiveOutsideOffset = (offsetObj, unitObj, devices) => {
   return "30px";
 };
 var getShapeDividerCss = (blockId, position, divider, device) => {
-  const { enable, color, height, flip, invert } = divider;
+  const { enable, color, height, heightUnits, opacity, flip, invert } = divider;
   const selector = `.${blockId} > .swiper > .gslider-shape-divider-${position}`;
   if (!enable?.Desktop && !enable?.Tablet && !enable?.Mobile) {
     return "";
@@ -2340,13 +2376,13 @@ var getShapeDividerCss = (blockId, position, divider, device) => {
   const scaleX = flip?.[device] ? -1 : 1;
   const isInverted = !!invert?.[device];
   const scaleY = (isInverted ? -1 : 1) * (position === "bottom" ? -1 : 1);
+  const opacityValue = opacity?.[device];
   return `
 		${selector} {
 			display: block;
 			transform: scale(${scaleX}, ${scaleY});
-		}
-		${selector} svg {
-			${height?.[device] ? `height: ${height[device]}px;` : ""}
+			${height?.[device] ? `height: ${height[device]}${heightUnits?.[device] || "px"};` : ""}
+			${opacityValue !== void 0 && opacityValue !== "" ? `opacity: ${opacityValue};` : ""}
 		}
 		${selector} path {
 			fill: ${color || "#ffffff"};
@@ -2697,11 +2733,15 @@ var generateFlexiContentStyle = (attributes2) => {
     enableTopDivider,
     topDividerColor,
     topDividerHeight,
+    topDividerHeightUnits,
+    topDividerOpacity,
     topDividerFlip,
     topDividerInvert,
     enableBottomDivider,
     bottomDividerColor,
     bottomDividerHeight,
+    bottomDividerHeightUnits,
+    bottomDividerOpacity,
     bottomDividerFlip,
     bottomDividerInvert
     /** End Shape Dividers */
@@ -2710,6 +2750,8 @@ var generateFlexiContentStyle = (attributes2) => {
     enable: enableTopDivider,
     color: topDividerColor,
     height: topDividerHeight,
+    heightUnits: topDividerHeightUnits,
+    opacity: topDividerOpacity,
     flip: topDividerFlip,
     invert: topDividerInvert
   };
@@ -2717,6 +2759,8 @@ var generateFlexiContentStyle = (attributes2) => {
     enable: enableBottomDivider,
     color: bottomDividerColor,
     height: bottomDividerHeight,
+    heightUnits: bottomDividerHeightUnits,
+    opacity: bottomDividerOpacity,
     flip: bottomDividerFlip,
     invert: bottomDividerInvert
   };

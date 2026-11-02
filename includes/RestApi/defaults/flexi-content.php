@@ -612,6 +612,16 @@ return [
 		'Tablet' => '50',
 		'Mobile' => '50',
 	],
+	'topDividerHeightUnits' => [
+		'Desktop' => 'px',
+		'Tablet' => 'px',
+		'Mobile' => 'px',
+	],
+	'topDividerOpacity' => [
+		'Desktop' => 1,
+		'Tablet' => 1,
+		'Mobile' => 1,
+	],
 	'topDividerFlip' => [
 		'Desktop' => false,
 		'Tablet' => false,
@@ -633,6 +643,16 @@ return [
 		'Desktop' => '50',
 		'Tablet' => '50',
 		'Mobile' => '50',
+	],
+	'bottomDividerHeightUnits' => [
+		'Desktop' => 'px',
+		'Tablet' => 'px',
+		'Mobile' => 'px',
+	],
+	'bottomDividerOpacity' => [
+		'Desktop' => 1,
+		'Tablet' => 1,
+		'Mobile' => 1,
 	],
 	'bottomDividerFlip' => [
 		'Desktop' => false,

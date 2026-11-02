@@ -42,7 +42,8 @@ const getResponsiveOutsideOffset = ( offsetObj, unitObj, devices ) => {
 };
 
 const getShapeDividerCss = ( blockId, position, divider, device ) => {
-	const { enable, color, height, flip, invert } = divider;
+	const { enable, color, height, heightUnits, opacity, flip, invert } =
+		divider;
 	const selector = `.${ blockId } > .swiper > .gslider-shape-divider-${ position }`;
 
 	// No markup is saved when every device is off, so skip the CSS too.
@@ -58,14 +59,24 @@ const getShapeDividerCss = ( blockId, position, divider, device ) => {
 	const isInverted = !! invert?.[ device ];
 	// Bottom divider is the top shape flipped vertically only, so Flip means the same on both edges.
 	const scaleY = ( isInverted ? -1 : 1 ) * ( position === 'bottom' ? -1 : 1 );
+	const opacityValue = opacity?.[ device ];
 
 	return `
 		${ selector } {
 			display: block;
 			transform: scale(${ scaleX }, ${ scaleY });
-		}
-		${ selector } svg {
-			${ height?.[ device ] ? `height: ${ height[ device ] }px;` : '' }
+			${
+				height?.[ device ]
+					? `height: ${ height[ device ] }${
+							heightUnits?.[ device ] || 'px'
+					  };`
+					: ''
+			}
+			${
+				opacityValue !== undefined && opacityValue !== ''
+					? `opacity: ${ opacityValue };`
+					: ''
+			}
 		}
 		${ selector } path {
 			fill: ${ color || '#ffffff' };
@@ -470,11 +481,15 @@ const generateFlexiContentStyle = ( attributes ) => {
 		enableTopDivider,
 		topDividerColor,
 		topDividerHeight,
+		topDividerHeightUnits,
+		topDividerOpacity,
 		topDividerFlip,
 		topDividerInvert,
 		enableBottomDivider,
 		bottomDividerColor,
 		bottomDividerHeight,
+		bottomDividerHeightUnits,
+		bottomDividerOpacity,
 		bottomDividerFlip,
 		bottomDividerInvert,
 		/** End Shape Dividers */
@@ -484,6 +499,8 @@ const generateFlexiContentStyle = ( attributes ) => {
 		enable: enableTopDivider,
 		color: topDividerColor,
 		height: topDividerHeight,
+		heightUnits: topDividerHeightUnits,
+		opacity: topDividerOpacity,
 		flip: topDividerFlip,
 		invert: topDividerInvert,
 	};
@@ -491,6 +508,8 @@ const generateFlexiContentStyle = ( attributes ) => {
 		enable: enableBottomDivider,
 		color: bottomDividerColor,
 		height: bottomDividerHeight,
+		heightUnits: bottomDividerHeightUnits,
+		opacity: bottomDividerOpacity,
 		flip: bottomDividerFlip,
 		invert: bottomDividerInvert,
 	};

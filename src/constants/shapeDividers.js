@@ -16,6 +16,30 @@ export const SHAPE_DIVIDER_OPTIONS = [
 	{ label: __( 'Scallops', 'gslider-blocks' ), value: 'scallops' },
 ];
 
+export const SHAPE_DIVIDER_POSITION = [
+	{ label: __( 'Top', 'gslider-blocks' ), value: 'top' },
+	{ label: __( 'Bottom', 'gslider-blocks' ), value: 'bottom' },
+];
+
+// Per unit limits, so a % or vh height can't grow past the slider.
+export const SHAPE_DIVIDER_HEIGHT_BOUNDS = {
+	px: { min: 10, max: 500, step: 1 },
+	'%': { min: 1, max: 100, step: 1 },
+	vh: { min: 1, max: 100, step: 1 },
+	vw: { min: 1, max: 100, step: 1 },
+	em: { min: 1, max: 30, step: 0.5 },
+	rem: { min: 1, max: 30, step: 0.5 },
+};
+
+export const SHAPE_DIVIDER_HEIGHT_FALLBACK = {
+	px: '50',
+	'%': '10',
+	vh: '10',
+	vw: '10',
+	em: '3',
+	rem: '3',
+};
+
 // All paths use viewBox "0 0 1000 100" and fill from the top edge.
 export const SHAPE_DIVIDER_PATHS = {
 	'wave-1': 'M0,0 V40 C150,90 350,90 500,50 C650,10 850,10 1000,60 V0 Z',

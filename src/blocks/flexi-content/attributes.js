@@ -1274,6 +1274,22 @@ const attributes = {
 			Mobile: '50',
 		},
 	},
+	topDividerHeightUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	topDividerOpacity: {
+		type: 'object',
+		default: {
+			Desktop: 1,
+			Tablet: 1,
+			Mobile: 1,
+		},
+	},
 	topDividerFlip: {
 		type: 'object',
 		default: {
@@ -1312,6 +1328,22 @@ const attributes = {
 			Desktop: '50',
 			Tablet: '50',
 			Mobile: '50',
+		},
+	},
+	bottomDividerHeightUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	bottomDividerOpacity: {
+		type: 'object',
+		default: {
+			Desktop: 1,
+			Tablet: 1,
+			Mobile: 1,
 		},
 	},
 	bottomDividerFlip: {
