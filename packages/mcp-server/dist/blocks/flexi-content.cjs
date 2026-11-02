@@ -2638,7 +2638,7 @@ var generateFlexiContentStyle = (attributes2) => {
   const globalMobileBackgroundHoverStyles = globalBackgroundStyleObjectToString(
     getGlobalBackgroundHoverStyles("Mobile")
   );
-  const getCardsShadowCss = (device) => sliderType === "slider" && slideEffect === "cards" ? `.${blockId} .swiper-slide-shadow-cards { display: ${cardsSlideShadows?.[device] === false ? "none" : "block"}; }` : "";
+  const getCardsShadowCss = (device) => sliderType === "slider" && slideEffect === "cards" ? `.${blockId} > .swiper > .swiper-wrapper > .swiper-slide > .swiper-slide-shadow-cards { display: ${cardsSlideShadows?.[device] === false ? "none" : "block"}; }` : "";
   const flexiContentCSS = `
         .${blockId}.gslider-flexi-content-wrapper {
             ${globalDesktopBackgroundNormalStyles}
