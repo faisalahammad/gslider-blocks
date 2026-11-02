@@ -75,7 +75,22 @@ const getAutoplayProgressCss = ( blockId, enabled, color, height ) => {
     `;
 
 	return `
+        .${ blockId } > .swiper > .gslider-autoplay-progress {
+            position: absolute;
+            left: 0;
+            z-index: 10;
+            width: 100%;
+            pointer-events: none;
+        }
+        .${ blockId } > .swiper > .gslider-autoplay-progress.top {
+            top: 0;
+        }
+        .${ blockId } > .swiper > .gslider-autoplay-progress.bottom {
+            bottom: 0;
+        }
         .${ blockId } > .swiper > .gslider-autoplay-progress > .gslider-autoplay-progress-fill {
+            width: 0;
+            height: 100%;
             ${ color ? `background-color: ${ color };` : '' }
         }
         ${ deviceRule( 'Desktop' ) }
