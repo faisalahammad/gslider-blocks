@@ -2253,6 +2253,11 @@ var getAutoplayProgressCss = (blockId, enabled, color, height) => {
         @media only screen and (max-width: 767px) {
             ${deviceRule("Mobile")}
         }
+        @media (prefers-reduced-motion: reduce) {
+            .${blockId} > .swiper > .gslider-autoplay-progress {
+                display: none;
+            }
+        }
     `;
 };
 var generateFlexiContentStyle = (attributes2) => {
