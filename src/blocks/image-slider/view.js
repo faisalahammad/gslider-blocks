@@ -14,7 +14,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	/**
 	 * Block lightbox clicks on devices where the lightbox is off,
-	 * and open the custom image link there when one is saved.
+	 * and open the custom image link there when one is saved (left or middle click).
 	 *
 	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
 	 */
@@ -29,36 +29,62 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		const devices = sliderContainer.dataset.slideLightbox.split( ' ' );
 
+		const openImageLink = ( event ) => {
+			// auxclick also fires for the right button, only handle middle click
+			if ( event.type === 'auxclick' && event.button !== 1 ) {
+				return;
+			}
+
+			const link = event.target.closest( '[data-fslightbox]' );
+			if ( ! link || devices.includes( getCurrentDevice() ) ) {
+				return;
+			}
+
+			event.stopImmediatePropagation();
+			// The link points to the image file, so do not open it either
+			event.preventDefault();
+
+			const { imageLink, imageLinkTarget, imageLinkRel } = link.dataset;
+			if ( ! imageLink ) {
+				return;
+			}
+
+			// data-* values skip the KSES protocol check, so never open javascript: or data: URLs
+			let url;
+			try {
+				url = new URL( imageLink, document.baseURI );
+			} catch ( error ) {
+				return;
+			}
+			if (
+				! [ 'http:', 'https:', 'mailto:', 'tel:' ].includes(
+					url.protocol
+				)
+			) {
+				return;
+			}
+
+			// Middle click opens a new tab, like on a normal link
+			const target =
+				event.type === 'auxclick'
+					? '_blank'
+					: imageLinkTarget || '_self';
+			const rels = ( imageLinkRel || '' ).split( ' ' );
+			// Unlike a target="_blank" link, window.open does not imply noopener
+			if ( target === '_blank' ) {
+				rels.push( 'noopener' );
+			}
+
+			// window.open takes noopener and noreferrer as features, not as rel
+			const features = [ 'noopener', 'noreferrer' ]
+				.filter( ( rel ) => rels.includes( rel ) )
+				.join( ',' );
+			window.open( url.href, target, features );
+		};
+
 		// Capture on the wrapper runs before the fsLightbox onclick on the link
-		sliderContainer.addEventListener(
-			'click',
-			( event ) => {
-				const link = event.target.closest( '[data-fslightbox]' );
-				if ( ! link || devices.includes( getCurrentDevice() ) ) {
-					return;
-				}
-
-				event.stopImmediatePropagation();
-				// The link points to the image file, so do not open it either
-				event.preventDefault();
-
-				const { imageLink, imageLinkTarget, imageLinkRel } =
-					link.dataset;
-				if ( ! imageLink ) {
-					return;
-				}
-
-				// window.open takes noopener and noreferrer as features, not as rel
-				const features = ( imageLinkRel || '' )
-					.split( ' ' )
-					.filter( ( rel ) =>
-						[ 'noopener', 'noreferrer' ].includes( rel )
-					)
-					.join( ',' );
-				window.open( imageLink, imageLinkTarget || '_self', features );
-			},
-			true
-		);
+		sliderContainer.addEventListener( 'click', openImageLink, true );
+		sliderContainer.addEventListener( 'auxclick', openImageLink, true );
 	};
 
 	const initializeSliders = () => {
