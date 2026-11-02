@@ -17,6 +17,7 @@ export default function Save( { attributes } ) {
 		reverseDirection,
 		carouselEffect,
 		slideEffect,
+		enableParallax,
 		mousewheelControl,
 		keyboardNavigation,
 		paginationType,
@@ -80,6 +81,16 @@ export default function Save( { attributes } ) {
 		paginationEnabled.Tablet ||
 		paginationEnabled.Desktop;
 
+	const parallaxEnabled = {
+		Mobile: !! enableParallax?.Mobile,
+		Tablet: !! enableParallax?.Tablet,
+		Desktop: !! enableParallax?.Desktop,
+	};
+	const anyParallaxEnabled =
+		parallaxEnabled.Mobile ||
+		parallaxEnabled.Tablet ||
+		parallaxEnabled.Desktop;
+
 	// Only output the attribute when enabled, so markup of existing blocks stays the same
 	const lightboxDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
 		.filter( ( device ) => enableSlideLightbox?.[ device ] === true )
@@ -104,6 +115,9 @@ export default function Save( { attributes } ) {
 					: false,
 				navigation: { enabled: navigationEnabled.Mobile },
 				pagination: { enabled: paginationEnabled.Mobile },
+				...( anyParallaxEnabled && {
+					parallax: { enabled: parallaxEnabled.Mobile },
+				} ),
 			},
 			768: {
 				...( sliderType === 'carousel' && {
@@ -118,6 +132,9 @@ export default function Save( { attributes } ) {
 					: false,
 				navigation: { enabled: navigationEnabled.Tablet },
 				pagination: { enabled: paginationEnabled.Tablet },
+				...( anyParallaxEnabled && {
+					parallax: { enabled: parallaxEnabled.Tablet },
+				} ),
 			},
 			1025: {
 				...( sliderType === 'carousel' && {
@@ -132,6 +149,9 @@ export default function Save( { attributes } ) {
 					: false,
 				navigation: { enabled: navigationEnabled.Desktop },
 				pagination: { enabled: paginationEnabled.Desktop },
+				...( anyParallaxEnabled && {
+					parallax: { enabled: parallaxEnabled.Desktop },
+				} ),
 			},
 		},
 
@@ -174,6 +194,12 @@ export default function Save( { attributes } ) {
 				paginationType === 'bullets' ? dynamicBullets : false,
 			clickable: true,
 		},
+
+		// Only saved when enabled, so markup of existing blocks stays the same.
+		// On at init so Swiper tracks slide progress, breakpoints turn it off per device.
+		...( anyParallaxEnabled && {
+			parallax: { enabled: true },
+		} ),
 
 		// Creative effect settings if needed
 		...( slideEffect === 'creative' && {

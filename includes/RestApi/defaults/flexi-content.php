@@ -58,6 +58,11 @@ return [
 	'reverseDirection' => false,
 	'slideEffect' => 'slide',
 	'carouselEffect' => 'slide',
+	'enableParallax' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
 	'mousewheelControl' => false,
 	'keyboardNavigation' => false,
 	'paginationType' => 'bullets',

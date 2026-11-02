@@ -23,7 +23,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 261,
+  "totalAttributes": 262,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -264,6 +264,14 @@
     "carouselEffect": {
       "type": "string",
       "default": "slide"
+    },
+    "enableParallax": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
     },
     "mousewheelControl": {
       "type": "boolean",

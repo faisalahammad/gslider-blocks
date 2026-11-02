@@ -81,6 +81,14 @@ const attributes = {
 		type: 'string',
 		default: 'slide',
 	},
+	enableParallax: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
 	mousewheelControl: {
 		type: 'boolean',
 		default: false,

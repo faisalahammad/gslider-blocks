@@ -67,6 +67,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		reverseDirection,
 		slideEffect,
 		carouselEffect,
+		enableParallax,
 		mousewheelControl,
 		keyboardNavigation,
 		paginationType,
@@ -495,6 +496,19 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	};
 	/** End Navigation Custom Arrows */
 
+	// Same toggle for the Slider and Carousel effect panels
+	const parallaxToggle = (
+		<ResponsiveToggleControl
+			label={ __( 'Enable Parallax Depth', 'gslider-blocks' ) }
+			toggleValue={ enableParallax }
+			setToggleValue={ ( value ) =>
+				setAttributes( { enableParallax: value } )
+			}
+			deviceType={ deviceType }
+			setAttributes={ setAttributes }
+		/>
+	);
+
 	/**
 	 * Inspector General Controls
 	 */
@@ -811,6 +825,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 							setAttributes( { carouselEffect: value } )
 						}
 					/>
+					{ parallaxToggle }
 				</PanelBody>
 			) }
 			{ sliderType === 'slider' && (
@@ -827,6 +842,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 							setAttributes( { slideEffect: value } )
 						}
 					/>
+					{ parallaxToggle }
 				</PanelBody>
 			) }
 
