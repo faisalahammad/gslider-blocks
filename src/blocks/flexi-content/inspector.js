@@ -20,6 +20,7 @@ import {
 	NORMAL_HOVER,
 	BORDER_STYLES,
 	SLIDER_EFFECT_OPTIONS,
+	CREATIVE_PRESET_OPTIONS,
 	CAROUSEL_EFFECT_OPTIONS,
 	SLIDER_TYPE,
 	PAGINATION_TYPE,
@@ -66,6 +67,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		stopOnLastSlide,
 		reverseDirection,
 		slideEffect,
+		creativePreset,
 		carouselEffect,
 		mousewheelControl,
 		keyboardNavigation,
@@ -827,6 +829,16 @@ const Inspector = ( { attributes, setAttributes } ) => {
 							setAttributes( { slideEffect: value } )
 						}
 					/>
+					{ slideEffect === 'creative' && (
+						<SelectControls
+							label={ __( 'Creative Preset', 'gslider-blocks' ) }
+							options={ CREATIVE_PRESET_OPTIONS }
+							value={ creativePreset }
+							onChange={ ( value ) =>
+								setAttributes( { creativePreset: value } )
+							}
+						/>
+					) }
 				</PanelBody>
 			) }
 

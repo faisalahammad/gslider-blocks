@@ -12,6 +12,7 @@ import { useEffect, useRef } from '@wordpress/element';
 import renderSVG from '@Components/icon-picker/components/icon-picker/controls/renderIcon';
 import SwitchToBlockSettings from '@Utils/switchToBlockSettings';
 import Inspector from './inspector';
+import { CREATIVE_PRESETS } from '@Constants/creativePresets';
 import useBlockIdGenerator from '@Utils/useBlockIdGenerator';
 import generateFlexiContentStyle from './styling';
 
@@ -40,6 +41,7 @@ export default function Edit( {
 		reverseDirection,
 		carouselEffect,
 		slideEffect,
+		creativePreset,
 		mousewheelControl,
 		keyboardNavigation,
 		paginationType,
@@ -207,10 +209,9 @@ export default function Edit( {
 				  }
 				: false,
 			...( slideEffect === 'creative' && {
-				creativeEffect: {
-					prev: { shadow: true, translate: [ 0, 0, -400 ] },
-					next: { translate: [ '100%', 0, 0 ] },
-				},
+				creativeEffect:
+					CREATIVE_PRESETS[ creativePreset ] ||
+					CREATIVE_PRESETS.classic,
 			} ),
 		};
 
@@ -232,6 +233,7 @@ export default function Edit( {
 		sliderType,
 		carouselEffect,
 		slideEffect,
+		creativePreset,
 		carouselPerColumn,
 		carouselPerColumnGap,
 		infiniteLoop,

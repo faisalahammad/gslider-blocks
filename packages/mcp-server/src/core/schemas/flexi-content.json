@@ -23,7 +23,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 261,
+  "totalAttributes": 262,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -51,6 +51,13 @@
       "flex-start",
       "center",
       "flex-end"
+    ],
+    "creativePreset": [
+      "classic",
+      "stack",
+      "tilt",
+      "depth",
+      "shift"
     ],
     "globalBorder": [
       "none",
@@ -260,6 +267,10 @@
     "slideEffect": {
       "type": "string",
       "default": "slide"
+    },
+    "creativePreset": {
+      "type": "string",
+      "default": "classic"
     },
     "carouselEffect": {
       "type": "string",

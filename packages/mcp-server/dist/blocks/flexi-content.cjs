@@ -154,6 +154,10 @@ var attributes = {
     type: "string",
     default: "slide"
   },
+  creativePreset: {
+    type: "string",
+    default: "classic"
+  },
   carouselEffect: {
     type: "string",
     default: "slide"
@@ -1841,6 +1845,54 @@ function renderSVG(svg, setAttributes = false, extraProps = {}) {
 }
 var renderIcon_default = renderSVG;
 
+// ../../src/constants/creativePresets.js
+var import_i18n2 = require("@wordpress/i18n");
+var CREATIVE_PRESET_OPTIONS = [
+  { label: (0, import_i18n2.__)("Classic", "gslider-blocks"), value: "classic" },
+  { label: (0, import_i18n2.__)("3D Stack", "gslider-blocks"), value: "stack" },
+  { label: (0, import_i18n2.__)("Dynamic Tilt", "gslider-blocks"), value: "tilt" },
+  { label: (0, import_i18n2.__)("Depth Flip", "gslider-blocks"), value: "depth" },
+  { label: (0, import_i18n2.__)("Minimal Shift", "gslider-blocks"), value: "shift" }
+];
+var CREATIVE_PRESETS = {
+  classic: {
+    prev: { shadow: true, translate: [0, 0, -400] },
+    next: { translate: ["100%", 0, 0] }
+  },
+  stack: {
+    prev: { shadow: true, translate: ["-120%", 0, -500] },
+    next: { shadow: true, translate: ["120%", 0, -500] }
+  },
+  tilt: {
+    prev: {
+      shadow: true,
+      translate: ["-20%", 0, -1],
+      rotate: [0, 0, -10]
+    },
+    next: {
+      shadow: true,
+      translate: ["100%", 0, 0],
+      rotate: [0, 0, 0]
+    }
+  },
+  depth: {
+    prev: {
+      shadow: true,
+      translate: [0, 0, -800],
+      rotate: [180, 0, 0]
+    },
+    next: {
+      shadow: true,
+      translate: [0, 0, -800],
+      rotate: [-180, 0, 0]
+    }
+  },
+  shift: {
+    prev: { shadow: false, translate: ["-20%", 0, -200], opacity: 0 },
+    next: { shadow: false, translate: ["100%", 0, 0], opacity: 1 }
+  }
+};
+
 // ../../src/blocks/flexi-content/save.js
 var import_jsx_runtime2 = require("react/jsx-runtime");
 function Save({ attributes: attributes2 }) {
@@ -1859,6 +1911,7 @@ function Save({ attributes: attributes2 }) {
     reverseDirection,
     carouselEffect,
     slideEffect,
+    creativePreset,
     mousewheelControl,
     keyboardNavigation,
     paginationType,
@@ -1974,10 +2027,7 @@ function Save({ attributes: attributes2 }) {
     },
     // Creative effect settings if needed
     ...slideEffect === "creative" && {
-      creativeEffect: {
-        prev: { shadow: true, translate: [0, 0, -400] },
-        next: { translate: ["100%", 0, 0] }
-      }
+      creativeEffect: CREATIVE_PRESETS[creativePreset] || CREATIVE_PRESETS.classic
     }
   });
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
