@@ -214,6 +214,14 @@ If you find **GSlider Blocks** valuable or use it in your projects, please consi
 - **Share it** with fellow WordPress developers, agencies, and friends.
 - **Contribute** code, docs, or ideas to our open [Good First Issues](https://github.com/noruzzamans/gslider-blocks/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [Help Wanted issues](https://github.com/noruzzamans/gslider-blocks/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22).
 
+> [!WARNING]
+> **Strict Policy for Code Contributors: DO NOT review or rate GSlider Blocks on WordPress.org!**  
+> Under official [WordPress.org Review Guidelines](https://wordpress.org/support/guidelines/#reviews), any contributor who has submitted code to a plugin or theme is considered to have a **Conflict of Interest (COI)** and is strictly prohibited from leaving reviews or ratings on the WordPress.org directory.
+>
+> - 🚫 **Zero Exceptions:** Even out of genuine enthusiasm, goodwill, or appreciation, please **DO NOT** post a review on WordPress.org.
+> - ⚠️ **Mandatory Reporting:** As the plugin maintainer, I am strictly obligated by WordPress.org community guidelines to report any contributor reviews to the WordPress.org support moderators for immediate removal and archival.
+> - ⭐ **Channel Your Support on GitHub:** If you want to show your appreciation and help the project grow, please give a **Star (⭐) on GitHub**, share the repository with fellow developers, or contribute to open issues!
+
 ---
 
 <a id="contributors"></a>
@@ -252,6 +260,9 @@ Thank you to all the amazing people who contribute to GSlider Blocks!
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/apps/dependabot"><img src="https://avatars.githubusercontent.com/in/29110?v=4" width="100px;" alt="dependabot[bot]"/><br /><sub><b>dependabot[bot]</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://amerta.pages.dev/"><img src="https://avatars.githubusercontent.com/u/122882415?v=4" width="100px;" alt="ptraaa"/><br /><sub><b>ptraaa</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://faisalahammad.com/"><img src="https://avatars.githubusercontent.com/u/13257516?v=4" width="100px;" alt="Faisal Ahammad"/><br /><sub><b>Faisal Ahammad</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://pralav-singh-portfolio.vercel.app/"><img src="https://avatars.githubusercontent.com/u/174412353?v=4" width="100px;" alt="Pralav Singh"/><br /><sub><b>Pralav Singh</b></sub></a></td>
     </tr>
   </tbody>
 </table>

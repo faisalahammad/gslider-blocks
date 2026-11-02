@@ -184,3 +184,15 @@ Ensure your PR satisfies:
 
 1. **Assignee:** Assign yourself to an issue before starting work.
 2. **Reviewer:** All PRs require at least **1 approving review** from `@noruzzamans` to merge.
+
+---
+
+## ⚖️ WordPress.org Review Policy & Conflict of Interest (COI)
+
+> [!WARNING]
+> **Strict Policy for Code Contributors: DO NOT review or rate GSlider Blocks on WordPress.org!**  
+> Under official [WordPress.org Review Guidelines](https://wordpress.org/support/guidelines/#reviews), any contributor who has submitted code to a plugin or theme is considered to have a **Conflict of Interest (COI)** and is strictly prohibited from leaving reviews or ratings on the WordPress.org directory.
+>
+> - 🚫 **Zero Exceptions:** Even out of genuine enthusiasm, goodwill, or appreciation, please **DO NOT** post a review on WordPress.org.
+> - ⚠️ **Mandatory Reporting:** As the plugin maintainer, I am strictly obligated by WordPress.org community guidelines to report any contributor reviews to the WordPress.org support moderators for immediate removal and archival.
+> - ⭐ **Channel Your Support on GitHub:** If you want to show your appreciation and help the project grow, please give a **Star (⭐) on GitHub**, share the repository with fellow developers, or contribute to open issues!

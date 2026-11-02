@@ -41,6 +41,7 @@ class FrontendAssets implements Registrable {
         // view scripts can declare Swiper as a real dependency.
         add_action( 'init', [ $this, 'register_vendor_scripts' ], 5 );
         add_action( 'enqueue_block_assets', [ $this, 'enqueue_assets' ] );
+        add_filter( 'render_block_gslider-blocks/flexi-content', [ $this, 'enqueue_slide_lightbox' ], 10, 2 );
     }
 
     /**
@@ -100,5 +101,26 @@ class FrontendAssets implements Registrable {
         if ( is_admin() ) {
             wp_enqueue_script( 'gslider-blocks-fslightbox-script' );
         }
+    }
+
+    /**
+     * Enqueues fsLightbox only for Flexi Content sliders with the image lightbox on.
+     *
+     * Keeps the script off pages where no slider uses the lightbox.
+     *
+     * @since 1.2.2
+     *
+     * @param string|null $block_content Rendered block HTML.
+     * @param array       $block         Parsed block.
+     * @return string|null Unchanged block HTML.
+     */
+    public function enqueue_slide_lightbox( ?string $block_content, array $block ): ?string {
+        $lightbox = $block['attrs']['enableSlideLightbox'] ?? [];
+
+        if ( is_array( $lightbox ) && in_array( true, $lightbox, true ) ) {
+            wp_enqueue_script( 'gslider-blocks-fslightbox-script' );
+        }
+
+        return $block_content;
     }
 }

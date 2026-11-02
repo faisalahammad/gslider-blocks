@@ -144,10 +144,6 @@
 	}
 }
 
-:where(.wp-site-blocks *:focus) {
-	outline-width: 0 !important;
-}
-
 // Popover styles - WordPress renders popover in fallback container
 .components-popover__fallback-container {
 

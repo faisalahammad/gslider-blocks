@@ -76,6 +76,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		/** Start Show/Hide Elements */
 		showNavigation,
 		showPagination,
+		enableSlideLightbox,
 		paginationPositionType,
 		/** End Show/Hide Elements */
 
@@ -536,6 +537,15 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					toggleValue={ showPagination }
 					setToggleValue={ ( value ) =>
 						setAttributes( { showPagination: value } )
+					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
+				/>
+				<ResponsiveToggleControl
+					label={ __( 'Enable Image Lightbox', 'gslider-blocks' ) }
+					toggleValue={ enableSlideLightbox }
+					setToggleValue={ ( value ) =>
+						setAttributes( { enableSlideLightbox: value } )
 					}
 					deviceType={ deviceType }
 					setAttributes={ setAttributes }

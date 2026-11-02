@@ -116,6 +116,14 @@ const attributes = {
 			Mobile: true,
 		},
 	},
+	enableSlideLightbox: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
 	paginationPositionType: {
 		type: 'string',
 		default: 'inside',

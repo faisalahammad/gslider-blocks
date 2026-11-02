@@ -8,6 +8,7 @@
  * 3. Frontend assets register Swiper CSS and deferred scripts (WP 6.3+ strategy).
  * 4. fsLightbox script is registered with defer strategy and enqueued only in admin.
  * 5. Plugin services array contains FrontendAssets::class.
+ * 6. fsLightbox is enqueued for Flexi Content only when the slide lightbox is on.
  *
  * @package GSlider\Tests\Assets
  */
@@ -48,6 +49,7 @@ class FrontendAssetsTest {
 		$this->test_enqueue_assets_registers_scripts_with_defer();
 		$this->test_vendor_scripts_not_registered_twice();
 		$this->test_fslightbox_admin_enqueue();
+		$this->test_slide_lightbox_enqueue();
 
 		echo "\nAll FrontendAssets unit tests passed successfully!\n";
 	}
@@ -228,6 +230,61 @@ class FrontendAssetsTest {
 		echo "OK: fsLightbox script is enqueued in admin\n";
 
 		$is_admin_mock = false;
+	}
+
+	/**
+	 * Test 6: Verify Flexi Content enqueues fsLightbox only when the slide lightbox is on.
+	 *
+	 * @return void
+	 */
+	public function test_slide_lightbox_enqueue(): void {
+		global $enqueued_scripts, $wp_filters;
+
+		$assets = FrontendAssets::getInstance();
+		$assets->register();
+
+		$hooked = false;
+		foreach ( $wp_filters['render_block_gslider-blocks/flexi-content'] ?? [] as $filter ) {
+			if ( is_array( $filter['callback'] ) && $filter['callback'][0] instanceof FrontendAssets && 'enqueue_slide_lightbox' === $filter['callback'][1] && 2 === $filter['accepted_args'] ) {
+				$hooked = true;
+			}
+		}
+		if ( ! $hooked ) {
+			fwrite( STDERR, "FAIL: enqueue_slide_lightbox is not hooked on render_block_gslider-blocks/flexi-content\n" );
+			exit( 1 );
+		}
+		echo "OK: enqueue_slide_lightbox hooked on render_block_gslider-blocks/flexi-content\n";
+
+		$off_blocks = [
+			[ 'attrs' => [] ],
+			[ 'attrs' => [ 'enableSlideLightbox' => [ 'Desktop' => false, 'Tablet' => false, 'Mobile' => false ] ] ],
+			[ 'attrs' => [ 'enableSlideLightbox' => 'true' ] ],
+		];
+		foreach ( $off_blocks as $block ) {
+			$enqueued_scripts = [];
+			$html             = $assets->enqueue_slide_lightbox( '<div>slider</div>', $block );
+
+			if ( '<div>slider</div>' !== $html ) {
+				fwrite( STDERR, "FAIL: enqueue_slide_lightbox changed the block content\n" );
+				exit( 1 );
+			}
+			if ( isset( $enqueued_scripts['gslider-blocks-fslightbox-script'] ) ) {
+				fwrite( STDERR, "FAIL: fsLightbox enqueued while the slide lightbox is off\n" );
+				exit( 1 );
+			}
+		}
+		echo "OK: fsLightbox is not enqueued when the slide lightbox is off\n";
+
+		$enqueued_scripts = [];
+		$assets->enqueue_slide_lightbox(
+			'<div>slider</div>',
+			[ 'attrs' => [ 'enableSlideLightbox' => [ 'Desktop' => false, 'Tablet' => false, 'Mobile' => true ] ] ]
+		);
+		if ( ! isset( $enqueued_scripts['gslider-blocks-fslightbox-script'] ) ) {
+			fwrite( STDERR, "FAIL: fsLightbox not enqueued when the slide lightbox is on\n" );
+			exit( 1 );
+		}
+		echo "OK: fsLightbox is enqueued when the slide lightbox is on for any device\n";
 	}
 }
 

@@ -72,6 +72,11 @@ return [
 		'Tablet' => true,
 		'Mobile' => true,
 	],
+	'enableSlideLightbox' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
 	'paginationPositionType' => 'inside',
 	'layoutHeightSwitcher' => 'fixed',
 	'layoutHeight' => [
