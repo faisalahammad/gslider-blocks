@@ -630,7 +630,9 @@ const generateFlexiContentStyle = ( attributes ) => {
 			Number( layoutHeight.Desktop ) > 0 &&
 			layoutHeightUnits.Desktop !== '%'
 				? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
-            height: ${ layoutHeight.Desktop }${ layoutHeightUnits.Desktop };
+            height: ${ layoutHeight.Desktop }${
+				layoutHeightUnits.Desktop || 'px'
+			};
         }`
 				: ''
 		}
@@ -1302,7 +1304,9 @@ const generateFlexiContentStyle = ( attributes ) => {
 				Number( layoutHeight.Tablet ) > 0 &&
 				layoutHeightUnits.Tablet !== '%'
 					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
-                height: ${ layoutHeight.Tablet }${ layoutHeightUnits.Tablet };
+                height: ${ layoutHeight.Tablet }${
+					layoutHeightUnits.Tablet || 'px'
+				};
             }`
 					: ''
 			}
@@ -1762,7 +1766,9 @@ const generateFlexiContentStyle = ( attributes ) => {
 				Number( layoutHeight.Mobile ) > 0 &&
 				layoutHeightUnits.Mobile !== '%'
 					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
-                height: ${ layoutHeight.Mobile }${ layoutHeightUnits.Mobile };
+                height: ${ layoutHeight.Mobile }${
+					layoutHeightUnits.Mobile || 'px'
+				};
             }`
 					: ''
 			}

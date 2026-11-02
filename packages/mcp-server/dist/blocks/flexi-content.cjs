@@ -2632,7 +2632,7 @@ var generateFlexiContentStyle = (attributes2) => {
         }
 
         ${direction === "vertical" && Number(layoutHeight.Desktop) > 0 && layoutHeightUnits.Desktop !== "%" ? `.${blockId}.gslider-flexi-content-wrapper > .swiper {
-            height: ${layoutHeight.Desktop}${layoutHeightUnits.Desktop};
+            height: ${layoutHeight.Desktop}${layoutHeightUnits.Desktop || "px"};
         }` : ""}
 
         .${blockId} .swiper-slide{
@@ -2908,7 +2908,7 @@ var generateFlexiContentStyle = (attributes2) => {
             }
 
             ${direction === "vertical" && Number(layoutHeight.Tablet) > 0 && layoutHeightUnits.Tablet !== "%" ? `.${blockId}.gslider-flexi-content-wrapper > .swiper {
-                height: ${layoutHeight.Tablet}${layoutHeightUnits.Tablet};
+                height: ${layoutHeight.Tablet}${layoutHeightUnits.Tablet || "px"};
             }` : ""}
 
             .${blockId} .swiper-slide{
@@ -3096,7 +3096,7 @@ var generateFlexiContentStyle = (attributes2) => {
             }
 
             ${direction === "vertical" && Number(layoutHeight.Mobile) > 0 && layoutHeightUnits.Mobile !== "%" ? `.${blockId}.gslider-flexi-content-wrapper > .swiper {
-                height: ${layoutHeight.Mobile}${layoutHeightUnits.Mobile};
+                height: ${layoutHeight.Mobile}${layoutHeightUnits.Mobile || "px"};
             }` : ""}
 
             .${blockId} .swiper-slide{
