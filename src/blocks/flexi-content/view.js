@@ -247,9 +247,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					const swiper = new Swiper( swiperElement, settings );
 					syncSlideVideos( swiper );
 					// slideChange pauses the old video before the transition starts,
-					// breakpoint covers a new slidesPerView on resize
+					// resize runs after Swiper re-measures, covers a new slidesPerView
 					swiper.on(
-						'slideChange slideChangeTransitionEnd breakpoint',
+						'slideChange slideChangeTransitionEnd resize',
 						syncSlideVideos
 					);
 				}
