@@ -94,19 +94,27 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const syncEmbedVideos = ( swiper ) => {
 		const hasVisibleVideo = pauseEmbedVideos( swiper );
 
-		if ( swiper.el.dataset.embedAutoplayStopped && ! hasVisibleVideo ) {
-			delete swiper.el.dataset.embedAutoplayStopped;
-			swiper.autoplay.start();
-
-			// start() ignores pause on hover, so hold it until the mouse leaves, touch has no real hover
-			if (
-				swiper.params.autoplay.pauseOnMouseEnter &&
-				swiper.el.matches( ':hover' ) &&
-				window.matchMedia( '(hover: hover)' ).matches
-			) {
-				swiper.autoplay.pause();
-			}
+		if ( ! swiper.el.dataset.embedAutoplayStopped || hasVisibleVideo ) {
+			return;
 		}
+
+		// start() ignores pause on hover, so wait until the mouse leaves, touch has no real hover.
+		// A paused autoplay would be resumed by the Swiper resize timeout.
+		if (
+			swiper.params.autoplay.pauseOnMouseEnter &&
+			swiper.el.matches( ':hover' ) &&
+			window.matchMedia( '(hover: hover)' ).matches
+		) {
+			swiper.el.addEventListener(
+				'pointerleave',
+				() => syncEmbedVideos( swiper ),
+				{ once: true }
+			);
+			return;
+		}
+
+		delete swiper.el.dataset.embedAutoplayStopped;
+		swiper.autoplay.start();
 	};
 
 	/**
@@ -141,9 +149,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		true
 	);
 
-	// A video that played to the end no longer needs the stopped autoplay
+	// A paused video no longer needs the stopped autoplay, pause also fires before ended
 	document.addEventListener(
-		'ended',
+		'pause',
 		( event ) => {
 			if ( ! event.target.matches?.( UPLOADED_VIDEO_SELECTOR ) ) {
 				return;
