@@ -265,6 +265,10 @@ export default function SortableItem( {
 											)
 										}
 										isImageSize={ false }
+										helpText={ __(
+											'Set the logo alt text (company name) in the Media Library so screen readers can announce it.',
+											'gslider-blocks'
+										) }
 									/>
 
 									<SwitcherControl

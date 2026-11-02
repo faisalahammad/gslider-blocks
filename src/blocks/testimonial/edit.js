@@ -136,10 +136,11 @@ export default function Edit( {
 	const paginationOutsideRef = useRef( null );
 
 	const authorImagePlaceholder = authorPlaceholderUrl;
-	// Editor only, save.js never renders a placeholder logo.
-	const companyLogoPlaceholder = window.GSliderBlocksData?.pluginUrl
-		? `${ window.GSliderBlocksData.pluginUrl }assets/images/company-logo-placeholder.svg`
-		: '';
+	// Editor only and only while selected, so existing blocks stay clean. save.js never renders a placeholder logo.
+	const companyLogoPlaceholder =
+		isSelected && window.GSliderBlocksData?.pluginUrl
+			? `${ window.GSliderBlocksData.pluginUrl }assets/images/company-logo-placeholder.svg`
+			: '';
 	const isCompanyLogoVisible =
 		showCompanyLogo?.Desktop ||
 		showCompanyLogo?.Tablet ||
