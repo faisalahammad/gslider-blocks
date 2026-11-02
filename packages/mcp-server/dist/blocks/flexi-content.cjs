@@ -1892,6 +1892,7 @@ var CREATIVE_PRESETS = {
     next: { shadow: false, translate: ["100%", 0, 0], opacity: 1 }
   }
 };
+var getCreativePreset = (preset) => Object.prototype.hasOwnProperty.call(CREATIVE_PRESETS, preset) ? CREATIVE_PRESETS[preset] : CREATIVE_PRESETS.classic;
 
 // ../../src/blocks/flexi-content/save.js
 var import_jsx_runtime2 = require("react/jsx-runtime");
@@ -2027,7 +2028,7 @@ function Save({ attributes: attributes2 }) {
     },
     // Creative effect settings if needed
     ...slideEffect === "creative" && {
-      creativeEffect: CREATIVE_PRESETS[creativePreset] || CREATIVE_PRESETS.classic
+      creativeEffect: getCreativePreset(creativePreset)
     }
   });
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(

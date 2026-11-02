@@ -47,3 +47,9 @@ export const CREATIVE_PRESETS = {
 		next: { shadow: false, translate: [ '100%', 0, 0 ], opacity: 1 },
 	},
 };
+
+// Own-property check so values like "toString" fall back to classic.
+export const getCreativePreset = ( preset ) =>
+	Object.prototype.hasOwnProperty.call( CREATIVE_PRESETS, preset )
+		? CREATIVE_PRESETS[ preset ]
+		: CREATIVE_PRESETS.classic;

@@ -12,7 +12,7 @@ import { useEffect, useRef } from '@wordpress/element';
 import renderSVG from '@Components/icon-picker/components/icon-picker/controls/renderIcon';
 import SwitchToBlockSettings from '@Utils/switchToBlockSettings';
 import Inspector from './inspector';
-import { CREATIVE_PRESETS } from '@Constants/creativePresets';
+import { getCreativePreset } from '@Constants/creativePresets';
 import useBlockIdGenerator from '@Utils/useBlockIdGenerator';
 import generateFlexiContentStyle from './styling';
 
@@ -144,9 +144,12 @@ export default function Edit( {
 			paginationOutsideRef.current.innerHTML = '';
 		}
 
-		// Swiper destroy keeps effect shadow nodes, remove them so a new preset starts clean
+		// Swiper destroy keeps effect shadow nodes, remove them so a new preset starts clean.
+		// Only this slider's own slides, so nested sliders keep their shadows.
 		swiperContainerRef.current
-			.querySelectorAll( '[class^="swiper-slide-shadow"]' )
+			.querySelectorAll(
+				':scope > .swiper-wrapper > .swiper-slide > [class^="swiper-slide-shadow"]'
+			)
 			.forEach( ( shadow ) => shadow.remove() );
 
 		// Build Swiper settings
@@ -214,9 +217,7 @@ export default function Edit( {
 				  }
 				: false,
 			...( slideEffect === 'creative' && {
-				creativeEffect:
-					CREATIVE_PRESETS[ creativePreset ] ||
-					CREATIVE_PRESETS.classic,
+				creativeEffect: getCreativePreset( creativePreset ),
 			} ),
 		};
 

@@ -1,6 +1,6 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import renderSVG from '@Components/icon-picker/components/icon-picker/controls/renderIcon';
-import { CREATIVE_PRESETS } from '@Constants/creativePresets';
+import { getCreativePreset } from '@Constants/creativePresets';
 
 export default function Save( { attributes } ) {
 	const {
@@ -179,8 +179,7 @@ export default function Save( { attributes } ) {
 
 		// Creative effect settings if needed
 		...( slideEffect === 'creative' && {
-			creativeEffect:
-				CREATIVE_PRESETS[ creativePreset ] || CREATIVE_PRESETS.classic,
+			creativeEffect: getCreativePreset( creativePreset ),
 		} ),
 	} );
 
