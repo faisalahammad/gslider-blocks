@@ -205,6 +205,10 @@ var attributes = {
     type: "number",
     default: 0
   },
+  backgroundVideoType: {
+    type: "string",
+    default: ""
+  },
   backgroundVideoPoster: {
     type: "string",
     default: ""

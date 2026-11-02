@@ -244,6 +244,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 								setAttributes( {
 									backgroundVideoUrl: media.url,
 									backgroundVideoId: media.id,
+									backgroundVideoType: media.mime || '',
 								} )
 							}
 							render={ ( { open } ) => (
@@ -271,6 +272,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 									setAttributes( {
 										backgroundVideoUrl: '',
 										backgroundVideoId: 0,
+										backgroundVideoType: '',
 									} )
 								}
 							>
