@@ -116,6 +116,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const syncSlideVideos = ( swiper ) => {
 		// Visible slides are next to each other in the DOM, loop mode too
 		const perView = Math.ceil( swiper.slidesPerViewDynamic() );
+		// Reduced motion users get the poster, no autoplay
+		const reduceMotion = window.matchMedia(
+			'(prefers-reduced-motion: reduce)'
+		).matches;
 
 		swiper.slides.forEach( ( slide, index ) => {
 			// Direct child only, videos of a nested slider belong to it
@@ -125,6 +129,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			}
 
 			if (
+				! reduceMotion &&
 				index >= swiper.activeIndex &&
 				index < swiper.activeIndex + perView
 			) {
@@ -241,9 +246,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					// Initialize Swiper with parsed settings
 					const swiper = new Swiper( swiperElement, settings );
 					syncSlideVideos( swiper );
-					// slideChange pauses the old video before the transition starts
+					// slideChange pauses the old video before the transition starts,
+					// breakpoint covers a new slidesPerView on resize
 					swiper.on(
-						'slideChange slideChangeTransitionEnd',
+						'slideChange slideChangeTransitionEnd breakpoint',
 						syncSlideVideos
 					);
 				}
