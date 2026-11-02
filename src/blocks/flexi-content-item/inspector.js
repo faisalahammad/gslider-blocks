@@ -1,11 +1,36 @@
-/* eslint-disable no-unused-vars, jsdoc/require-param, jsdoc/check-line-alignment, jsdoc/check-alignment, react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars, jsdoc/require-param, jsdoc/check-line-alignment, jsdoc/check-alignment, react-hooks/exhaustive-deps, import/no-unresolved */
 import { __ } from '@wordpress/i18n';
 import { useEffect, memo } from '@wordpress/element';
 import { PanelBody } from '@wordpress/components';
 import InspectorControl from '@Components/inspector-controls';
 import BackgroundControl from '@Components/background-control';
+import SwitcherControl from '@Components/switcher-control';
+import InputControls from '@Components/input-control';
+import { EMBED_VIDEO_TYPE } from '@Constants';
 import { useDeviceType } from '@Utils/displayType';
 import './editor.scss';
+
+const EMBED_VIDEO_ID_PATTERNS = {
+	// watch?v=, youtu.be/, shorts/, embed/ and live/ links
+	youtube:
+		/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/,
+	// vimeo.com/123, vimeo.com/channels/name/123 and player.vimeo.com/video/123 links, unlisted ones add a hash as /hash or ?h=hash
+	vimeo: /vimeo\.com\/(?:[^?#]*?\/)??(\d+)(?:\/([\da-f]+))?(?=[?#]|\/?$)(?:[^#]*[?&]h=([\da-f]+))?/,
+};
+
+/**
+ * Get the video ID from a YouTube or Vimeo URL.
+ *
+ * @param {string} type - Embed provider, youtube or vimeo.
+ * @param {string} url  - Video URL.
+ * @return {string} Video ID, "id/hash" for unlisted Vimeo videos, empty when the URL does not match.
+ */
+const getEmbedVideoId = ( type, url ) =>
+	url
+		?.match( EMBED_VIDEO_ID_PATTERNS[ type ] )
+		?.slice( 1 )
+		.filter( Boolean )
+		.join( '/' ) || '';
 
 const Inspector = ( { attributes, setAttributes } ) => {
 	const {
@@ -36,6 +61,11 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		sliderItemHoverBackgroundImageRepeat,
 		sliderItemHoverBackgroundImageSize,
 		/** End slider Item Background */
+
+		/** Start slider Item Embed Video */
+		embedVideoType,
+		embedVideoUrl,
+		/** End slider Item Embed Video */
 	} = attributes;
 
 	/** Get Current Device Type */
@@ -51,13 +81,42 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	 */
 	const generalControls = (
 		<>
-			<PanelBody title={ __( 'General', 'gslider-blocks' ) } initialOpen>
-				<p>
-					{ __(
-						'No settings available. Move to Style Tab',
-						'gslider-blocks'
-					) }
-				</p>
+			<PanelBody
+				title={ __( 'Embed Video', 'gslider-blocks' ) }
+				initialOpen
+			>
+				<SwitcherControl
+					label={ __( 'Embed Provider', 'gslider-blocks' ) }
+					options={ EMBED_VIDEO_TYPE }
+					value={ embedVideoType }
+					onChange={ ( value ) =>
+						setAttributes( {
+							embedVideoType: value,
+							embedVideoId: getEmbedVideoId(
+								value,
+								embedVideoUrl
+							),
+						} )
+					}
+				/>
+				<InputControls
+					label={ __( 'Video URL', 'gslider-blocks' ) }
+					value={ embedVideoUrl }
+					helpText={
+						embedVideoType === 'vimeo'
+							? 'https://vimeo.com/...'
+							: 'https://www.youtube.com/watch?v=...'
+					}
+					onChangeValue={ ( value ) =>
+						setAttributes( {
+							embedVideoUrl: value,
+							embedVideoId: getEmbedVideoId(
+								embedVideoType,
+								value
+							),
+						} )
+					}
+				/>
 			</PanelBody>
 		</>
 	);
@@ -233,7 +292,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	return (
 		<>
 			<InspectorControl
-				generalControls={ null }
+				generalControls={ generalControls }
 				styleControls={ styleControls }
 				advancedControls={ null }
 			/>

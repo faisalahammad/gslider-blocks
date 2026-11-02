@@ -194,8 +194,22 @@ var attributes = {
       Tablet: "cover",
       Mobile: "cover"
     }
-  }
+  },
   /** End slider Item Background */
+  /** Start slider Item Embed Video */
+  embedVideoType: {
+    type: "string",
+    default: "youtube"
+  },
+  embedVideoUrl: {
+    type: "string",
+    default: ""
+  },
+  embedVideoId: {
+    type: "string",
+    default: ""
+  }
+  /** End slider Item Embed Video */
 };
 var attributes_default = attributes;
 
