@@ -27,7 +27,9 @@ const getVideoId = ( type, url ) => {
 		type === 'vimeo' &&
 		! id.includes( '/' ) &&
 		value.match( /[?&]h=([\da-f]+)/i )?.[ 1 ];
-	return id && hash ? `${ id }/${ hash }` : id;
+	const videoId = id && hash ? `${ id }/${ hash }` : id;
+	// Vimeo hashes are lowercase hex, the frontend only accepts that form
+	return type === 'vimeo' ? videoId.toLowerCase() : videoId;
 };
 
 const Inspector = ( { attributes, setAttributes } ) => {
