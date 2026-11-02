@@ -4,6 +4,118 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	// Counter keeps gallery names unique when sliders are added later
 	let lightboxCount = 0;
 
+	// Privacy friendly players, the ID pattern blocks unsafe values in the iframe src
+	const EMBED_VIDEOS = {
+		youtube: {
+			idPattern: /^[\w-]{11}$/,
+			getSrc: ( id ) =>
+				`https://www.youtube-nocookie.com/embed/${ id }?enablejsapi=1&autoplay=1&rel=0`,
+			title: 'YouTube video player',
+			origin: 'https://www.youtube-nocookie.com',
+			pauseMessage: { event: 'command', func: 'pauseVideo', args: '' },
+		},
+		vimeo: {
+			// Unlisted videos keep their privacy hash as "id/hash"
+			idPattern: /^\d+(\/[\da-f]+)?$/,
+			getSrc: ( id ) => {
+				const [ videoId, hash ] = id.split( '/' );
+				return `https://player.vimeo.com/video/${ videoId }?${
+					hash ? `h=${ hash }&` : ''
+				}dnt=1&autoplay=1`;
+			},
+			title: 'Vimeo video player',
+			origin: 'https://player.vimeo.com',
+			pauseMessage: { method: 'pause' },
+		},
+	};
+
+	/**
+	 * Pause the embed videos on slides that left the view, players load only after a play click.
+	 * Videos of nested sliders pause too, their slide is moving away.
+	 *
+	 * @param {Object} swiper - Swiper instance of this slider.
+	 * @return {boolean} True when a started video is still in view.
+	 */
+	const pauseEmbedVideos = ( swiper ) => {
+		const visibleCount = swiper.slidesPerViewDynamic();
+		let hasVisibleVideo = false;
+
+		swiper.slides.forEach( ( slide, index ) => {
+			// Carousel mode shows more than one slide, keep those playing
+			if (
+				index >= swiper.activeIndex &&
+				index < swiper.activeIndex + visibleCount
+			) {
+				if ( slide.querySelector( '.gslider-embed-video iframe' ) ) {
+					hasVisibleVideo = true;
+				}
+				return;
+			}
+
+			slide
+				.querySelectorAll( '.gslider-embed-video iframe' )
+				.forEach( ( iframe ) => {
+					// Player can not get commands before load, so cancel it and show the play button again
+					if ( ! iframe.dataset.loaded ) {
+						iframe.previousElementSibling.hidden = false;
+						iframe.remove();
+						return;
+					}
+
+					const embed =
+						EMBED_VIDEOS[ iframe.parentElement.dataset.embedType ];
+					iframe.contentWindow?.postMessage(
+						JSON.stringify( embed.pauseMessage ),
+						embed.origin
+					);
+				} );
+		} );
+
+		return hasVisibleVideo;
+	};
+
+	// Delegated, so it also works for sliders added later
+	document.addEventListener( 'click', ( event ) => {
+		const button = event.target.closest(
+			'.gslider-flexi-content-wrapper .gslider-embed-video-play'
+		);
+		// Swiper prevents the click that ends a drag
+		if ( ! button || event.defaultPrevented ) {
+			return;
+		}
+
+		const { embedType, embedId } = button.parentElement.dataset;
+		const embed = EMBED_VIDEOS[ embedType ];
+		if ( ! embed || ! embed.idPattern.test( embedId ) ) {
+			return;
+		}
+
+		const iframe = document.createElement( 'iframe' );
+		iframe.src = embed.getSrc( embedId );
+		iframe.title = embed.title;
+		iframe.allow =
+			'autoplay; encrypted-media; fullscreen; picture-in-picture';
+		iframe.allowFullscreen = true;
+		iframe.addEventListener( 'load', () => {
+			iframe.dataset.loaded = 'true';
+		} );
+		// Stop autoplay of this slider and any parent slider, so none slides away from the playing video
+		for (
+			let swiperElement = button.closest( '.swiper' );
+			swiperElement;
+			swiperElement = swiperElement.parentElement.closest( '.swiper' )
+		) {
+			if ( swiperElement.swiper?.autoplay?.running ) {
+				swiperElement.swiper.autoplay.stop();
+				swiperElement.dataset.embedAutoplayStopped = 'true';
+			}
+		}
+		// Keep the button hidden, it comes back when loading is cancelled
+		button.hidden = true;
+		button.after( iframe );
+		iframe.focus();
+	} );
+
 	/**
 	 * Get the largest image source from srcset, fallback to src.
 	 * Lazy load plugins keep the real sources in data-src and data-srcset.
@@ -209,6 +321,22 @@ document.addEventListener( 'DOMContentLoaded', () => {
 							settings.navigation.prevEl = prevEl;
 						}
 					}
+
+					settings.on = {
+						...settings.on,
+						slideChange( swiper ) {
+							const hasVisibleVideo = pauseEmbedVideos( swiper );
+
+							// Visitor moved away from the video, so start the autoplay a play click stopped
+							if (
+								swiper.el.dataset.embedAutoplayStopped &&
+								! hasVisibleVideo
+							) {
+								delete swiper.el.dataset.embedAutoplayStopped;
+								swiper.autoplay.start();
+							}
+						},
+					};
 
 					// Initialize Swiper with parsed settings
 					new Swiper( swiperElement, settings );

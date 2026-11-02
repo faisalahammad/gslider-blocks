@@ -217,11 +217,29 @@ var attributes_default = attributes;
 var import_block_editor = require("@wordpress/block-editor");
 var import_jsx_runtime = require("react/jsx-runtime");
 function Save({ attributes: attributes2 }) {
-  const { blockId } = attributes2;
+  const { blockId, embedVideoType, embedVideoId } = attributes2;
   const blockProps = import_block_editor.useBlockProps.save({
     className: `flexi-content-item swiper-slide ${blockId}`
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ...blockProps, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "gslider-content-wrapper", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "gslider-content-inner-wrapper", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_block_editor.InnerBlocks.Content, {}) }) }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { ...blockProps, children: [
+    embedVideoId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "div",
+      {
+        className: "gslider-embed-video",
+        "data-embed-type": embedVideoType,
+        "data-embed-id": embedVideoId,
+        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            type: "button",
+            className: "gslider-embed-video-play",
+            "aria-label": "Play video"
+          }
+        )
+      }
+    ),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "gslider-content-wrapper", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "gslider-content-inner-wrapper", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_block_editor.InnerBlocks.Content, {}) }) })
+  ] });
 }
 
 // ../../src/blocks/flexi-content-item/styling.js
