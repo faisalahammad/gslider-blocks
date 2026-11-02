@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars, jsdoc/require-param, jsdoc/check-line-alignment, jsdoc/check-alignment, react-hooks/exhaustive-deps, import/no-unresolved */
 import { __ } from '@wordpress/i18n';
 import { useEffect, memo } from '@wordpress/element';
-import { PanelBody } from '@wordpress/components';
+import { PanelBody, Button } from '@wordpress/components';
+import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import InspectorControl from '@Components/inspector-controls';
 import BackgroundControl from '@Components/background-control';
 import SwitcherControl from '@Components/switcher-control';
@@ -66,6 +67,8 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		embedVideoType,
 		embedVideoUrl,
 		embedVideoId,
+		embedVideoMediaId,
+		embedVideoMediaUrl,
 		/** End Embed Video */
 	} = attributes;
 
@@ -102,19 +105,76 @@ const Inspector = ( { attributes, setAttributes } ) => {
 						} )
 					}
 				/>
-				<InputControls
-					label={ __( 'Video URL', 'gslider-blocks' ) }
-					value={ embedVideoUrl }
-					onChangeValue={ handleVideoUrlChange }
-					helpText={
-						embedVideoUrl && ! embedVideoId
-							? __(
-									'Could not find a video ID in this URL.',
-									'gslider-blocks'
-							  )
-							: ''
-					}
-				/>
+				{ embedVideoType === 'upload' ? (
+					<MediaUploadCheck>
+						<MediaUpload
+							allowedTypes={ [ 'video' ] }
+							value={ embedVideoMediaId }
+							onSelect={ ( media ) =>
+								setAttributes( {
+									embedVideoMediaId: media.id,
+									embedVideoMediaUrl: media.url,
+								} )
+							}
+							render={ ( { open } ) => (
+								<>
+									{ embedVideoMediaUrl && (
+										<p>
+											{ embedVideoMediaUrl
+												.split( '/' )
+												.pop() }
+										</p>
+									) }
+									<Button
+										variant="secondary"
+										onClick={ open }
+									>
+										{ embedVideoMediaUrl
+											? __(
+													'Replace Video',
+													'gslider-blocks'
+											  )
+											: __(
+													'Select Video',
+													'gslider-blocks'
+											  ) }
+									</Button>
+									{ embedVideoMediaUrl && (
+										<Button
+											variant="link"
+											isDestructive
+											onClick={ () =>
+												setAttributes( {
+													embedVideoMediaId: 0,
+													embedVideoMediaUrl: '',
+												} )
+											}
+										>
+											{ __(
+												'Remove Video',
+												'gslider-blocks'
+											) }
+										</Button>
+									) }
+								</>
+							) }
+						/>
+					</MediaUploadCheck>
+				) : (
+					<InputControls
+						label={ __( 'Video URL', 'gslider-blocks' ) }
+						value={ embedVideoUrl }
+						onChangeValue={ handleVideoUrlChange }
+						helpText={
+							embedVideoUrl && ! embedVideoId
+								? __(
+										'Could not find a video ID in this URL.',
+										'gslider-blocks'
+								  )
+								: ''
+						}
+					/>
+				) }
 			</PanelBody>
 		</>
 	);

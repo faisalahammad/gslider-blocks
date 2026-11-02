@@ -7,7 +7,7 @@
   "slideField": "",
   "presets": [],
   "allowedEffects": {},
-  "totalAttributes": 26,
+  "totalAttributes": 28,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -18,7 +18,8 @@
   "allowedValues": {
     "embedVideoType": [
       "youtube",
-      "vimeo"
+      "vimeo",
+      "upload"
     ]
   },
   "attributes": {
@@ -181,6 +182,14 @@
       "default": ""
     },
     "embedVideoId": {
+      "type": "string",
+      "default": ""
+    },
+    "embedVideoMediaId": {
+      "type": "number",
+      "default": 0
+    },
+    "embedVideoMediaUrl": {
       "type": "string",
       "default": ""
     }

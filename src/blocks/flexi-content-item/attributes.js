@@ -149,6 +149,14 @@ const attributes = {
 		type: 'string',
 		default: '',
 	},
+	embedVideoMediaId: {
+		type: 'number',
+		default: 0,
+	},
+	embedVideoMediaUrl: {
+		type: 'string',
+		default: '',
+	},
 	/** End Embed Video */
 };
 

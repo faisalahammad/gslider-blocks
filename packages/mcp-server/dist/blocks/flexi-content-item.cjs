@@ -208,6 +208,14 @@ var attributes = {
   embedVideoId: {
     type: "string",
     default: ""
+  },
+  embedVideoMediaId: {
+    type: "number",
+    default: 0
+  },
+  embedVideoMediaUrl: {
+    type: "string",
+    default: ""
   }
   /** End Embed Video */
 };
@@ -217,12 +225,28 @@ var attributes_default = attributes;
 var import_block_editor = require("@wordpress/block-editor");
 var import_jsx_runtime = require("react/jsx-runtime");
 function Save({ attributes: attributes2 }) {
-  const { blockId, embedVideoType, embedVideoId } = attributes2;
+  const { blockId, embedVideoType, embedVideoId, embedVideoMediaUrl } = attributes2;
   const blockProps = import_block_editor.useBlockProps.save({
     className: `flexi-content-item swiper-slide ${blockId}`
   });
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { ...blockProps, children: [
-    embedVideoId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    embedVideoType === "upload" && embedVideoMediaUrl && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "div",
+      {
+        className: "gslider-embed-video",
+        "data-embed-type": embedVideoType,
+        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "video",
+          {
+            src: embedVideoMediaUrl,
+            controls: true,
+            playsInline: true,
+            preload: "none"
+          }
+        )
+      }
+    ),
+    embedVideoType !== "upload" && embedVideoId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
       "div",
       {
         className: "gslider-embed-video",
