@@ -66,7 +66,7 @@ class FontLoaderTest {
 	 */
 	public function test_class_implements_registrable_and_singleton(): void {
 		$loader = FontLoader::getInstance();
-		if ( ! ( $loader instanceof Registrable ) ) {
+		if ( ! in_array( Registrable::class, class_implements( FontLoader::class ), true ) ) {
 			$this->fail( 'FontLoader does not implement Registrable interface' );
 		}
 		echo "OK: FontLoader implements Registrable interface\n";
@@ -145,6 +145,7 @@ class FontLoaderTest {
 		}
 		echo "OK: get_fonts_family() ignores default, inherit, empty, system stack and invalid families\n";
 
+		// @phpstan-ignore argument.type (a non-array value is passed on purpose to test the input guard)
 		if ( [] !== FontLoader::get_fonts_family( 'not-an-array' ) ) {
 			$this->fail( 'get_fonts_family() should return an empty array for non-array attributes' );
 		}
@@ -158,6 +159,7 @@ class FontLoaderTest {
 		$loader->get_fonts_on_render_block( '', $this->block( [] ) );
 		$loader->get_fonts_on_render_block( '', [ 'blockName' => 'core/paragraph', 'attrs' => [ 'titleFontFamily' => 'Roboto' ] ] );
 		$loader->get_fonts_on_render_block( '', [ 'blockName' => null, 'attrs' => [ 'titleFontFamily' => 'Roboto' ] ] );
+		// @phpstan-ignore argument.type (a non-array block is passed on purpose to test the input guard)
 		$loader->get_fonts_on_render_block( '', 'not-a-block' );
 		$loader->fonts_loader();
 
@@ -187,11 +189,7 @@ class FontLoaderTest {
 		);
 		$loader->fonts_loader();
 
-		$expected = '//fonts.googleapis.com/css?family=Roboto:400,700&display=swap';
-		$actual   = $this->font_style_url();
-		if ( $expected !== $actual ) {
-			$this->fail( sprintf( "Font URL mismatch. Expected '%s', got '%s'", $expected, $actual ) );
-		}
+		$this->assert_font_url( 'Roboto:400,700', 'Font' );
 		echo "OK: Font URL requests //fonts.googleapis.com/css?family=Roboto:400,700&display=swap\n";
 
 		if ( GSLIDER_VERSION !== $wp_styles[ self::STYLE_HANDLE ]['ver'] ) {
@@ -214,11 +212,7 @@ class FontLoaderTest {
 		);
 		$loader->fonts_loader();
 
-		$expected = '//fonts.googleapis.com/css?family=Lato:400|Open+Sans:600italic&display=swap';
-		$actual   = $this->font_style_url();
-		if ( $expected !== $actual ) {
-			$this->fail( sprintf( "Font URL mismatch. Expected '%s', got '%s'", $expected, $actual ) );
-		}
+		$this->assert_font_url( 'Lato:400|Open+Sans:600italic', 'Font' );
 		echo "OK: Font URL sorts families, encodes spaces, adds italic variants and falls back to 400\n";
 
 		global $enqueued_styles;
@@ -336,11 +330,7 @@ class FontLoaderTest {
 		}
 		echo "OK: Repeated fonts register and enqueue a single stylesheet handle\n";
 
-		$expected = '//fonts.googleapis.com/css?family=Roboto:400,700&display=swap';
-		$actual   = $this->font_style_url();
-		if ( $expected !== $actual ) {
-			$this->fail( sprintf( "Merged font URL mismatch. Expected '%s', got '%s'", $expected, $actual ) );
-		}
+		$this->assert_font_url( 'Roboto:400,700', 'Merged font' );
 		echo "OK: Repeated fonts merge into one family with unique variants\n";
 
 		$this->reset_state();
@@ -396,21 +386,37 @@ class FontLoaderTest {
 	}
 
 	/**
-	 * Get the decoded URL of the registered font stylesheet.
+	 * Assert the font stylesheet requests the expected Google Fonts family.
 	 *
-	 * The add_query_arg() stub encodes values, so the URL is decoded
-	 * to compare it with what WordPress would output.
+	 * The raw URL is parsed, so host, path and each query parameter are
+	 * checked on their own. A family value cannot fake the display parameter.
 	 *
-	 * @return string
+	 * @param string $family  Expected decoded family parameter.
+	 * @param string $context Scenario name for the failure message.
+	 * @return void
 	 */
-	private function font_style_url(): string {
+	private function assert_font_url( string $family, string $context ): void {
 		global $wp_styles, $enqueued_styles;
 
 		if ( ! isset( $wp_styles[ self::STYLE_HANDLE ], $enqueued_styles[ self::STYLE_HANDLE ] ) ) {
 			$this->fail( sprintf( "Stylesheet '%s' was not registered and enqueued", self::STYLE_HANDLE ) );
 		}
 
-		return urldecode( $wp_styles[ self::STYLE_HANDLE ]['src'] );
+		$src   = $wp_styles[ self::STYLE_HANDLE ]['src'];
+		$parts = parse_url( $src );
+		$query = [];
+		if ( is_array( $parts ) && isset( $parts['query'] ) ) {
+			parse_str( $parts['query'], $query );
+		}
+
+		$valid = is_array( $parts )
+			&& 'fonts.googleapis.com' === ( $parts['host'] ?? '' )
+			&& '/css' === ( $parts['path'] ?? '' )
+			&& [ 'family' => $family, 'display' => 'swap' ] === $query;
+
+		if ( ! $valid ) {
+			$this->fail( sprintf( "%s URL mismatch. Expected //fonts.googleapis.com/css with family '%s' and display 'swap', got '%s'", $context, $family, $src ) );
+		}
 	}
 
 	/**
