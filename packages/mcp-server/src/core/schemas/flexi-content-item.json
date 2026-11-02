@@ -7,7 +7,7 @@
   "slideField": "",
   "presets": [],
   "allowedEffects": {},
-  "totalAttributes": 23,
+  "totalAttributes": 26,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -15,7 +15,12 @@
       "gslider-blocks/flexi-content"
     ]
   },
-  "allowedValues": {},
+  "allowedValues": {
+    "embedVideoType": [
+      "youtube",
+      "vimeo"
+    ]
+  },
   "attributes": {
     "blockId": {
       "type": "string",
@@ -166,6 +171,18 @@
         "Tablet": "cover",
         "Mobile": "cover"
       }
+    },
+    "embedVideoType": {
+      "type": "string",
+      "default": "youtube"
+    },
+    "embedVideoUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "embedVideoId": {
+      "type": "string",
+      "default": ""
     }
   }
 }
