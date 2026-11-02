@@ -245,6 +245,10 @@ function extractAllowedValues( slug, rawAttrs, constants ) {
 			),
 			constants
 		);
+		// Only string enums go in allowedValues, the attribute type already covers boolean switchers.
+		if ( values && values.some( ( v ) => typeof v !== 'string' ) ) {
+			continue;
+		}
 		const tag = findEnclosingTag( source, m.index );
 		const keys = new Set(
 			[ ...( tag || '' ).matchAll( /setAttributes\(\s*\{\s*(\w+)\s*:/g ) ]

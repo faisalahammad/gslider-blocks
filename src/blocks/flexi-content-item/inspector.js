@@ -1,9 +1,13 @@
-/* eslint-disable no-unused-vars, jsdoc/require-param, jsdoc/check-line-alignment, jsdoc/check-alignment, react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars, jsdoc/require-param, jsdoc/check-line-alignment, jsdoc/check-alignment, react-hooks/exhaustive-deps, import/no-unresolved */
 import { __ } from '@wordpress/i18n';
 import { useEffect, memo } from '@wordpress/element';
-import { PanelBody } from '@wordpress/components';
+import { PanelBody, BaseControl, Button } from '@wordpress/components';
+import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import InspectorControl from '@Components/inspector-controls';
 import BackgroundControl from '@Components/background-control';
+import ImageControl from '@Components/image-control';
+import SwitcherControl from '@Components/switcher-control';
+import { YES_NO_SWITCHER } from '@Constants';
 import { useDeviceType } from '@Utils/displayType';
 import './editor.scss';
 
@@ -36,6 +40,14 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		sliderItemHoverBackgroundImageRepeat,
 		sliderItemHoverBackgroundImageSize,
 		/** End slider Item Background */
+
+		/** Start slider Item Background Video */
+		backgroundVideoUrl,
+		backgroundVideoId,
+		backgroundVideoPoster,
+		backgroundVideoLoop,
+		backgroundVideoMuted,
+		/** End slider Item Background Video */
 	} = attributes;
 
 	/** Get Current Device Type */
@@ -214,6 +226,89 @@ const Inspector = ( { attributes, setAttributes } ) => {
 						} )
 					}
 					setAttributes={ setAttributes }
+				/>
+			</PanelBody>
+			<PanelBody
+				title={ __( 'Background Video', 'gslider-blocks' ) }
+				initialOpen={ false }
+			>
+				<BaseControl>
+					<BaseControl.VisualLabel>
+						{ __( 'Video (MP4 or WebM)', 'gslider-blocks' ) }
+					</BaseControl.VisualLabel>
+					<MediaUploadCheck>
+						<MediaUpload
+							allowedTypes={ [ 'video/mp4', 'video/webm' ] }
+							value={ backgroundVideoId }
+							onSelect={ ( media ) =>
+								setAttributes( {
+									backgroundVideoUrl: media.url,
+									backgroundVideoId: media.id,
+								} )
+							}
+							render={ ( { open } ) => (
+								<Button variant="secondary" onClick={ open }>
+									{ backgroundVideoUrl
+										? __(
+												'Replace Video',
+												'gslider-blocks'
+										  )
+										: __(
+												'Select Video',
+												'gslider-blocks'
+										  ) }
+								</Button>
+							) }
+						/>
+					</MediaUploadCheck>
+					{ backgroundVideoUrl && (
+						<>
+							<p>{ backgroundVideoUrl.split( '/' ).pop() }</p>
+							<Button
+								variant="link"
+								isDestructive
+								onClick={ () =>
+									setAttributes( {
+										backgroundVideoUrl: '',
+										backgroundVideoId: 0,
+									} )
+								}
+							>
+								{ __( 'Remove Video', 'gslider-blocks' ) }
+							</Button>
+						</>
+					) }
+				</BaseControl>
+				<ImageControl
+					label={ __( 'Poster Image', 'gslider-blocks' ) }
+					imageUrl={ backgroundVideoPoster }
+					setImageUrl={ ( value ) =>
+						setAttributes( { backgroundVideoPoster: value || '' } )
+					}
+					// Only the poster URL is stored, alt and ID are not needed.
+					setImageAlt={ () => {} }
+					setImageID={ () => {} }
+					isImageSize={ false }
+				/>
+				<SwitcherControl
+					label={ __( 'Loop Video', 'gslider-blocks' ) }
+					options={ YES_NO_SWITCHER }
+					value={ backgroundVideoLoop }
+					onChange={ ( value ) =>
+						setAttributes( { backgroundVideoLoop: value } )
+					}
+				/>
+				<SwitcherControl
+					label={ __( 'Mute Video', 'gslider-blocks' ) }
+					help={ __(
+						'Browsers only autoplay muted videos.',
+						'gslider-blocks'
+					) }
+					options={ YES_NO_SWITCHER }
+					value={ backgroundVideoMuted }
+					onChange={ ( value ) =>
+						setAttributes( { backgroundVideoMuted: value } )
+					}
 				/>
 			</PanelBody>
 		</>

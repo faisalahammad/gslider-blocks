@@ -135,6 +135,29 @@ const attributes = {
 		},
 	},
 	/** End slider Item Background */
+
+	/** Start slider Item Background Video */
+	backgroundVideoUrl: {
+		type: 'string',
+		default: '',
+	},
+	backgroundVideoId: {
+		type: 'number',
+		default: 0,
+	},
+	backgroundVideoPoster: {
+		type: 'string',
+		default: '',
+	},
+	backgroundVideoLoop: {
+		type: 'boolean',
+		default: true,
+	},
+	backgroundVideoMuted: {
+		type: 'boolean',
+		default: true,
+	},
+	/** End slider Item Background Video */
 };
 
 export default attributes;

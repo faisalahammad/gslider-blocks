@@ -267,6 +267,11 @@ export const LAYOUT_HEIGHT_SWITCHER = [
 	{ label: __( 'Adapt', 'gslider-blocks' ), value: 'adapt' },
 ];
 
+export const YES_NO_SWITCHER = [
+	{ label: __( 'Yes', 'gslider-blocks' ), value: true },
+	{ label: __( 'No', 'gslider-blocks' ), value: false },
+];
+
 export const OBJECT_FIT_OPTIONS = [
 	{ label: __( 'Contain', 'gslider-blocks' ), value: 'contain' },
 	{ label: __( 'Cover', 'gslider-blocks' ), value: 'cover' },
