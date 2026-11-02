@@ -64,12 +64,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				return;
 			}
 
-			// Middle click opens a new tab, like on a normal link
+			// Middle click and Ctrl or Cmd click open a new tab, like on a normal link
 			const target =
-				event.type === 'auxclick'
+				event.type === 'auxclick' || event.ctrlKey || event.metaKey
 					? '_blank'
 					: imageLinkTarget || '_self';
-			const rels = ( imageLinkRel || '' ).split( ' ' );
+			// rel is case insensitive and split on any ASCII whitespace
+			const rels = ( imageLinkRel || '' )
+				.toLowerCase()
+				.split( /[\t\n\f\r ]+/ );
 			// Unlike a target="_blank" link, window.open does not imply noopener
 			if ( target === '_blank' ) {
 				rels.push( 'noopener' );
