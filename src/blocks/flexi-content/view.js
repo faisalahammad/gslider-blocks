@@ -120,7 +120,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 * @param {Object}      settings      - Parsed Swiper settings.
 	 */
 	const initializeParallax = ( swiperElement, settings ) => {
-		if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) {
+		const motionQuery = window.matchMedia(
+			'(prefers-reduced-motion: reduce)'
+		);
+		if ( motionQuery.matches ) {
 			return;
 		}
 
@@ -159,6 +162,18 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				} );
 			},
 		};
+
+		// Stop the layers when reduced motion turns on after page load
+		motionQuery.addEventListener( 'change', ( event ) => {
+			if ( ! event.matches ) {
+				return;
+			}
+			layers.forEach( ( layer ) => {
+				layer.removeAttribute( 'data-swiper-parallax' );
+				layer.style.transform = '';
+				layer.style.transitionDuration = '';
+			} );
+		} );
 	};
 
 	const initializeSliders = () => {
