@@ -108,7 +108,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			} );
 	};
 
-	// Child combinators keep the layers of sliders nested in a slide out
+	// Child combinators keep the layers of sliders nested in a slide out.
+	// Swiper still moves every marked element inside a slide, so a nested slider with parallax on also moves with the outer one.
 	const PARALLAX_LAYER_SELECTOR =
 		':scope > .swiper-wrapper > .swiper-slide > .gslider-content-wrapper';
 
@@ -163,7 +164,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			},
 		};
 
-		// Stop the layers when reduced motion turns on after page load
+		// Stop the layers when reduced motion turns on after page load.
+		// One way on purpose, parallax comes back on the next page load.
 		motionQuery.addEventListener( 'change', ( event ) => {
 			if ( ! event.matches ) {
 				return;
