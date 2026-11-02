@@ -221,9 +221,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 						swiper.on(
 							'autoplayTimeLeft',
 							( s, timeLeft, progress ) => {
-								progressFill.style.width = `${
-									( 1 - progress ) * 100
-								}%`;
+								progressFill.style.transform = `scaleX(${
+									1 - progress
+								})`;
 							}
 						);
 					}

@@ -228,9 +228,9 @@ export default function Edit( {
 				'autoplayTimeLeft',
 				( swiper, timeLeft, progress ) => {
 					if ( autoplayProgressFillRef.current ) {
-						autoplayProgressFillRef.current.style.width = `${
-							( 1 - progress ) * 100
-						}%`;
+						autoplayProgressFillRef.current.style.transform = `scaleX(${
+							1 - progress
+						})`;
 					}
 				}
 			);

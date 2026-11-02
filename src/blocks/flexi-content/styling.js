@@ -89,8 +89,10 @@ const getAutoplayProgressCss = ( blockId, enabled, color, height ) => {
             bottom: 0;
         }
         .${ blockId } > .swiper > .gslider-autoplay-progress > .gslider-autoplay-progress-fill {
-            width: 0;
+            width: 100%;
             height: 100%;
+            transform: scaleX(0);
+            transform-origin: left;
             ${ color ? `background-color: ${ color };` : '' }
         }
         ${ deviceRule( 'Desktop' ) }

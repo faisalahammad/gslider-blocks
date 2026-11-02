@@ -759,50 +759,56 @@ const Inspector = ( { attributes, setAttributes } ) => {
 						setAttributes={ setAttributes }
 					/>
 				) }
-				{ autoplay && enableAutoplayProgress?.[ deviceType ] && (
-					<>
-						<SwitcherControl
-							label={ __(
-								'Progress Position',
-								'gslider-blocks'
-							) }
-							options={ AUTOPLAY_PROGRESS_POSITION }
-							value={ autoplayProgressPosition }
-							onChange={ ( value ) =>
-								setAttributes( {
-									autoplayProgressPosition: value,
-								} )
-							}
-						/>
-						<ColorControl
-							label={ __( 'Progress Color', 'gslider-blocks' ) }
-							color={ autoplayProgressColor }
-							onChangeColor={ ( value ) =>
-								setAttributes( {
-									autoplayProgressColor: value,
-								} )
-							}
-							defaultColor="#007cba"
-						/>
-						<ResponsiveRangeControl
-							min={ 1 }
-							max={ 20 }
-							label={ __(
-								'Progress Height (px)',
-								'gslider-blocks'
-							) }
-							rangeValue={ autoplayProgressHeight }
-							onChangeValue={ ( value ) =>
-								setAttributes( {
-									autoplayProgressHeight: value,
-								} )
-							}
-							deviceType={ deviceType }
-							resetFallbackValue={ '3' }
-							isRangeUnit={ false }
-						/>
-					</>
-				) }
+				{ autoplay &&
+					Object.values( enableAutoplayProgress || {} ).some(
+						Boolean
+					) && (
+						<>
+							<SwitcherControl
+								label={ __(
+									'Progress Position',
+									'gslider-blocks'
+								) }
+								options={ AUTOPLAY_PROGRESS_POSITION }
+								value={ autoplayProgressPosition }
+								onChange={ ( value ) =>
+									setAttributes( {
+										autoplayProgressPosition: value,
+									} )
+								}
+							/>
+							<ColorControl
+								label={ __(
+									'Progress Color',
+									'gslider-blocks'
+								) }
+								color={ autoplayProgressColor }
+								onChangeColor={ ( value ) =>
+									setAttributes( {
+										autoplayProgressColor: value,
+									} )
+								}
+								defaultColor="#007cba"
+							/>
+							<ResponsiveRangeControl
+								min={ 1 }
+								max={ 20 }
+								label={ __(
+									'Progress Height (px)',
+									'gslider-blocks'
+								) }
+								rangeValue={ autoplayProgressHeight }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										autoplayProgressHeight: value,
+									} )
+								}
+								deviceType={ deviceType }
+								resetFallbackValue={ '3' }
+								isRangeUnit={ false }
+							/>
+						</>
+					) }
 
 				<ResponsiveRangeControl
 					min={ 100 }
