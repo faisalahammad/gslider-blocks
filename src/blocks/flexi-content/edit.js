@@ -144,6 +144,11 @@ export default function Edit( {
 			paginationOutsideRef.current.innerHTML = '';
 		}
 
+		// Swiper destroy keeps effect shadow nodes, remove them so a new preset starts clean
+		swiperContainerRef.current
+			.querySelectorAll( '[class^="swiper-slide-shadow"]' )
+			.forEach( ( shadow ) => shadow.remove() );
+
 		// Build Swiper settings
 		const swiperSettings = {
 			effect: sliderType === 'carousel' ? carouselEffect : slideEffect,

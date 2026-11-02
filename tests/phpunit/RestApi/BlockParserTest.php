@@ -229,6 +229,17 @@ class BlockParserTest {
 		$this->assert_true( false === $stored['attrs']['infiniteLoop'] && false === $stored['attrs']['showTitle'], 'stored false values are not replaced by defaults' );
 		$this->assert_true( [ 'Desktop' => 4 ] === $stored['attrs']['carouselPerColumn'], 'a stored object replaces the default object, as in Gutenberg' );
 		$this->assert_true( false === $stored['swiperConfig']['loop'], 'swiperConfig still honors stored values' );
+
+		$creative = [
+			'sliderType'  => 'slider',
+			'slideEffect' => 'creative',
+		];
+		$classic  = $this->normalize( $creative, 'gslider-blocks/flexi-content' );
+		$stack    = $this->normalize( $creative + [ 'creativePreset' => 'stack' ], 'gslider-blocks/flexi-content' );
+		$unknown  = $this->normalize( $creative + [ 'creativePreset' => 'nope' ], 'gslider-blocks/flexi-content' );
+		$this->assert_true( [ 0, 0, -400 ] === $classic['swiperConfig']['creativeEffect']['prev']['translate'], 'creativeEffect defaults to the classic preset' );
+		$this->assert_true( [ '120%', 0, -500 ] === $stack['swiperConfig']['creativeEffect']['next']['translate'], 'creativeEffect follows the stored creativePreset' );
+		$this->assert_true( $classic['swiperConfig']['creativeEffect'] === $unknown['swiperConfig']['creativeEffect'], 'an unknown creativePreset falls back to classic' );
 	}
 
 	/**
