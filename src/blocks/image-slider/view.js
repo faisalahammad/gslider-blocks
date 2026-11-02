@@ -1,5 +1,52 @@
 /* global Swiper, refreshFsLightbox */
 document.addEventListener( 'DOMContentLoaded', () => {
+	/**
+	 * Get the current device, using the same breakpoints as the Swiper settings in save.js.
+	 *
+	 * @return {string} Desktop, Tablet or Mobile.
+	 */
+	const getCurrentDevice = () => {
+		if ( window.innerWidth >= 1025 ) {
+			return 'Desktop';
+		}
+		return window.innerWidth >= 768 ? 'Tablet' : 'Mobile';
+	};
+
+	/**
+	 * Block lightbox clicks on devices where the lightbox is off.
+	 *
+	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
+	 */
+	const initializeLightboxDevices = ( sliderContainer ) => {
+		if (
+			! sliderContainer.dataset.slideLightbox ||
+			sliderContainer.dataset.lightboxInitialized === 'true'
+		) {
+			return;
+		}
+		sliderContainer.dataset.lightboxInitialized = 'true';
+
+		const devices = sliderContainer.dataset.slideLightbox.split( ' ' );
+
+		// Capture on the wrapper runs before the fsLightbox onclick on the link
+		sliderContainer.addEventListener(
+			'click',
+			( event ) => {
+				if (
+					! event.target.closest( '[data-fslightbox]' ) ||
+					devices.includes( getCurrentDevice() )
+				) {
+					return;
+				}
+
+				event.stopImmediatePropagation();
+				// The link points to the image file, so do not open it either
+				event.preventDefault();
+			},
+			true
+		);
+	};
+
 	const initializeSliders = () => {
 		// Select all slider containers
 		const sliders = document.querySelectorAll(
@@ -67,6 +114,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 						}
 					}
 				}
+
+				initializeLightboxDevices( sliderContainer );
 
 				// Initialize hover effects for image links
 				initializeImageLinkHoverEffects( sliderContainer );
