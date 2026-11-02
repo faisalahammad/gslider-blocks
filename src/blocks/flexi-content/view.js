@@ -137,7 +137,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			refreshFsLightbox();
 		}
 
-		sliders.forEach( ( sliderContainer ) => {
+		sliders.forEach( ( sliderContainer, sliderIndex ) => {
 			try {
 				const swiperElement =
 					sliderContainer.querySelector( '.swiper' );
@@ -153,6 +153,22 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 				if ( swiperSettings ) {
 					const settings = JSON.parse( swiperSettings );
+
+					// Swiper writes "#null" for slides without a hash, so give them a default one
+					// The slider number keeps it unique when the page has more than one slider
+					if ( settings.hashNavigation ) {
+						swiperElement
+							.querySelectorAll(
+								':scope > .swiper-wrapper > .swiper-slide'
+							)
+							.forEach( ( slide, index ) => {
+								if ( ! slide.dataset.hash ) {
+									slide.dataset.hash = `slider-${
+										sliderIndex + 1
+									}-slide-${ index + 1 }`;
+								}
+							} );
+					}
 
 					// Fix for fade effect: disable initial transition to prevent right-to-left glitch on page load
 					if ( settings.effect === 'fade' ) {

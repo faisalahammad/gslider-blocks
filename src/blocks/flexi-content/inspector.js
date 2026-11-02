@@ -69,6 +69,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		carouselEffect,
 		mousewheelControl,
 		keyboardNavigation,
+		enableHashNavigation,
 		paginationType,
 		dynamicBullets,
 
@@ -716,6 +717,17 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					checked={ keyboardNavigation }
 					onChange={ ( value ) =>
 						setAttributes( { keyboardNavigation: value } )
+					}
+				/>
+				<ToggleControl
+					label={ __( 'URL Hash Navigation', 'gslider-blocks' ) }
+					help={ __(
+						'Set a slug on each slide to link to it, e.g. #pricing',
+						'gslider-blocks'
+					) }
+					checked={ enableHashNavigation }
+					onChange={ ( value ) =>
+						setAttributes( { enableHashNavigation: value } )
 					}
 				/>
 				<ToggleControl
