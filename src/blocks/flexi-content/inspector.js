@@ -584,7 +584,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 				{ direction === 'vertical' && (
 					<p>
 						{ __(
-							'Vertical sliders always use this fixed height. Use px or vh, a percent height can collapse the slider.',
+							'Vertical sliders always use this fixed height. Use px or vh, a percent height is ignored.',
 							'gslider-blocks'
 						) }
 					</p>
@@ -623,7 +623,8 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					} }
 				/>
 
-				{ layoutHeightSwitcher !== 'adapt' && (
+				{ ( layoutHeightSwitcher !== 'adapt' ||
+					direction === 'vertical' ) && (
 					<ResponsiveAlignmentControl
 						label={ __( 'Vertical Alignment', 'gslider-blocks' ) }
 						options={ VERTICAL_ALIGN }

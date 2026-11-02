@@ -626,7 +626,9 @@ const generateFlexiContentStyle = ( attributes ) => {
         }
 
         ${
-			direction === 'vertical' && layoutHeight.Desktop
+			direction === 'vertical' &&
+			Number( layoutHeight.Desktop ) > 0 &&
+			layoutHeightUnits.Desktop !== '%'
 				? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
             height: ${ layoutHeight.Desktop }${ layoutHeightUnits.Desktop };
         }`
@@ -650,7 +652,7 @@ const generateFlexiContentStyle = ( attributes ) => {
         
         .${ blockId }.gslider-flexi-content-wrapper .gslider-content-wrapper {
             ${
-				layoutHeightSwitcher !== 'adapt'
+				layoutHeightSwitcher !== 'adapt' || direction === 'vertical'
 					? `height: 100% !important;`
 					: ''
 			}
@@ -1296,7 +1298,9 @@ const generateFlexiContentStyle = ( attributes ) => {
             }
 
             ${
-				direction === 'vertical' && layoutHeight.Tablet
+				direction === 'vertical' &&
+				Number( layoutHeight.Tablet ) > 0 &&
+				layoutHeightUnits.Tablet !== '%'
 					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
                 height: ${ layoutHeight.Tablet }${ layoutHeightUnits.Tablet };
             }`
@@ -1320,7 +1324,7 @@ const generateFlexiContentStyle = ( attributes ) => {
             
             .${ blockId }.gslider-flexi-content-wrapper .gslider-content-wrapper {
                 ${
-					layoutHeightSwitcher !== 'adapt'
+					layoutHeightSwitcher !== 'adapt' || direction === 'vertical'
 						? `height: 100% !important;`
 						: ''
 				}
@@ -1754,7 +1758,9 @@ const generateFlexiContentStyle = ( attributes ) => {
             }
 
             ${
-				direction === 'vertical' && layoutHeight.Mobile
+				direction === 'vertical' &&
+				Number( layoutHeight.Mobile ) > 0 &&
+				layoutHeightUnits.Mobile !== '%'
 					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
                 height: ${ layoutHeight.Mobile }${ layoutHeightUnits.Mobile };
             }`
@@ -1778,7 +1784,7 @@ const generateFlexiContentStyle = ( attributes ) => {
             
             .${ blockId }.gslider-flexi-content-wrapper .gslider-content-wrapper {
                 ${
-					layoutHeightSwitcher !== 'adapt'
+					layoutHeightSwitcher !== 'adapt' || direction === 'vertical'
 						? `height: 100% !important;`
 						: ''
 				}
