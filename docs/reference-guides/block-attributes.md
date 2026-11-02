@@ -150,14 +150,17 @@ Items stored in `logos` array attribute:
 - `hoverEffect` (*string*): `"grayscale"`, `"opacity"`, `"scale"`, `"move-up"`.
 
 ### 4. Testimonial Carousel (`gslider-blocks/testimonial`)
-Items stored in `testimonials` array attribute:
-- `id` (*integer*): Slide ID.
+Items stored in `sliderItems` array attribute:
+- `id` (*string*): Slide ID.
+- `testimonialTitle` (*string*): Review title.
+- `testimonialText` (*string*): Review quote text.
 - `authorName` (*string*): Reviewer's full name.
-- `authorRole` (*string*): Designation or company.
-- `companyLogo` (*string*): Optional company emblem URL.
-- `rating` (*number*): Star rating (`1` to `5`, supports half stars).
-- `avatarUrl` (*string*): Author photo URL.
-- `content` (*string*): Review quote text.
+- `authorDesignation` (*string*): Designation or company.
+- `authorImage` (*object*): Author photo `{ url, id, alt }`.
+- `companyLogo` (*object*): Optional company logo `{ url, id, alt }`. Shown when `showCompanyLogo` is on for the device.
+- `ratingIconAlign` (*string*): `"icon"`, `"image"`, or `"none"`.
+- `ratingNumber` (*number*): Star rating (`0` to `5`, supports half stars).
+- `ratingImage` (*object*): Custom rating image `{ url, id, alt }`.
 
 ### 5. Flexi Content (`gslider-blocks/flexi-content`)
 Dynamic slide container:

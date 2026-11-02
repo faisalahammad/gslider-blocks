@@ -286,7 +286,8 @@ if ( ! class_exists( StyleGenerator::class, false ) ) {
                     continue;
                 }
 
-                if ( ! $in_slide || $after_rating || false !== strpos( $classes, 'rating' ) ) {
+                // Company logos are small, never the LCP image.
+                if ( ! $in_slide || $after_rating || false !== strpos( $classes, 'rating' ) || false !== strpos( $classes, 'company-logo' ) ) {
                     $after_rating = false;
                     continue;
                 }
@@ -356,6 +357,9 @@ if ( ! class_exists( StyleGenerator::class, false ) ) {
                     }
                     if ( ! empty( $slide['ratingImage'] ) && is_array( $slide['ratingImage'] ) ) {
                         $items[] = $slide['ratingImage'];
+                    }
+                    if ( ! empty( $slide['companyLogo'] ) && is_array( $slide['companyLogo'] ) ) {
+                        $items[] = $slide['companyLogo'];
                     }
                 }
                 if ( ! empty( $block['attrs']['quoteImageUrl'] ) && ! empty( $block['attrs']['quoteImageID'] ) ) {

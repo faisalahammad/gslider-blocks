@@ -595,7 +595,7 @@ class StyleGeneratorTest {
 	}
 
 	/**
-	 * Verify the testimonial rating icon is skipped and the real slide image is chosen.
+	 * Verify the testimonial rating icon and company logo are skipped and the real slide image is chosen.
 	 *
 	 * @return void
 	 */
@@ -604,6 +604,7 @@ class StyleGeneratorTest {
 
 		$content = '<div class="swiper"><div class="swiper-wrapper"><div class="swiper-slide">' .
 			'<div class="gslider-testimonial-rating-icon"><img src="http://localhost/wp-content/uploads/star.png" alt="star" loading="lazy"></div>' .
+			'<div class="gslider-testimonial-company-logo-wrapper"><img src="http://localhost/wp-content/uploads/logo.png" alt="Acme" loading="lazy" class="gslider-testimonial-company-logo"></div>' .
 			'<div class="gslider-testimonial-image"><img src="http://localhost/wp-content/uploads/avatar.jpg" alt="Jane" loading="lazy"></div>' .
 			'</div></div></div>';
 
@@ -622,11 +623,16 @@ class StyleGeneratorTest {
 			exit( 1 );
 		}
 		$processor->next_tag( 'img' );
+		if ( null !== $processor->get_attribute( 'fetchpriority' ) || 'lazy' !== $processor->get_attribute( 'loading' ) ) {
+			fwrite( STDERR, "FAIL: Testimonial company logo was optimized: $output\n" );
+			exit( 1 );
+		}
+		$processor->next_tag( 'img' );
 		if ( 'high' !== $processor->get_attribute( 'fetchpriority' ) || 'eager' !== $processor->get_attribute( 'loading' ) || 'async' !== $processor->get_attribute( 'decoding' ) ) {
 			fwrite( STDERR, "FAIL: Real testimonial image was not optimized: $output\n" );
 			exit( 1 );
 		}
-		echo "OK: Rating icon untouched, first real slide image optimized\n";
+		echo "OK: Rating icon and company logo untouched, first real slide image optimized\n";
 	}
 
 	/**
@@ -913,7 +919,7 @@ class StyleGeneratorTest {
 	}
 
 	/**
-	 * Verify ensure_image_dimensions injects dimensions on testimonial author, quote, and rating images.
+	 * Verify ensure_image_dimensions injects dimensions on testimonial author, quote, rating, and company logo images.
 	 *
 	 * @return void
 	 */
@@ -938,6 +944,11 @@ class StyleGeneratorTest {
 				'width'  => 24,
 				'height' => 24,
 			],
+			63 => [
+				'file'   => '2026/02/logo.png',
+				'width'  => 240,
+				'height' => 96,
+			],
 		];
 
 		$generator = StyleGenerator::getInstance();
@@ -958,6 +969,10 @@ class StyleGeneratorTest {
 							'id'  => 62,
 							'url' => 'http://localhost/wp-content/uploads/2026/02/star.png',
 						],
+						'companyLogo' => [
+							'id'  => 63,
+							'url' => 'http://localhost/wp-content/uploads/2026/02/logo.png',
+						],
 					],
 				],
 			],
@@ -976,6 +991,9 @@ class StyleGeneratorTest {
 			'<div class="gslider-testimonial-rating-icon">' .
 			'<img src="http://localhost/wp-content/uploads/2026/02/star.png" alt="Star" />' .
 			'</div>' .
+			'</div>' .
+			'<div class="gslider-testimonial-company-logo-wrapper">' .
+			'<img src="http://localhost/wp-content/uploads/2026/02/logo.png" alt="Acme" class="gslider-testimonial-company-logo" />' .
 			'</div>' .
 			'</div>' .
 			'</div>' .
@@ -998,7 +1016,12 @@ class StyleGeneratorTest {
 			exit( 1 );
 		}
 
-		echo "OK: ensure_image_dimensions injects dimensions on testimonial author, quote, and rating images\n";
+		if ( ! preg_match( '/<img(?=[^>]*logo\.png)(?=[^>]*\swidth="240")(?=[^>]*\sheight="96")[^>]*>/i', $output ) ) {
+			fwrite( STDERR, "FAIL: Testimonial company logo did not receive injected width=\"240\" height=\"96\". Actual: $output\n" );
+			exit( 1 );
+		}
+
+		echo "OK: ensure_image_dimensions injects dimensions on testimonial author, quote, rating, and company logo images\n";
 	}
 
 	/**

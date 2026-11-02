@@ -52,6 +52,7 @@ export default function Edit( {
 		showTestimonialTitle,
 		showTestimonialText,
 		showAuthorImage,
+		showCompanyLogo,
 		showRating,
 		showRatingNumber,
 		showQuoteIcon,
@@ -135,6 +136,14 @@ export default function Edit( {
 	const paginationOutsideRef = useRef( null );
 
 	const authorImagePlaceholder = authorPlaceholderUrl;
+	// Editor only, save.js never renders a placeholder logo.
+	const companyLogoPlaceholder = window.GSliderBlocksData?.pluginUrl
+		? `${ window.GSliderBlocksData.pluginUrl }assets/images/company-logo-placeholder.svg`
+		: '';
+	const isCompanyLogoVisible =
+		showCompanyLogo?.Desktop ||
+		showCompanyLogo?.Tablet ||
+		showCompanyLogo?.Mobile;
 
 	/**
 	 * Fix for image display on initial load
@@ -339,6 +348,11 @@ export default function Edit( {
 				id: '',
 				alt: 'Author Placeholder',
 			},
+			companyLogo: {
+				url: '',
+				id: '',
+				alt: '',
+			},
 			ratingIconAlign: 'icon',
 			ratingNumber: 5,
 			ratingImage: {
@@ -409,7 +423,7 @@ export default function Edit( {
 		// Get current device type ("Desktop", "Tablet", or "Mobile")
 		const currentDevice = deviceType;
 
-		const updatedItems = sliderItemList.map( ( item ) => {
+		const updateMatchingItem = ( item ) => {
 			if ( item.id === id ) {
 				// Handle normal background image updates for the current device only
 				if ( key === 'normalBackgroundImageID' ) {
@@ -456,8 +470,8 @@ export default function Edit( {
 					};
 				}
 
-				// Special handling for authorImage to allow partial updates (merging)
-				if ( key === 'authorImage' ) {
+				// Special handling for image objects to allow partial updates (merging)
+				if ( key === 'authorImage' || key === 'companyLogo' ) {
 					// Ensure null values from ImageControl (delete) are converted to defaults
 					const normalizedValue = {};
 					if ( value ) {
@@ -493,9 +507,12 @@ export default function Edit( {
 				return { ...item, [ key ]: value };
 			}
 			return item;
-		} );
+		};
 
-		setSliderItemList( updatedItems );
+		// Functional update, so ImageControl url/alt/id calls in one tick do not drop each other.
+		setSliderItemList( ( prevItems ) =>
+			prevItems.map( updateMatchingItem )
+		);
 	};
 
 	/**
@@ -1011,6 +1028,29 @@ export default function Edit( {
 																		</div>
 																	) }
 															</div>
+															{ isCompanyLogoVisible &&
+																( item
+																	.companyLogo
+																	?.url ||
+																	companyLogoPlaceholder ) && (
+																	<div className="gslider-testimonial-company-logo-wrapper">
+																		<img
+																			src={
+																				item
+																					.companyLogo
+																					?.url ||
+																				companyLogoPlaceholder
+																			}
+																			alt={
+																				item
+																					.companyLogo
+																					?.alt ||
+																				''
+																			}
+																			className="gslider-testimonial-company-logo"
+																		/>
+																	</div>
+																) }
 														</div>
 													),
 												};

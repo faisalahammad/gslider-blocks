@@ -106,6 +106,7 @@ const Inspector = ( {
 		showTestimonialTitle,
 		showTestimonialText,
 		showAuthorImage,
+		showCompanyLogo,
 		showRating,
 		showQuoteIcon,
 		showNavigation,
@@ -260,6 +261,53 @@ const Inspector = ( {
 		authorImageMobilePaddingCssStyle,
 		authorImagePaddingLink,
 		/** End Author Image Style */
+
+		/** Start Company Logo Style */
+		companyLogoMaxWidth,
+		companyLogoMaxWidthUnits,
+		companyLogoMaxHeight,
+		companyLogoMaxHeightUnits,
+
+		companyLogoBorder,
+		companyLogoBorderColorSwitcher,
+		companyLogoBorderColor,
+		companyLogoBorderHoverColor,
+		companyLogoBorderWidthUnits,
+		companyLogoDesktopBorderWidth,
+		companyLogoDesktopBorderWidthCssStyle,
+		companyLogoTabletBorderWidth,
+		companyLogoTabletBorderWidthCssStyle,
+		companyLogoMobileBorderWidth,
+		companyLogoMobileBorderWidthCssStyle,
+		companyLogoBorderWidthLink,
+
+		companyLogoBorderRadiusUnits,
+		companyLogoDesktopBorderRadius,
+		companyLogoDesktopBorderRadiusCssStyle,
+		companyLogoTabletBorderRadius,
+		companyLogoTabletBorderRadiusCssStyle,
+		companyLogoMobileBorderRadius,
+		companyLogoMobileBorderRadiusCssStyle,
+		companyLogoBorderRadiusLink,
+
+		companyLogoMarginUnits,
+		companyLogoDesktopMargin,
+		companyLogoDesktopMarginCssStyle,
+		companyLogoTabletMargin,
+		companyLogoTabletMarginCssStyle,
+		companyLogoMobileMargin,
+		companyLogoMobileMarginCssStyle,
+		companyLogoMarginLink,
+
+		companyLogoPaddingUnits,
+		companyLogoDesktopPadding,
+		companyLogoDesktopPaddingCssStyle,
+		companyLogoTabletPadding,
+		companyLogoTabletPaddingCssStyle,
+		companyLogoMobilePadding,
+		companyLogoMobilePaddingCssStyle,
+		companyLogoPaddingLink,
+		/** End Company Logo Style */
 
 		/** Start Rating Style */
 		ratingStarColorSwitcher,
@@ -949,6 +997,11 @@ const Inspector = ( {
 	] );
 	/** end if have default padding then set the css style */
 
+	const isCompanyLogoVisible =
+		showCompanyLogo?.Desktop ||
+		showCompanyLogo?.Tablet ||
+		showCompanyLogo?.Mobile;
+
 	/** Load Google Font */
 	if ( authorNameFontFamily !== 'Default' ) {
 		LoadGoogleFont( authorNameFontFamily );
@@ -1043,6 +1096,15 @@ const Inspector = ( {
 					onChange={ ( value ) =>
 						setAttributes( { showAuthorImage: value } )
 					}
+				/>
+				<ResponsiveToggleControl
+					label={ __( 'Show Company Logo', 'gslider-blocks' ) }
+					toggleValue={ showCompanyLogo }
+					setToggleValue={ ( value ) =>
+						setAttributes( { showCompanyLogo: value } )
+					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
 				/>
 				<ToggleControl
 					label={ __( 'Show Rating', 'gslider-blocks' ) }
@@ -2480,6 +2542,313 @@ const Inspector = ( {
 						isLinked={ authorImagePaddingLink }
 						onChangeLink={ ( value ) =>
 							setAttributes( { authorImagePaddingLink: value } )
+						}
+					/>
+				</PanelBody>
+			) }
+
+			{ isCompanyLogoVisible && (
+				<PanelBody
+					title={ __( 'Company Logo', 'gslider-blocks' ) }
+					opened={ openPanels.styles === 'companyLogo' }
+					onToggle={ () => togglePanel( 'styles', 'companyLogo' ) }
+				>
+					<ResponsiveRangeControl
+						label={ __( 'Max Width', 'gslider-blocks' ) }
+						rangeValue={ companyLogoMaxWidth }
+						onChangeValue={ ( value ) =>
+							setAttributes( { companyLogoMaxWidth: value } )
+						}
+						onUnitChange={ ( value ) =>
+							setAttributes( { companyLogoMaxWidthUnits: value } )
+						}
+						deviceType={ deviceType }
+						units={ companyLogoMaxWidthUnits }
+						resetFallbackValue={ {
+							px:
+								{ Desktop: '120', Tablet: '100', Mobile: '80' }[
+									deviceType
+								] || '80',
+						} }
+						unitBounds={ {
+							px: { min: 0, max: 500, step: 1 },
+						} }
+					/>
+
+					<ResponsiveRangeControl
+						label={ __( 'Max Height', 'gslider-blocks' ) }
+						rangeValue={ companyLogoMaxHeight }
+						onChangeValue={ ( value ) =>
+							setAttributes( { companyLogoMaxHeight: value } )
+						}
+						onUnitChange={ ( value ) =>
+							setAttributes( {
+								companyLogoMaxHeightUnits: value,
+							} )
+						}
+						deviceType={ deviceType }
+						units={ companyLogoMaxHeightUnits }
+						resetFallbackValue={ {
+							px:
+								{ Desktop: '48', Tablet: '40', Mobile: '32' }[
+									deviceType
+								] || '32',
+						} }
+						unitBounds={ {
+							px: { min: 0, max: 500, step: 1 },
+						} }
+					/>
+
+					<SelectControls
+						label={ __( 'Border Style', 'gslider-blocks' ) }
+						options={ BORDER_STYLES }
+						value={ companyLogoBorder }
+						onChange={ ( value ) =>
+							setAttributes( { companyLogoBorder: value } )
+						}
+					/>
+
+					{ companyLogoBorder !== 'none' && (
+						<>
+							<SwitcherControl
+								label={ __( 'Border Color', 'gslider-blocks' ) }
+								options={ NORMAL_HOVER }
+								value={ companyLogoBorderColorSwitcher }
+								onChange={ ( value ) =>
+									setAttributes( {
+										companyLogoBorderColorSwitcher: value,
+									} )
+								}
+							/>
+
+							{ companyLogoBorderColorSwitcher === 'normal' && (
+								<ColorControl
+									label={ __(
+										'Normal Color',
+										'gslider-blocks'
+									) }
+									color={ companyLogoBorderColor }
+									onChangeColor={ ( value ) =>
+										setAttributes( {
+											companyLogoBorderColor: value,
+										} )
+									}
+									defaultColor=""
+								/>
+							) }
+
+							{ companyLogoBorderColorSwitcher === 'hover' && (
+								<ColorControl
+									label={ __(
+										'Hover Color',
+										'gslider-blocks'
+									) }
+									color={ companyLogoBorderHoverColor }
+									onChangeColor={ ( value ) =>
+										setAttributes( {
+											companyLogoBorderHoverColor: value,
+										} )
+									}
+									defaultColor=""
+								/>
+							) }
+
+							<ResponsiveSpacingControl
+								label={ __( 'Border Width', 'gslider-blocks' ) }
+								deviceType={ deviceType }
+								onChangeDeviceType={ ( value ) =>
+									setAttributes( { deviceType: value } )
+								}
+								units={ companyLogoBorderWidthUnits }
+								onChangeUnits={ ( value ) =>
+									setAttributes( {
+										companyLogoBorderWidthUnits: value,
+									} )
+								}
+								desktopSpacing={ companyLogoDesktopBorderWidth }
+								onChangeDesktopSpacing={ ( value ) =>
+									setAttributes( {
+										companyLogoDesktopBorderWidth: value,
+									} )
+								}
+								desktopSpacingStyle={ ( value ) =>
+									setAttributes( {
+										companyLogoDesktopBorderWidthCssStyle:
+											value,
+									} )
+								}
+								tabletSpacing={ companyLogoTabletBorderWidth }
+								onChangeTabletSpacing={ ( value ) =>
+									setAttributes( {
+										companyLogoTabletBorderWidth: value,
+									} )
+								}
+								tabletSpacingStyle={ ( value ) =>
+									setAttributes( {
+										companyLogoTabletBorderWidthCssStyle:
+											value,
+									} )
+								}
+								mobileSpacing={ companyLogoMobileBorderWidth }
+								onChangeMobileSpacing={ ( value ) =>
+									setAttributes( {
+										companyLogoMobileBorderWidth: value,
+									} )
+								}
+								mobileSpacingStyle={ ( value ) =>
+									setAttributes( {
+										companyLogoMobileBorderWidthCssStyle:
+											value,
+									} )
+								}
+								isLinked={ companyLogoBorderWidthLink }
+								onChangeLink={ ( value ) =>
+									setAttributes( {
+										companyLogoBorderWidthLink: value,
+									} )
+								}
+							/>
+						</>
+					) }
+
+					<ResponsiveSpacingControl
+						label={ __( 'Border Radius', 'gslider-blocks' ) }
+						deviceType={ deviceType }
+						onChangeDeviceType={ ( value ) =>
+							setAttributes( { deviceType: value } )
+						}
+						units={ companyLogoBorderRadiusUnits }
+						onChangeUnits={ ( value ) =>
+							setAttributes( {
+								companyLogoBorderRadiusUnits: value,
+							} )
+						}
+						desktopSpacing={ companyLogoDesktopBorderRadius }
+						onChangeDesktopSpacing={ ( value ) =>
+							setAttributes( {
+								companyLogoDesktopBorderRadius: value,
+							} )
+						}
+						desktopSpacingStyle={ ( value ) =>
+							setAttributes( {
+								companyLogoDesktopBorderRadiusCssStyle: value,
+							} )
+						}
+						tabletSpacing={ companyLogoTabletBorderRadius }
+						onChangeTabletSpacing={ ( value ) =>
+							setAttributes( {
+								companyLogoTabletBorderRadius: value,
+							} )
+						}
+						tabletSpacingStyle={ ( value ) =>
+							setAttributes( {
+								companyLogoTabletBorderRadiusCssStyle: value,
+							} )
+						}
+						mobileSpacing={ companyLogoMobileBorderRadius }
+						onChangeMobileSpacing={ ( value ) =>
+							setAttributes( {
+								companyLogoMobileBorderRadius: value,
+							} )
+						}
+						mobileSpacingStyle={ ( value ) =>
+							setAttributes( {
+								companyLogoMobileBorderRadiusCssStyle: value,
+							} )
+						}
+						isLinked={ companyLogoBorderRadiusLink }
+						onChangeLink={ ( value ) =>
+							setAttributes( {
+								companyLogoBorderRadiusLink: value,
+							} )
+						}
+					/>
+
+					<ResponsiveSpacingControl
+						label={ __( 'Margin', 'gslider-blocks' ) }
+						deviceType={ deviceType }
+						onChangeDeviceType={ ( value ) =>
+							setAttributes( { deviceType: value } )
+						}
+						units={ companyLogoMarginUnits }
+						onChangeUnits={ ( value ) =>
+							setAttributes( { companyLogoMarginUnits: value } )
+						}
+						desktopSpacing={ companyLogoDesktopMargin }
+						onChangeDesktopSpacing={ ( value ) =>
+							setAttributes( { companyLogoDesktopMargin: value } )
+						}
+						desktopSpacingStyle={ ( value ) =>
+							setAttributes( {
+								companyLogoDesktopMarginCssStyle: value,
+							} )
+						}
+						tabletSpacing={ companyLogoTabletMargin }
+						onChangeTabletSpacing={ ( value ) =>
+							setAttributes( { companyLogoTabletMargin: value } )
+						}
+						tabletSpacingStyle={ ( value ) =>
+							setAttributes( {
+								companyLogoTabletMarginCssStyle: value,
+							} )
+						}
+						mobileSpacing={ companyLogoMobileMargin }
+						onChangeMobileSpacing={ ( value ) =>
+							setAttributes( { companyLogoMobileMargin: value } )
+						}
+						mobileSpacingStyle={ ( value ) =>
+							setAttributes( {
+								companyLogoMobileMarginCssStyle: value,
+							} )
+						}
+						isLinked={ companyLogoMarginLink }
+						onChangeLink={ ( value ) =>
+							setAttributes( { companyLogoMarginLink: value } )
+						}
+					/>
+
+					<ResponsiveSpacingControl
+						label={ __( 'Padding', 'gslider-blocks' ) }
+						deviceType={ deviceType }
+						onChangeDeviceType={ ( value ) =>
+							setAttributes( { deviceType: value } )
+						}
+						units={ companyLogoPaddingUnits }
+						onChangeUnits={ ( value ) =>
+							setAttributes( { companyLogoPaddingUnits: value } )
+						}
+						desktopSpacing={ companyLogoDesktopPadding }
+						onChangeDesktopSpacing={ ( value ) =>
+							setAttributes( {
+								companyLogoDesktopPadding: value,
+							} )
+						}
+						desktopSpacingStyle={ ( value ) =>
+							setAttributes( {
+								companyLogoDesktopPaddingCssStyle: value,
+							} )
+						}
+						tabletSpacing={ companyLogoTabletPadding }
+						onChangeTabletSpacing={ ( value ) =>
+							setAttributes( { companyLogoTabletPadding: value } )
+						}
+						tabletSpacingStyle={ ( value ) =>
+							setAttributes( {
+								companyLogoTabletPaddingCssStyle: value,
+							} )
+						}
+						mobileSpacing={ companyLogoMobilePadding }
+						onChangeMobileSpacing={ ( value ) =>
+							setAttributes( { companyLogoMobilePadding: value } )
+						}
+						mobileSpacingStyle={ ( value ) =>
+							setAttributes( {
+								companyLogoMobilePaddingCssStyle: value,
+							} )
+						}
+						isLinked={ companyLogoPaddingLink }
+						onChangeLink={ ( value ) =>
+							setAttributes( { companyLogoPaddingLink: value } )
 						}
 					/>
 				</PanelBody>

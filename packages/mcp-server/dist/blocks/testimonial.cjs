@@ -146,6 +146,11 @@ var attributes = {
           id: "",
           alt: ""
         },
+        companyLogo: {
+          url: "",
+          id: "",
+          alt: ""
+        },
         ratingIconAlign: "icon",
         ratingNumber: 5,
         ratingImage: {
@@ -212,6 +217,11 @@ var attributes = {
           id: "",
           alt: ""
         },
+        companyLogo: {
+          url: "",
+          id: "",
+          alt: ""
+        },
         ratingIconAlign: "icon",
         ratingNumber: 5,
         ratingImage: {
@@ -274,6 +284,11 @@ var attributes = {
         authorName: "Michael Brown",
         authorDesignation: "Senior Software Engineer, Google",
         authorImage: {
+          url: "",
+          id: "",
+          alt: ""
+        },
+        companyLogo: {
           url: "",
           id: "",
           alt: ""
@@ -358,6 +373,14 @@ var attributes = {
           default: "Software Engineer, Google"
         },
         authorImage: {
+          type: "object",
+          default: {
+            url: "",
+            id: "",
+            alt: ""
+          }
+        },
+        companyLogo: {
           type: "object",
           default: {
             url: "",
@@ -594,6 +617,14 @@ var attributes = {
   showAuthorImage: {
     type: "boolean",
     default: true
+  },
+  showCompanyLogo: {
+    type: "object",
+    default: {
+      Desktop: true,
+      Tablet: true,
+      Mobile: true
+    }
   },
   showRating: {
     type: "boolean",
@@ -1422,6 +1453,270 @@ var attributes = {
   },
   /** End Author Image Padding */
   /** End Author Image Style */
+  /** Start Company Logo Style */
+  /** Start Company Logo Size */
+  companyLogoMaxWidth: {
+    type: "object",
+    default: {
+      Desktop: "120",
+      Tablet: "100",
+      Mobile: "80"
+    }
+  },
+  companyLogoMaxWidthUnits: {
+    type: "object",
+    default: {
+      Desktop: "px",
+      Tablet: "px",
+      Mobile: "px"
+    }
+  },
+  companyLogoMaxHeight: {
+    type: "object",
+    default: {
+      Desktop: "48",
+      Tablet: "40",
+      Mobile: "32"
+    }
+  },
+  companyLogoMaxHeightUnits: {
+    type: "object",
+    default: {
+      Desktop: "px",
+      Tablet: "px",
+      Mobile: "px"
+    }
+  },
+  /** End Company Logo Size */
+  /** Start Company Logo Border */
+  companyLogoBorder: {
+    type: "string",
+    default: "none"
+  },
+  companyLogoBorderColorSwitcher: {
+    type: "string",
+    default: "normal"
+  },
+  companyLogoBorderColor: {
+    type: "string",
+    default: ""
+  },
+  companyLogoBorderHoverColor: {
+    type: "string",
+    default: ""
+  },
+  companyLogoBorderWidthUnits: {
+    type: "object",
+    default: {
+      Desktop: "px",
+      Tablet: "px",
+      Mobile: "px"
+    }
+  },
+  companyLogoDesktopBorderWidth: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoDesktopBorderWidthCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoTabletBorderWidth: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoTabletBorderWidthCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoMobileBorderWidth: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoMobileBorderWidthCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoBorderWidthLink: {
+    type: "boolean",
+    default: true
+  },
+  /** End Company Logo Border */
+  /** Start Company Logo Border Radius */
+  companyLogoBorderRadiusUnits: {
+    type: "object",
+    default: {
+      Desktop: "px",
+      Tablet: "px",
+      Mobile: "px"
+    }
+  },
+  companyLogoDesktopBorderRadius: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoDesktopBorderRadiusCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoTabletBorderRadius: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoTabletBorderRadiusCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoMobileBorderRadius: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoMobileBorderRadiusCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoBorderRadiusLink: {
+    type: "boolean",
+    default: true
+  },
+  /** End Company Logo Border Radius */
+  /** Start Company Logo Margin */
+  companyLogoMarginUnits: {
+    type: "object",
+    default: {
+      Desktop: "px",
+      Tablet: "px",
+      Mobile: "px"
+    }
+  },
+  companyLogoDesktopMargin: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoDesktopMarginCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoTabletMargin: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoTabletMarginCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoMobileMargin: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoMobileMarginCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoMarginLink: {
+    type: "boolean",
+    default: true
+  },
+  /** End Company Logo Margin */
+  /** Start Company Logo Padding */
+  companyLogoPaddingUnits: {
+    type: "object",
+    default: {
+      Desktop: "px",
+      Tablet: "px",
+      Mobile: "px"
+    }
+  },
+  companyLogoDesktopPadding: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoDesktopPaddingCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoTabletPadding: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoTabletPaddingCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoMobilePadding: {
+    type: "object",
+    default: {
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    }
+  },
+  companyLogoMobilePaddingCssStyle: {
+    type: "string",
+    default: ""
+  },
+  companyLogoPaddingLink: {
+    type: "boolean",
+    default: true
+  },
+  /** End Company Logo Padding */
+  /** End Company Logo Style */
   /** Start Rating Style */
   ratingStarColorSwitcher: {
     type: "string",
@@ -4125,6 +4420,7 @@ function Save({ attributes: attributes2 }) {
     showTestimonialTitle,
     showTestimonialText,
     showAuthorImage,
+    showCompanyLogo,
     showRating,
     showRatingNumber,
     showQuoteIcon,
@@ -4247,6 +4543,7 @@ function Save({ attributes: attributes2 }) {
     }
   });
   const authorImagePlaceholder = authorPlaceholderUrl;
+  const isCompanyLogoVisible = showCompanyLogo?.Desktop || showCompanyLogo?.Tablet || showCompanyLogo?.Mobile;
   const renderRatingIcons = (item) => {
     const { ratingNumber, ratingIconAlign } = item;
     const ratingImageUrl = item.ratingImage?.url;
@@ -4480,7 +4777,15 @@ function Save({ attributes: attributes2 }) {
                       value: item.authorDesignation
                     }
                   ) })
-                ] })
+                ] }),
+                isCompanyLogoVisible && item.companyLogo?.url && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "gslider-testimonial-company-logo-wrapper", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  "img",
+                  {
+                    src: item.companyLogo.url,
+                    alt: item.companyLogo.alt || "",
+                    className: "gslider-testimonial-company-logo"
+                  }
+                ) })
               ]
             },
             "author"
@@ -4830,6 +5135,28 @@ var generateBaseSliderStyle = (attributes2) => {
     authorImageTabletPaddingCssStyle,
     authorImageMobilePaddingCssStyle,
     /** End Author Image Style */
+    /** Start Company Logo Style */
+    showCompanyLogo,
+    companyLogoMaxWidth,
+    companyLogoMaxWidthUnits,
+    companyLogoMaxHeight,
+    companyLogoMaxHeightUnits,
+    companyLogoBorder,
+    companyLogoBorderColor,
+    companyLogoBorderHoverColor,
+    companyLogoDesktopBorderWidthCssStyle,
+    companyLogoTabletBorderWidthCssStyle,
+    companyLogoMobileBorderWidthCssStyle,
+    companyLogoDesktopBorderRadiusCssStyle,
+    companyLogoTabletBorderRadiusCssStyle,
+    companyLogoMobileBorderRadiusCssStyle,
+    companyLogoDesktopMarginCssStyle,
+    companyLogoTabletMarginCssStyle,
+    companyLogoMobileMarginCssStyle,
+    companyLogoDesktopPaddingCssStyle,
+    companyLogoTabletPaddingCssStyle,
+    companyLogoMobilePaddingCssStyle,
+    /** End Company Logo Style */
     /** Start Quote Icon Style */
     quoteIconAlign,
     quoteIcon,
@@ -5544,6 +5871,25 @@ var generateBaseSliderStyle = (attributes2) => {
         }
         /** End Author Image Style */
 
+        /** Start Company Logo Style */
+        .${blockId} .gslider-testimonial-company-logo-wrapper {
+            display: ${showCompanyLogo?.Desktop === false ? "none" : "block"};
+        }
+        .${blockId} .gslider-testimonial-company-logo-wrapper .gslider-testimonial-company-logo {
+            ${companyLogoMaxWidth?.Desktop ? `max-width: ${companyLogoMaxWidth.Desktop}${companyLogoMaxWidthUnits?.Desktop || "px"};` : ""}
+            ${companyLogoMaxHeight?.Desktop ? `max-height: ${companyLogoMaxHeight.Desktop}${companyLogoMaxHeightUnits?.Desktop || "px"};` : ""}
+            ${companyLogoBorder !== "none" ? `border-style: ${companyLogoBorder};` : ""}
+            ${companyLogoDesktopBorderWidthCssStyle ? `border-width: ${companyLogoDesktopBorderWidthCssStyle};` : ""}
+            ${companyLogoBorderColor ? `border-color: ${companyLogoBorderColor};` : ""}
+            ${companyLogoDesktopBorderRadiusCssStyle ? `border-radius: ${companyLogoDesktopBorderRadiusCssStyle};` : ""}
+            ${companyLogoDesktopMarginCssStyle ? `margin: ${companyLogoDesktopMarginCssStyle};` : ""}
+            ${companyLogoDesktopPaddingCssStyle ? `padding: ${companyLogoDesktopPaddingCssStyle};` : ""}
+        }
+        .${blockId}.gslider-testimonial-wrapper:hover .gslider-testimonial-company-logo-wrapper .gslider-testimonial-company-logo {
+            ${companyLogoBorderHoverColor ? `border-color: ${companyLogoBorderHoverColor};` : ""}
+        }
+        /** End Company Logo Style */
+
         .${blockId}.gslider-testimonial-wrapper .gslider-testimonial-title-wrapper .gslider-testimonial-title {
             ${testimonialTitleFontFamily ? `font-family: ${testimonialTitleFontFamily};` : ""}
             ${testimonialTitleFontSize.Desktop && testimonialTitleFontSizeUnits.Desktop ? `font-size: ${testimonialTitleFontSize.Desktop}${testimonialTitleFontSizeUnits.Desktop};` : ""}
@@ -6043,6 +6389,18 @@ var generateBaseSliderStyle = (attributes2) => {
                 ${authorImageTabletPaddingCssStyle ? `padding: ${authorImageTabletPaddingCssStyle};` : ""}
             }
 
+            .${blockId} .gslider-testimonial-company-logo-wrapper {
+                display: ${showCompanyLogo?.Tablet === false ? "none" : "block"};
+            }
+            .${blockId} .gslider-testimonial-company-logo-wrapper .gslider-testimonial-company-logo {
+                ${companyLogoMaxWidth?.Tablet ? `max-width: ${companyLogoMaxWidth.Tablet}${companyLogoMaxWidthUnits?.Tablet || "px"};` : ""}
+                ${companyLogoMaxHeight?.Tablet ? `max-height: ${companyLogoMaxHeight.Tablet}${companyLogoMaxHeightUnits?.Tablet || "px"};` : ""}
+                ${companyLogoTabletBorderWidthCssStyle ? `border-width: ${companyLogoTabletBorderWidthCssStyle};` : ""}
+                ${companyLogoTabletBorderRadiusCssStyle ? `border-radius: ${companyLogoTabletBorderRadiusCssStyle};` : ""}
+                ${companyLogoTabletMarginCssStyle ? `margin: ${companyLogoTabletMarginCssStyle};` : ""}
+                ${companyLogoTabletPaddingCssStyle ? `padding: ${companyLogoTabletPaddingCssStyle};` : ""}
+            }
+
             .${blockId}.gslider-testimonial-wrapper .gslider-testimonial-text-wrapper .gslider-testimonial-text {
                 ${testimonialTextFontSize.Tablet && testimonialTextFontSizeUnits.Tablet ? `font-size: ${testimonialTextFontSize.Tablet}${testimonialTextFontSizeUnits.Tablet};` : ""}
                 ${testimonialTextLineHeight.Tablet && testimonialTextLineHeightUnits.Tablet ? `line-height: ${testimonialTextLineHeight.Tablet}${testimonialTextLineHeightUnits.Tablet};` : ""}
@@ -6322,6 +6680,18 @@ var generateBaseSliderStyle = (attributes2) => {
                 ${authorImageMobileBorderRadiusCssStyle ? `border-radius: ${authorImageMobileBorderRadiusCssStyle};` : ""}
                 ${authorImageMobileMarginCssStyle ? `margin: ${authorImageMobileMarginCssStyle};` : ""}
                 ${authorImageMobilePaddingCssStyle ? `padding: ${authorImageMobilePaddingCssStyle};` : ""}
+            }
+
+            .${blockId} .gslider-testimonial-company-logo-wrapper {
+                display: ${showCompanyLogo?.Mobile === false ? "none" : "block"};
+            }
+            .${blockId} .gslider-testimonial-company-logo-wrapper .gslider-testimonial-company-logo {
+                ${companyLogoMaxWidth?.Mobile ? `max-width: ${companyLogoMaxWidth.Mobile}${companyLogoMaxWidthUnits?.Mobile || "px"};` : ""}
+                ${companyLogoMaxHeight?.Mobile ? `max-height: ${companyLogoMaxHeight.Mobile}${companyLogoMaxHeightUnits?.Mobile || "px"};` : ""}
+                ${companyLogoMobileBorderWidthCssStyle ? `border-width: ${companyLogoMobileBorderWidthCssStyle};` : ""}
+                ${companyLogoMobileBorderRadiusCssStyle ? `border-radius: ${companyLogoMobileBorderRadiusCssStyle};` : ""}
+                ${companyLogoMobileMarginCssStyle ? `margin: ${companyLogoMobileMarginCssStyle};` : ""}
+                ${companyLogoMobilePaddingCssStyle ? `padding: ${companyLogoMobilePaddingCssStyle};` : ""}
             }
 
             .${blockId}.gslider-testimonial-wrapper .gslider-testimonial-text-wrapper .gslider-testimonial-text {

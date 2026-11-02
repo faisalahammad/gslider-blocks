@@ -30,6 +30,7 @@ export default function Save( { attributes } ) {
 		showTestimonialTitle,
 		showTestimonialText,
 		showAuthorImage,
+		showCompanyLogo,
 		showRating,
 		showRatingNumber,
 		showQuoteIcon,
@@ -191,6 +192,10 @@ export default function Save( { attributes } ) {
 	} );
 
 	const authorImagePlaceholder = authorPlaceholderUrl;
+	const isCompanyLogoVisible =
+		showCompanyLogo?.Desktop ||
+		showCompanyLogo?.Tablet ||
+		showCompanyLogo?.Mobile;
 
 	const renderRatingIcons = ( item ) => {
 		const { ratingNumber, ratingIconAlign } = item;
@@ -451,6 +456,19 @@ export default function Save( { attributes } ) {
 												</div>
 											) }
 									</div>
+									{ isCompanyLogoVisible &&
+										item.companyLogo?.url && (
+											<div className="gslider-testimonial-company-logo-wrapper">
+												<img
+													src={ item.companyLogo.url }
+													alt={
+														item.companyLogo.alt ||
+														''
+													}
+													className="gslider-testimonial-company-logo"
+												/>
+											</div>
+										) }
 								</div>
 							),
 						};

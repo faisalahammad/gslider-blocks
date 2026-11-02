@@ -36,6 +36,11 @@ const attributes = {
 					id: '',
 					alt: '',
 				},
+				companyLogo: {
+					url: '',
+					id: '',
+					alt: '',
+				},
 				ratingIconAlign: 'icon',
 				ratingNumber: 5,
 				ratingImage: {
@@ -106,6 +111,11 @@ const attributes = {
 					id: '',
 					alt: '',
 				},
+				companyLogo: {
+					url: '',
+					id: '',
+					alt: '',
+				},
 				ratingIconAlign: 'icon',
 				ratingNumber: 5,
 				ratingImage: {
@@ -172,6 +182,11 @@ const attributes = {
 				authorName: 'Michael Brown',
 				authorDesignation: 'Senior Software Engineer, Google',
 				authorImage: {
+					url: '',
+					id: '',
+					alt: '',
+				},
+				companyLogo: {
 					url: '',
 					id: '',
 					alt: '',
@@ -260,6 +275,14 @@ const attributes = {
 					default: 'Software Engineer, Google',
 				},
 				authorImage: {
+					type: 'object',
+					default: {
+						url: '',
+						id: '',
+						alt: '',
+					},
+				},
+				companyLogo: {
 					type: 'object',
 					default: {
 						url: '',
@@ -501,6 +524,14 @@ const attributes = {
 	showAuthorImage: {
 		type: 'boolean',
 		default: true,
+	},
+	showCompanyLogo: {
+		type: 'object',
+		default: {
+			Desktop: true,
+			Tablet: true,
+			Mobile: true,
+		},
 	},
 	showRating: {
 		type: 'boolean',
@@ -1349,6 +1380,277 @@ const attributes = {
 	/** End Author Image Padding */
 
 	/** End Author Image Style */
+
+	/** Start Company Logo Style */
+
+	/** Start Company Logo Size */
+	companyLogoMaxWidth: {
+		type: 'object',
+		default: {
+			Desktop: '120',
+			Tablet: '100',
+			Mobile: '80',
+		},
+	},
+	companyLogoMaxWidthUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	companyLogoMaxHeight: {
+		type: 'object',
+		default: {
+			Desktop: '48',
+			Tablet: '40',
+			Mobile: '32',
+		},
+	},
+	companyLogoMaxHeightUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	/** End Company Logo Size */
+
+	/** Start Company Logo Border */
+	companyLogoBorder: {
+		type: 'string',
+		default: 'none',
+	},
+	companyLogoBorderColorSwitcher: {
+		type: 'string',
+		default: 'normal',
+	},
+	companyLogoBorderColor: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoBorderHoverColor: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoBorderWidthUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	companyLogoDesktopBorderWidth: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoDesktopBorderWidthCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoTabletBorderWidth: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoTabletBorderWidthCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoMobileBorderWidth: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoMobileBorderWidthCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoBorderWidthLink: {
+		type: 'boolean',
+		default: true,
+	},
+	/** End Company Logo Border */
+
+	/** Start Company Logo Border Radius */
+	companyLogoBorderRadiusUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	companyLogoDesktopBorderRadius: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoDesktopBorderRadiusCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoTabletBorderRadius: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoTabletBorderRadiusCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoMobileBorderRadius: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoMobileBorderRadiusCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoBorderRadiusLink: {
+		type: 'boolean',
+		default: true,
+	},
+	/** End Company Logo Border Radius */
+
+	/** Start Company Logo Margin */
+	companyLogoMarginUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	companyLogoDesktopMargin: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoDesktopMarginCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoTabletMargin: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoTabletMarginCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoMobileMargin: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoMobileMarginCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoMarginLink: {
+		type: 'boolean',
+		default: true,
+	},
+	/** End Company Logo Margin */
+
+	/** Start Company Logo Padding */
+	companyLogoPaddingUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	companyLogoDesktopPadding: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoDesktopPaddingCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoTabletPadding: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoTabletPaddingCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoMobilePadding: {
+		type: 'object',
+		default: {
+			top: '',
+			bottom: '',
+			left: '',
+			right: '',
+		},
+	},
+	companyLogoMobilePaddingCssStyle: {
+		type: 'string',
+		default: '',
+	},
+	companyLogoPaddingLink: {
+		type: 'boolean',
+		default: true,
+	},
+	/** End Company Logo Padding */
+
+	/** End Company Logo Style */
 
 	/** Start Rating Style */
 	ratingStarColorSwitcher: {

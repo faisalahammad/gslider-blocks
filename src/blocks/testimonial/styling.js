@@ -206,6 +206,34 @@ const generateBaseSliderStyle = ( attributes ) => {
 		authorImageMobilePaddingCssStyle,
 		/** End Author Image Style */
 
+		/** Start Company Logo Style */
+		showCompanyLogo,
+		companyLogoMaxWidth,
+		companyLogoMaxWidthUnits,
+		companyLogoMaxHeight,
+		companyLogoMaxHeightUnits,
+
+		companyLogoBorder,
+		companyLogoBorderColor,
+		companyLogoBorderHoverColor,
+
+		companyLogoDesktopBorderWidthCssStyle,
+		companyLogoTabletBorderWidthCssStyle,
+		companyLogoMobileBorderWidthCssStyle,
+
+		companyLogoDesktopBorderRadiusCssStyle,
+		companyLogoTabletBorderRadiusCssStyle,
+		companyLogoMobileBorderRadiusCssStyle,
+
+		companyLogoDesktopMarginCssStyle,
+		companyLogoTabletMarginCssStyle,
+		companyLogoMobileMarginCssStyle,
+
+		companyLogoDesktopPaddingCssStyle,
+		companyLogoTabletPaddingCssStyle,
+		companyLogoMobilePaddingCssStyle,
+		/** End Company Logo Style */
+
 		/** Start Quote Icon Style */
 		quoteIconAlign,
 		quoteIcon,
@@ -1332,6 +1360,65 @@ const generateBaseSliderStyle = ( attributes ) => {
 			}
         }
         /** End Author Image Style */
+
+        /** Start Company Logo Style */
+        .${ blockId } .gslider-testimonial-company-logo-wrapper {
+            display: ${ showCompanyLogo?.Desktop === false ? 'none' : 'block' };
+        }
+        .${ blockId } .gslider-testimonial-company-logo-wrapper .gslider-testimonial-company-logo {
+            ${
+				companyLogoMaxWidth?.Desktop
+					? `max-width: ${ companyLogoMaxWidth.Desktop }${
+							companyLogoMaxWidthUnits?.Desktop || 'px'
+					  };`
+					: ''
+			}
+            ${
+				companyLogoMaxHeight?.Desktop
+					? `max-height: ${ companyLogoMaxHeight.Desktop }${
+							companyLogoMaxHeightUnits?.Desktop || 'px'
+					  };`
+					: ''
+			}
+            ${
+				companyLogoBorder !== 'none'
+					? `border-style: ${ companyLogoBorder };`
+					: ''
+			}
+            ${
+				companyLogoDesktopBorderWidthCssStyle
+					? `border-width: ${ companyLogoDesktopBorderWidthCssStyle };`
+					: ''
+			}
+            ${
+				companyLogoBorderColor
+					? `border-color: ${ companyLogoBorderColor };`
+					: ''
+			}
+            ${
+				companyLogoDesktopBorderRadiusCssStyle
+					? `border-radius: ${ companyLogoDesktopBorderRadiusCssStyle };`
+					: ''
+			}
+            ${
+				companyLogoDesktopMarginCssStyle
+					? `margin: ${ companyLogoDesktopMarginCssStyle };`
+					: ''
+			}
+            ${
+				companyLogoDesktopPaddingCssStyle
+					? `padding: ${ companyLogoDesktopPaddingCssStyle };`
+					: ''
+			}
+        }
+        .${ blockId }.gslider-testimonial-wrapper:hover .gslider-testimonial-company-logo-wrapper .gslider-testimonial-company-logo {
+            ${
+				companyLogoBorderHoverColor
+					? `border-color: ${ companyLogoBorderHoverColor };`
+					: ''
+			}
+        }
+        /** End Company Logo Style */
 
         .${ blockId }.gslider-testimonial-wrapper .gslider-testimonial-title-wrapper .gslider-testimonial-title {
             ${
@@ -2733,6 +2820,48 @@ const generateBaseSliderStyle = ( attributes ) => {
 				}
             }
 
+            .${ blockId } .gslider-testimonial-company-logo-wrapper {
+                display: ${
+					showCompanyLogo?.Tablet === false ? 'none' : 'block'
+				};
+            }
+            .${ blockId } .gslider-testimonial-company-logo-wrapper .gslider-testimonial-company-logo {
+                ${
+					companyLogoMaxWidth?.Tablet
+						? `max-width: ${ companyLogoMaxWidth.Tablet }${
+								companyLogoMaxWidthUnits?.Tablet || 'px'
+						  };`
+						: ''
+				}
+                ${
+					companyLogoMaxHeight?.Tablet
+						? `max-height: ${ companyLogoMaxHeight.Tablet }${
+								companyLogoMaxHeightUnits?.Tablet || 'px'
+						  };`
+						: ''
+				}
+                ${
+					companyLogoTabletBorderWidthCssStyle
+						? `border-width: ${ companyLogoTabletBorderWidthCssStyle };`
+						: ''
+				}
+                ${
+					companyLogoTabletBorderRadiusCssStyle
+						? `border-radius: ${ companyLogoTabletBorderRadiusCssStyle };`
+						: ''
+				}
+                ${
+					companyLogoTabletMarginCssStyle
+						? `margin: ${ companyLogoTabletMarginCssStyle };`
+						: ''
+				}
+                ${
+					companyLogoTabletPaddingCssStyle
+						? `padding: ${ companyLogoTabletPaddingCssStyle };`
+						: ''
+				}
+            }
+
             .${ blockId }.gslider-testimonial-wrapper .gslider-testimonial-text-wrapper .gslider-testimonial-text {
                 ${
 					testimonialTextFontSize.Tablet &&
@@ -3588,6 +3717,48 @@ const generateBaseSliderStyle = ( attributes ) => {
                 ${
 					authorImageMobilePaddingCssStyle
 						? `padding: ${ authorImageMobilePaddingCssStyle };`
+						: ''
+				}
+            }
+
+            .${ blockId } .gslider-testimonial-company-logo-wrapper {
+                display: ${
+					showCompanyLogo?.Mobile === false ? 'none' : 'block'
+				};
+            }
+            .${ blockId } .gslider-testimonial-company-logo-wrapper .gslider-testimonial-company-logo {
+                ${
+					companyLogoMaxWidth?.Mobile
+						? `max-width: ${ companyLogoMaxWidth.Mobile }${
+								companyLogoMaxWidthUnits?.Mobile || 'px'
+						  };`
+						: ''
+				}
+                ${
+					companyLogoMaxHeight?.Mobile
+						? `max-height: ${ companyLogoMaxHeight.Mobile }${
+								companyLogoMaxHeightUnits?.Mobile || 'px'
+						  };`
+						: ''
+				}
+                ${
+					companyLogoMobileBorderWidthCssStyle
+						? `border-width: ${ companyLogoMobileBorderWidthCssStyle };`
+						: ''
+				}
+                ${
+					companyLogoMobileBorderRadiusCssStyle
+						? `border-radius: ${ companyLogoMobileBorderRadiusCssStyle };`
+						: ''
+				}
+                ${
+					companyLogoMobileMarginCssStyle
+						? `margin: ${ companyLogoMobileMarginCssStyle };`
+						: ''
+				}
+                ${
+					companyLogoMobilePaddingCssStyle
+						? `padding: ${ companyLogoMobilePaddingCssStyle };`
 						: ''
 				}
             }

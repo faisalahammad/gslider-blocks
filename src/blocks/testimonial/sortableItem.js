@@ -235,6 +235,37 @@ export default function SortableItem( {
 										}
 										isImageSize={ false }
 									/>
+									<ImageControl
+										label={ __(
+											'Company Logo',
+											'gslider-blocks'
+										) }
+										imageUrl={ item.companyLogo?.url }
+										setImageUrl={ ( value ) =>
+											handleChangeItem(
+												item.id,
+												'companyLogo',
+												{ url: value }
+											)
+										}
+										imageAlt={ item.companyLogo?.alt }
+										setImageAlt={ ( value ) =>
+											handleChangeItem(
+												item.id,
+												'companyLogo',
+												{ alt: value }
+											)
+										}
+										imageID={ item.companyLogo?.id }
+										setImageID={ ( value ) =>
+											handleChangeItem(
+												item.id,
+												'companyLogo',
+												{ id: value }
+											)
+										}
+										isImageSize={ false }
+									/>
 
 									<SwitcherControl
 										label={ __(
