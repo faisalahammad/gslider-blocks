@@ -44,7 +44,7 @@ class SupportSVGTestFilesystem {
 	 * @param string $path File path.
 	 * @return bool
 	 */
-	public function exists( $path ) {
+	public function exists( string $path ): bool {
 		return isset( $this->files[ $path ] );
 	}
 
@@ -54,7 +54,7 @@ class SupportSVGTestFilesystem {
 	 * @param string $path File path.
 	 * @return string|false
 	 */
-	public function get_contents( $path ) {
+	public function get_contents( string $path ) {
 		return $this->files[ $path ] ?? false;
 	}
 
@@ -65,7 +65,7 @@ class SupportSVGTestFilesystem {
 	 * @param string $content File content.
 	 * @return bool
 	 */
-	public function put_contents( $path, $content ) {
+	public function put_contents( string $path, string $content ): bool {
 		$this->files[ $path ] = $content;
 		return true;
 	}
@@ -114,7 +114,7 @@ class SupportSVGTestEntityStream {
 	 * @param string|null $opened_path Opened path.
 	 * @return bool
 	 */
-	public function stream_open( $path, $mode, $options, &$opened_path ) {
+	public function stream_open( string $path, string $mode, int $options, ?string &$opened_path ): bool {
 		self::$opened++;
 		return true;
 	}
@@ -125,7 +125,7 @@ class SupportSVGTestEntityStream {
 	 * @param int $count Bytes to read.
 	 * @return string
 	 */
-	public function stream_read( $count ) {
+	public function stream_read( int $count ): string {
 		$chunk           = (string) substr( self::CANARY, $this->position, $count );
 		$this->position += strlen( $chunk );
 		return $chunk;
@@ -136,7 +136,7 @@ class SupportSVGTestEntityStream {
 	 *
 	 * @return bool
 	 */
-	public function stream_eof() {
+	public function stream_eof(): bool {
 		return $this->position >= strlen( self::CANARY );
 	}
 
@@ -145,7 +145,7 @@ class SupportSVGTestEntityStream {
 	 *
 	 * @return array
 	 */
-	public function stream_stat() {
+	public function stream_stat(): array {
 		return [];
 	}
 
@@ -156,7 +156,7 @@ class SupportSVGTestEntityStream {
 	 * @param int    $flags Stat flags.
 	 * @return array
 	 */
-	public function url_stat( $path, $flags ) {
+	public function url_stat( string $path, int $flags ): array {
 		return [];
 	}
 }
@@ -164,7 +164,7 @@ class SupportSVGTestEntityStream {
 stream_wrapper_register( 'gslidertest', SupportSVGTestEntityStream::class );
 
 if ( ! function_exists( 'WP_Filesystem' ) ) {
-	function WP_Filesystem() {
+	function WP_Filesystem(): bool {
 		global $wp_filesystem;
 		$wp_filesystem = new SupportSVGTestFilesystem();
 		return true;
@@ -422,5 +422,9 @@ class SupportSVGTest {
 	}
 }
 
-// Standalone execution entry point.
-( new SupportSVGTest() )->run_all_tests();
+// Standalone execution entry point. Restore the handler so it does not leak into other files.
+try {
+	( new SupportSVGTest() )->run_all_tests();
+} finally {
+	restore_error_handler();
+}
