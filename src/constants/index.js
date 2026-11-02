@@ -175,6 +175,7 @@ export const SLIDER_EFFECT_OPTIONS = [
 	{ label: __( 'Coverflow', 'gslider-blocks' ), value: 'coverflow' },
 	{ label: __( 'Flip', 'gslider-blocks' ), value: 'flip' },
 	{ label: __( 'Creative', 'gslider-blocks' ), value: 'creative' },
+	{ label: __( 'Cards', 'gslider-blocks' ), value: 'cards' },
 ];
 
 export const CAROUSEL_EFFECT_OPTIONS = [

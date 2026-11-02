@@ -57,6 +57,21 @@ return [
 	'stopOnLastSlide' => false,
 	'reverseDirection' => false,
 	'slideEffect' => 'slide',
+	'cardsPerSlideRotate' => [
+		'Desktop' => 2,
+		'Tablet' => 2,
+		'Mobile' => 2,
+	],
+	'cardsPerSlideOffset' => [
+		'Desktop' => 8,
+		'Tablet' => 8,
+		'Mobile' => 8,
+	],
+	'cardsSlideShadows' => [
+		'Desktop' => true,
+		'Tablet' => true,
+		'Mobile' => true,
+	],
 	'carouselEffect' => 'slide',
 	'mousewheelControl' => false,
 	'keyboardNavigation' => false,

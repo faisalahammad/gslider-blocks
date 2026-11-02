@@ -18,7 +18,8 @@
       "fade",
       "coverflow",
       "flip",
-      "creative"
+      "creative",
+      "cards"
     ],
     "sliderType": [
       "slider",
@@ -418,7 +419,8 @@
       "fade",
       "coverflow",
       "flip",
-      "creative"
+      "creative",
+      "cards"
     ],
     "sliderType": [
       "slider",

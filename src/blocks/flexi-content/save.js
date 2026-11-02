@@ -17,6 +17,9 @@ export default function Save( { attributes } ) {
 		reverseDirection,
 		carouselEffect,
 		slideEffect,
+		cardsPerSlideRotate,
+		cardsPerSlideOffset,
+		cardsSlideShadows,
 		mousewheelControl,
 		keyboardNavigation,
 		paginationType,
@@ -85,6 +88,21 @@ export default function Save( { attributes } ) {
 		.filter( ( device ) => enableSlideLightbox?.[ device ] === true )
 		.join( ' ' );
 
+	// Cards options are set per breakpoint, so each device can use its own values
+	const hasCardsEffect = sliderType === 'slider' && slideEffect === 'cards';
+	// Shadows are hidden per device in styling.js, Swiper only needs to create them
+	const anyCardsShadow = [ 'Desktop', 'Tablet', 'Mobile' ].some(
+		( device ) => cardsSlideShadows?.[ device ] !== false
+	);
+	const getCardsEffect = ( device ) =>
+		hasCardsEffect && {
+			cardsEffect: {
+				perSlideRotate: Number( cardsPerSlideRotate?.[ device ] ?? 2 ),
+				perSlideOffset: Number( cardsPerSlideOffset?.[ device ] ?? 8 ),
+				slideShadows: anyCardsShadow,
+			},
+		};
+
 	// Configure Swiper settings for frontend rendering
 	const swiperSettings = JSON.stringify( {
 		effect: sliderType === 'carousel' ? carouselEffect : slideEffect,
@@ -104,6 +122,7 @@ export default function Save( { attributes } ) {
 					: false,
 				navigation: { enabled: navigationEnabled.Mobile },
 				pagination: { enabled: paginationEnabled.Mobile },
+				...getCardsEffect( 'Mobile' ),
 			},
 			768: {
 				...( sliderType === 'carousel' && {
@@ -118,6 +137,7 @@ export default function Save( { attributes } ) {
 					: false,
 				navigation: { enabled: navigationEnabled.Tablet },
 				pagination: { enabled: paginationEnabled.Tablet },
+				...getCardsEffect( 'Tablet' ),
 			},
 			1025: {
 				...( sliderType === 'carousel' && {
@@ -132,6 +152,7 @@ export default function Save( { attributes } ) {
 					: false,
 				navigation: { enabled: navigationEnabled.Desktop },
 				pagination: { enabled: paginationEnabled.Desktop },
+				...getCardsEffect( 'Desktop' ),
 			},
 		},
 

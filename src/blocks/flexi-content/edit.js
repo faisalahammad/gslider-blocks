@@ -40,6 +40,9 @@ export default function Edit( {
 		reverseDirection,
 		carouselEffect,
 		slideEffect,
+		cardsPerSlideRotate,
+		cardsPerSlideOffset,
+		cardsSlideShadows,
 		mousewheelControl,
 		keyboardNavigation,
 		paginationType,
@@ -212,6 +215,18 @@ export default function Edit( {
 					next: { translate: [ '100%', 0, 0 ] },
 				},
 			} ),
+			...( sliderType === 'slider' &&
+				slideEffect === 'cards' && {
+					cardsEffect: {
+						perSlideRotate: Number(
+							cardsPerSlideRotate?.[ deviceType ] ?? 2
+						),
+						perSlideOffset: Number(
+							cardsPerSlideOffset?.[ deviceType ] ?? 8
+						),
+						slideShadows: cardsSlideShadows?.[ deviceType ] ?? true,
+					},
+				} ),
 		};
 
 		// Initialize new Swiper instance
@@ -232,6 +247,9 @@ export default function Edit( {
 		sliderType,
 		carouselEffect,
 		slideEffect,
+		cardsPerSlideRotate,
+		cardsPerSlideOffset,
+		cardsSlideShadows,
 		carouselPerColumn,
 		carouselPerColumnGap,
 		infiniteLoop,

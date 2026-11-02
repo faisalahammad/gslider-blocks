@@ -154,6 +154,30 @@ var attributes = {
     type: "string",
     default: "slide"
   },
+  cardsPerSlideRotate: {
+    type: "object",
+    default: {
+      Desktop: 2,
+      Tablet: 2,
+      Mobile: 2
+    }
+  },
+  cardsPerSlideOffset: {
+    type: "object",
+    default: {
+      Desktop: 8,
+      Tablet: 8,
+      Mobile: 8
+    }
+  },
+  cardsSlideShadows: {
+    type: "object",
+    default: {
+      Desktop: true,
+      Tablet: true,
+      Mobile: true
+    }
+  },
   carouselEffect: {
     type: "string",
     default: "slide"
@@ -1859,6 +1883,9 @@ function Save({ attributes: attributes2 }) {
     reverseDirection,
     carouselEffect,
     slideEffect,
+    cardsPerSlideRotate,
+    cardsPerSlideOffset,
+    cardsSlideShadows,
     mousewheelControl,
     keyboardNavigation,
     paginationType,
@@ -1901,6 +1928,17 @@ function Save({ attributes: attributes2 }) {
   };
   const anyPaginationEnabled = paginationEnabled.Mobile || paginationEnabled.Tablet || paginationEnabled.Desktop;
   const lightboxDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableSlideLightbox?.[device] === true).join(" ");
+  const hasCardsEffect = sliderType === "slider" && slideEffect === "cards";
+  const anyCardsShadow = ["Desktop", "Tablet", "Mobile"].some(
+    (device) => cardsSlideShadows?.[device] !== false
+  );
+  const getCardsEffect = (device) => hasCardsEffect && {
+    cardsEffect: {
+      perSlideRotate: Number(cardsPerSlideRotate?.[device] ?? 2),
+      perSlideOffset: Number(cardsPerSlideOffset?.[device] ?? 8),
+      slideShadows: anyCardsShadow
+    }
+  };
   const swiperSettings = JSON.stringify({
     effect: sliderType === "carousel" ? carouselEffect : slideEffect,
     // Responsive breakpoints for Desktop, Tablet, and Mobile
@@ -1915,7 +1953,8 @@ function Save({ attributes: attributes2 }) {
           delay: autoplayDelay?.Mobile || 1e3
         } : false,
         navigation: { enabled: navigationEnabled.Mobile },
-        pagination: { enabled: paginationEnabled.Mobile }
+        pagination: { enabled: paginationEnabled.Mobile },
+        ...getCardsEffect("Mobile")
       },
       768: {
         ...sliderType === "carousel" && {
@@ -1927,7 +1966,8 @@ function Save({ attributes: attributes2 }) {
           delay: autoplayDelay?.Tablet || 1e3
         } : false,
         navigation: { enabled: navigationEnabled.Tablet },
-        pagination: { enabled: paginationEnabled.Tablet }
+        pagination: { enabled: paginationEnabled.Tablet },
+        ...getCardsEffect("Tablet")
       },
       1025: {
         ...sliderType === "carousel" && {
@@ -1939,7 +1979,8 @@ function Save({ attributes: attributes2 }) {
           delay: autoplayDelay?.Desktop || 1e3
         } : false,
         navigation: { enabled: navigationEnabled.Desktop },
-        pagination: { enabled: paginationEnabled.Desktop }
+        pagination: { enabled: paginationEnabled.Desktop },
+        ...getCardsEffect("Desktop")
       }
     },
     ...layoutHeightSwitcher === "adapt" && {
@@ -2187,6 +2228,7 @@ var getHasPaginationCss = (blockId, showPagination, device, fallbackDevices, off
 var generateFlexiContentStyle = (attributes2) => {
   const {
     blockId,
+    cardsSlideShadows,
     deviceType,
     blockStyle,
     sliderType,
@@ -2596,6 +2638,7 @@ var generateFlexiContentStyle = (attributes2) => {
   const globalMobileBackgroundHoverStyles = globalBackgroundStyleObjectToString(
     getGlobalBackgroundHoverStyles("Mobile")
   );
+  const getCardsShadowCss = (device) => sliderType === "slider" && slideEffect === "cards" ? `.${blockId} .swiper-slide-shadow-cards { display: ${cardsSlideShadows?.[device] === false ? "none" : "block"}; }` : "";
   const flexiContentCSS = `
         .${blockId}.gslider-flexi-content-wrapper {
             ${globalDesktopBackgroundNormalStyles}
@@ -2874,6 +2917,8 @@ var generateFlexiContentStyle = (attributes2) => {
         ` : ""}
 
 
+        ${getCardsShadowCss("Desktop")}
+
         @media only screen and (max-width: 1024px) {
 
             .${blockId}.gslider-flexi-content-wrapper {
@@ -3056,6 +3101,7 @@ var generateFlexiContentStyle = (attributes2) => {
     )
   )}
             ` : ""}
+            ${getCardsShadowCss("Tablet")}
         }
         
         @media only screen and (max-width: 767px) {
@@ -3240,6 +3286,7 @@ var generateFlexiContentStyle = (attributes2) => {
     )
   )}
             ` : ""}
+            ${getCardsShadowCss("Mobile")}
         }
     `;
   return `${flexiContentCSS}`.replace(/\s+/g, " ").trim();

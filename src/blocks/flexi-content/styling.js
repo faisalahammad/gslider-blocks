@@ -68,6 +68,7 @@ const getHasPaginationCss = (
 const generateFlexiContentStyle = ( attributes ) => {
 	const {
 		blockId,
+		cardsSlideShadows,
 		deviceType,
 		blockStyle,
 		sliderType,
@@ -561,6 +562,14 @@ const generateFlexiContentStyle = ( attributes ) => {
 		);
 
 	/** Start All Block Style */
+	// Swiper keeps card shadows once created, so hide them per device with CSS
+	const getCardsShadowCss = ( device ) =>
+		sliderType === 'slider' && slideEffect === 'cards'
+			? `.${ blockId } > .swiper > .swiper-wrapper > .swiper-slide > .swiper-slide-shadow-cards { display: ${
+					cardsSlideShadows?.[ device ] === false ? 'none' : 'block'
+			  }; }`
+			: '';
+
 	const flexiContentCSS = `
         .${ blockId }.gslider-flexi-content-wrapper {
             ${ globalDesktopBackgroundNormalStyles }
@@ -1241,6 +1250,8 @@ const generateFlexiContentStyle = ( attributes ) => {
 		}
 
 
+        ${ getCardsShadowCss( 'Desktop' ) }
+
         @media only screen and (max-width: 1024px) {
 
             .${ blockId }.gslider-flexi-content-wrapper {
@@ -1687,6 +1698,7 @@ const generateFlexiContentStyle = ( attributes ) => {
             `
 					: ''
 			}
+            ${ getCardsShadowCss( 'Tablet' ) }
         }
         
         @media only screen and (max-width: 767px) {
@@ -2135,6 +2147,7 @@ const generateFlexiContentStyle = ( attributes ) => {
             `
 					: ''
 			}
+            ${ getCardsShadowCss( 'Mobile' ) }
         }
     `;
 	/** End All Block Style */

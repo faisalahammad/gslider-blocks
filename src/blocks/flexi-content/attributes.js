@@ -77,6 +77,30 @@ const attributes = {
 		type: 'string',
 		default: 'slide',
 	},
+	cardsPerSlideRotate: {
+		type: 'object',
+		default: {
+			Desktop: 2,
+			Tablet: 2,
+			Mobile: 2,
+		},
+	},
+	cardsPerSlideOffset: {
+		type: 'object',
+		default: {
+			Desktop: 8,
+			Tablet: 8,
+			Mobile: 8,
+		},
+	},
+	cardsSlideShadows: {
+		type: 'object',
+		default: {
+			Desktop: true,
+			Tablet: true,
+			Mobile: true,
+		},
+	},
 	carouselEffect: {
 		type: 'string',
 		default: 'slide',
