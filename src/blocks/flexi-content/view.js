@@ -87,6 +87,29 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	};
 
 	/**
+	 * Pause the videos that left the view, then start the autoplay a play click stopped when no video is left in view.
+	 *
+	 * @param {Object} swiper - Swiper instance of this slider.
+	 */
+	const syncEmbedVideos = ( swiper ) => {
+		const hasVisibleVideo = pauseEmbedVideos( swiper );
+
+		if ( swiper.el.dataset.embedAutoplayStopped && ! hasVisibleVideo ) {
+			delete swiper.el.dataset.embedAutoplayStopped;
+			swiper.autoplay.start();
+
+			// start() ignores pause on hover, so hold it until the mouse leaves, touch has no real hover
+			if (
+				swiper.params.autoplay.pauseOnMouseEnter &&
+				swiper.el.matches( ':hover' ) &&
+				window.matchMedia( '(hover: hover)' ).matches
+			) {
+				swiper.autoplay.pause();
+			}
+		}
+	};
+
+	/**
 	 * Stop autoplay of this slider and any parent slider, so none slides away from the playing video.
 	 *
 	 * @param {HTMLElement} element - Video box element inside the slide.
@@ -104,16 +127,36 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		}
 	};
 
+	const UPLOADED_VIDEO_SELECTOR =
+		'.gslider-flexi-content-wrapper .gslider-embed-video video';
+
 	// Media events do not bubble, so listen in the capture phase
 	document.addEventListener(
 		'play',
 		( event ) => {
-			if (
-				event.target.matches?.(
-					'.gslider-flexi-content-wrapper .gslider-embed-video video'
-				)
-			) {
+			if ( event.target.matches?.( UPLOADED_VIDEO_SELECTOR ) ) {
 				stopSliderAutoplay( event.target );
+			}
+		},
+		true
+	);
+
+	// A video that played to the end no longer needs the stopped autoplay
+	document.addEventListener(
+		'ended',
+		( event ) => {
+			if ( ! event.target.matches?.( UPLOADED_VIDEO_SELECTOR ) ) {
+				return;
+			}
+
+			for (
+				let swiperElement = event.target.closest( '.swiper' );
+				swiperElement;
+				swiperElement = swiperElement.parentElement.closest( '.swiper' )
+			) {
+				if ( swiperElement.swiper ) {
+					syncEmbedVideos( swiperElement.swiper );
+				}
 			}
 		},
 		true
@@ -359,18 +402,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 					settings.on = {
 						...settings.on,
-						slideChange( swiper ) {
-							const hasVisibleVideo = pauseEmbedVideos( swiper );
-
-							// Visitor moved away from the video, so start the autoplay a play click stopped
-							if (
-								swiper.el.dataset.embedAutoplayStopped &&
-								! hasVisibleVideo
-							) {
-								delete swiper.el.dataset.embedAutoplayStopped;
-								swiper.autoplay.start();
-							}
-						},
+						slideChange: syncEmbedVideos,
+						// A responsive change can hide a slide without a slide change
+						breakpoint: syncEmbedVideos,
 					};
 
 					// Initialize Swiper with parsed settings
