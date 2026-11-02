@@ -15,12 +15,20 @@ import './editor.scss';
 const VIDEO_ID_PATTERNS = {
 	youtube:
 		/^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([\w-]{11})(?![\w-])/i,
-	/** A showcase, album, channel or group name and the private link hash are not the video ID */
-	vimeo: /^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*vimeo\.com\/(?:(?:showcase|album|channels|groups)\/[^/?#]+\/|(?!(?:showcase|album|channels|groups)\/|\d+\/)[^/?#]+\/)*(\d+)(?:[/?#]|$)/i,
+	/** A showcase, album, channel or group name is not the video ID, an unlisted video keeps its hash as id/hash */
+	vimeo: /^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*vimeo\.com\/(?:(?:showcase|album|channels|groups)\/[^/?#]+\/|(?!(?:showcase|album|channels|groups)\/|\d+\/)[^/?#]+\/)*(\d+(?:\/[\da-f]+)?)(?:[/?#]|$)/i,
 };
 
-const getVideoId = ( type, url ) =>
-	( url || '' ).trim().match( VIDEO_ID_PATTERNS[ type ] )?.[ 1 ] || '';
+const getVideoId = ( type, url ) => {
+	const value = ( url || '' ).trim();
+	const id = value.match( VIDEO_ID_PATTERNS[ type ] )?.[ 1 ] || '';
+	// Unlisted player links keep the hash in ?h= instead of the path
+	const hash =
+		type === 'vimeo' &&
+		! id.includes( '/' ) &&
+		value.match( /[?&]h=([\da-f]+)/i )?.[ 1 ];
+	return id && hash ? `${ id }/${ hash }` : id;
+};
 
 const Inspector = ( { attributes, setAttributes } ) => {
 	const {
