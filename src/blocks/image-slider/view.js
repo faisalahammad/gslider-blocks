@@ -13,7 +13,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	};
 
 	/**
-	 * Block lightbox clicks on devices where the lightbox is off.
+	 * Block lightbox clicks on devices where the lightbox is off,
+	 * and open the custom image link there when one is saved.
 	 *
 	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
 	 */
@@ -32,16 +33,29 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		sliderContainer.addEventListener(
 			'click',
 			( event ) => {
-				if (
-					! event.target.closest( '[data-fslightbox]' ) ||
-					devices.includes( getCurrentDevice() )
-				) {
+				const link = event.target.closest( '[data-fslightbox]' );
+				if ( ! link || devices.includes( getCurrentDevice() ) ) {
 					return;
 				}
 
 				event.stopImmediatePropagation();
 				// The link points to the image file, so do not open it either
 				event.preventDefault();
+
+				const { imageLink, imageLinkTarget, imageLinkRel } =
+					link.dataset;
+				if ( ! imageLink ) {
+					return;
+				}
+
+				// window.open takes noopener and noreferrer as features, not as rel
+				const features = ( imageLinkRel || '' )
+					.split( ' ' )
+					.filter( ( rel ) =>
+						[ 'noopener', 'noreferrer' ].includes( rel )
+					)
+					.join( ',' );
+				window.open( imageLink, imageLinkTarget || '_self', features );
 			},
 			true
 		);

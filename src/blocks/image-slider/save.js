@@ -96,6 +96,12 @@ export default function Save( { attributes } ) {
 		.filter( ( device ) => enableLightbox?.[ device ] === true )
 		.join( ' ' );
 
+	// Save custom links only when some devices have the lightbox off, so view.js can open them there
+	const linkOnLightboxOff =
+		enableimageLinks &&
+		lightboxDevices &&
+		lightboxDevices !== 'Desktop Tablet Mobile';
+
 	// Configure Swiper settings for frontend rendering
 	const swiperSettings = JSON.stringify( {
 		effect: carouselEffect,
@@ -206,6 +212,15 @@ export default function Save( { attributes } ) {
 											data-fslightbox={ blockId }
 											data-caption={ item.caption }
 											className="gslider-image-link"
+											{ ...( linkOnLightboxOff &&
+												item.link && {
+													'data-image-link':
+														item.link,
+													'data-image-link-target':
+														imageLinkTarget,
+													'data-image-link-rel':
+														imageLinkRel,
+												} ) }
 										>
 											<img
 												src={ item.url }

@@ -2769,6 +2769,7 @@ function Save({ attributes: attributes2 }) {
   };
   const anyPaginationEnabled = paginationEnabled.Mobile || paginationEnabled.Tablet || paginationEnabled.Desktop;
   const lightboxDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableLightbox?.[device] === true).join(" ");
+  const linkOnLightboxOff = enableimageLinks && lightboxDevices && lightboxDevices !== "Desktop Tablet Mobile";
   const swiperSettings = JSON.stringify({
     effect: carouselEffect,
     // Responsive breakpoints for Desktop, Tablet, and Mobile
@@ -2862,6 +2863,11 @@ function Save({ attributes: attributes2 }) {
                           "data-fslightbox": blockId,
                           "data-caption": item.caption,
                           className: "gslider-image-link",
+                          ...linkOnLightboxOff && item.link && {
+                            "data-image-link": item.link,
+                            "data-image-link-target": imageLinkTarget,
+                            "data-image-link-rel": imageLinkRel
+                          },
                           children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
                             "img",
                             {
