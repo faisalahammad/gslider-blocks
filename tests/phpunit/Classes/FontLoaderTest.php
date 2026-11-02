@@ -49,11 +49,11 @@ class FontLoaderTest {
 		echo "=== GSlider Blocks Font Loader Tests ===\n\n";
 
 		$this->test_class_implements_registrable_and_singleton();
-		$this->test_register_hooks_into_wp_enqueue_scripts();
+		$this->test_register_hooks_render_block_and_wp_footer();
 		$this->test_ignored_font_families();
 		$this->test_google_fonts_url_builder();
 		$this->test_privacy_mode_suppression();
-		$this->test_filter_gslider_disable_google_fonts();
+		$this->test_privacy_filter_suppresses_google_fonts();
 		$this->test_font_deduplication();
 
 		echo "\nAll GSlider Blocks Font Loader tests passed successfully!\n";
@@ -97,7 +97,7 @@ class FontLoaderTest {
 	 *
 	 * @return void
 	 */
-	public function test_register_hooks_into_wp_enqueue_scripts(): void {
+	public function test_register_hooks_render_block_and_wp_footer(): void {
 		global $wp_actions, $wp_filters;
 		$this->reset_state();
 		unset( $wp_filters['render_block'], $wp_actions['wp_footer'] );
@@ -283,7 +283,7 @@ class FontLoaderTest {
 	 *
 	 * @return void
 	 */
-	public function test_filter_gslider_disable_google_fonts(): void {
+	public function test_privacy_filter_suppresses_google_fonts(): void {
 		$this->reset_state();
 		add_filter( 'gslider_google_fonts_privacy_enabled', '__return_true' );
 
