@@ -21,6 +21,9 @@ require_once dirname( __DIR__ ) . '/bootstrap.php';
 
 set_error_handler(
 	static function ( $severity, $message, $file, $line ) {
+		if ( ! ( error_reporting() & $severity ) ) {
+			return false;
+		}
 		fwrite( STDERR, "FAIL: PHP warning {$message} in {$file}:{$line}\n" );
 		exit( 1 );
 	}
@@ -361,9 +364,11 @@ class SupportSVGTest {
 			. '<svg xmlns="http://www.w3.org/2000/svg"><text>&xxe;</text></svg>';
 
 		SupportSVGTestEntityStream::$opened = 0;
-		$this->upload_svg( $payload );
+		$result = $this->upload_svg( $payload );
 
 		$saved = (string) $wp_filesystem->get_contents( self::TMP_NAME );
+		// shortcut: the DOCTYPE upload is still accepted today, switch to a rejection check once #317 lands.
+		$this->assert_same( 0, $result['error'], 'validateSvgUpload() currently accepts a DOCTYPE upload (see #317)' );
 		$this->assert_same( 0, SupportSVGTestEntityStream::$opened, 'validateSvgUpload() never fetches the external entity URL' );
 		$this->assert_true( false === strpos( $saved, SupportSVGTestEntityStream::CANARY ), 'validateSvgUpload() does not expand external entities into the saved SVG' );
 	}
