@@ -30,6 +30,7 @@ return [
 	'deviceType' => 'Desktop',
 	'blockStyle' => '',
 	'sliderType' => 'slider',
+	'direction' => 'horizontal',
 	'carouselPerColumn' => [
 		'Desktop' => 2,
 		'Tablet' => 2,

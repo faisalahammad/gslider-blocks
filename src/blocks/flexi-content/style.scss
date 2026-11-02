@@ -23,6 +23,56 @@
 		backface-visibility: visible !important;
 	}
 
+	// Vertical slider needs a height, 350px matches the layoutHeight default.
+	> .swiper-vertical {
+		height: 350px;
+	}
+
+	// Vertical slider: centered arrows move to top and bottom.
+	> .swiper-vertical > .gslider-navigation-default-icon-wrapper.center,
+	> .swiper-vertical > .gslider-navigation-custom-icon-wrapper.center,
+	> .swiper-vertical ~ .gslider-navigation-default-icon-wrapper.center,
+	> .swiper-vertical ~ .gslider-navigation-custom-icon-wrapper.center {
+
+		> .swiper-button-prev,
+		> .swiper-button-next {
+			left: 50%;
+			right: auto;
+			margin-top: 0;
+			transform: translateX(-50%);
+		}
+
+		> .swiper-button-prev {
+			top: var(--swiper-navigation-sides-offset, 10px);
+		}
+
+		> .swiper-button-next {
+			top: auto;
+			bottom: var(--swiper-navigation-sides-offset, 10px);
+		}
+	}
+
+	// Vertical slider: arrow icons point up and down.
+	> .swiper-vertical > .gslider-navigation-default-icon-wrapper,
+	> .swiper-vertical ~ .gslider-navigation-default-icon-wrapper {
+
+		> .swiper-button-prev::after,
+		> .swiper-button-next::after {
+			transform: rotate(90deg);
+		}
+	}
+
+	> .swiper-vertical > .gslider-navigation-custom-icon-wrapper,
+	> .swiper-vertical ~ .gslider-navigation-custom-icon-wrapper {
+
+		> .swiper-button-prev > svg,
+		> .swiper-button-prev > img,
+		> .swiper-button-next > svg,
+		> .swiper-button-next > img {
+			transform: rotate(90deg);
+		}
+	}
+
 	> .swiper:not(.swiper-initialized) {
 		overflow: hidden;
 

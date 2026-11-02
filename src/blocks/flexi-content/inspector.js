@@ -22,6 +22,7 @@ import {
 	SLIDER_EFFECT_OPTIONS,
 	CAROUSEL_EFFECT_OPTIONS,
 	SLIDER_TYPE,
+	SLIDER_DIRECTION,
 	PAGINATION_TYPE,
 	NORMAL_ACTIVE,
 	NAVIGATION_ARROW_POSITION_TYPE,
@@ -65,6 +66,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		pauseOnHover,
 		stopOnLastSlide,
 		reverseDirection,
+		direction,
 		slideEffect,
 		carouselEffect,
 		mousewheelControl,
@@ -551,9 +553,14 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					}
 				/>
 
-				{ layoutHeightSwitcher === 'fixed' && (
+				{ ( layoutHeightSwitcher === 'fixed' ||
+					direction === 'vertical' ) && (
 					<ResponsiveRangeControl
-						label={ __( 'Minimum Height', 'gslider-blocks' ) }
+						label={
+							direction === 'vertical'
+								? __( 'Slider Height', 'gslider-blocks' )
+								: __( 'Minimum Height', 'gslider-blocks' )
+						}
 						rangeValue={ layoutHeight }
 						onChangeValue={ ( value ) =>
 							setAttributes( { layoutHeight: value } )
@@ -574,9 +581,10 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					/>
 				) }
 
-				{ layoutHeightSwitcher === 'adapt' && (
-					<p>Slides adapt their height to the inside content.</p>
-				) }
+				{ layoutHeightSwitcher === 'adapt' &&
+					direction !== 'vertical' && (
+						<p>Slides adapt their height to the inside content.</p>
+					) }
 
 				<ResponsiveRangeControl
 					label={ __( 'Max Width', 'gslider-blocks' ) }
@@ -656,6 +664,14 @@ const Inspector = ( { attributes, setAttributes } ) => {
 				opened={ openPanels.general === 'slider-settings' }
 				onToggle={ () => togglePanel( 'general', 'slider-settings' ) }
 			>
+				<SwitcherControl
+					label={ __( 'Slider Direction', 'gslider-blocks' ) }
+					options={ SLIDER_DIRECTION }
+					value={ direction }
+					onChange={ ( value ) =>
+						setAttributes( { direction: value } )
+					}
+				/>
 				<ToggleControl
 					label={ __( 'Infinite Loop', 'gslider-blocks' ) }
 					checked={ infiniteLoop }

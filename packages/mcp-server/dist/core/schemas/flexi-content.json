@@ -23,7 +23,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 261,
+  "totalAttributes": 262,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -51,6 +51,10 @@
       "flex-start",
       "center",
       "flex-end"
+    ],
+    "direction": [
+      "horizontal",
+      "vertical"
     ],
     "globalBorder": [
       "none",
@@ -200,6 +204,10 @@
     "sliderType": {
       "type": "string",
       "default": "slider"
+    },
+    "direction": {
+      "type": "string",
+      "default": "horizontal"
     },
     "carouselPerColumn": {
       "type": "object",

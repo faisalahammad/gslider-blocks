@@ -98,6 +98,7 @@ const generateFlexiContentStyle = ( attributes ) => {
 		layoutHeightSwitcher,
 		layoutHeight,
 		layoutHeightUnits,
+		direction,
 		contentWidth,
 		contentWidthUnits,
 		contentAlignment,
@@ -624,14 +625,24 @@ const generateFlexiContentStyle = ( attributes ) => {
 			}
         }
 
+        ${
+			direction === 'vertical' && layoutHeight.Desktop
+				? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
+            height: ${ layoutHeight.Desktop }${ layoutHeightUnits.Desktop };
+        }`
+				: ''
+		}
+
         .${ blockId } .swiper-slide{
             ${
-				layoutHeightSwitcher !== 'adapt'
+				layoutHeightSwitcher !== 'adapt' && direction !== 'vertical'
 					? `height: auto !important;`
 					: ''
 			}
             ${
-				layoutHeight.Desktop && layoutHeightSwitcher === 'fixed'
+				layoutHeight.Desktop &&
+				layoutHeightSwitcher === 'fixed' &&
+				direction !== 'vertical'
 					? `min-height: ${ layoutHeight.Desktop }${ layoutHeightUnits.Desktop };`
 					: 'auto'
 			}
@@ -1284,14 +1295,24 @@ const generateFlexiContentStyle = ( attributes ) => {
 				}
             }
 
+            ${
+				direction === 'vertical' && layoutHeight.Tablet
+					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
+                height: ${ layoutHeight.Tablet }${ layoutHeightUnits.Tablet };
+            }`
+					: ''
+			}
+
             .${ blockId } .swiper-slide{
                 ${
-					layoutHeightSwitcher !== 'adapt'
+					layoutHeightSwitcher !== 'adapt' && direction !== 'vertical'
 						? `height: auto !important;`
 						: ''
 				}
                 ${
-					layoutHeight.Tablet && layoutHeightSwitcher === 'fixed'
+					layoutHeight.Tablet &&
+					layoutHeightSwitcher === 'fixed' &&
+					direction !== 'vertical'
 						? `min-height: ${ layoutHeight.Tablet }${ layoutHeightUnits.Tablet };`
 						: 'auto'
 				}
@@ -1732,14 +1753,24 @@ const generateFlexiContentStyle = ( attributes ) => {
 				}
             }
 
+            ${
+				direction === 'vertical' && layoutHeight.Mobile
+					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
+                height: ${ layoutHeight.Mobile }${ layoutHeightUnits.Mobile };
+            }`
+					: ''
+			}
+
             .${ blockId } .swiper-slide{
                 ${
-					layoutHeightSwitcher !== 'adapt'
+					layoutHeightSwitcher !== 'adapt' && direction !== 'vertical'
 						? `height: auto !important;`
 						: ''
 				}
                 ${
-					layoutHeight.Mobile && layoutHeightSwitcher === 'fixed'
+					layoutHeight.Mobile &&
+					layoutHeightSwitcher === 'fixed' &&
+					direction !== 'vertical'
 						? `min-height: ${ layoutHeight.Mobile }${ layoutHeightUnits.Mobile };`
 						: 'auto'
 				}

@@ -57,6 +57,7 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			'pauseOnHover',
 			'stopOnLastSlide',
 			'reverseDirection',
+			'direction',
 			'layoutHeightSwitcher',
 		];
 
@@ -462,6 +463,8 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				$config['autoplay'] = false;
 			}
 
+			$is_vertical = 'vertical' === ( $attrs['direction'] ?? 'horizontal' );
+
 			if ( $uses_slider_type && 'creative' === $slide_effect ) {
 				$config['creativeEffect'] = [
 					'prev' => [
@@ -469,12 +472,17 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 						'translate' => [ 0, 0, -400 ],
 					],
 					'next' => [
-						'translate' => [ '100%', 0, 0 ],
+						'translate' => $is_vertical ? [ 0, '100%', 0 ] : [ '100%', 0, 0 ],
 					],
 				];
 			}
 
-			if ( isset( $attrs['layoutHeightSwitcher'] ) && 'adapt' === $attrs['layoutHeightSwitcher'] ) {
+			if ( $is_vertical ) {
+				$config['direction'] = 'vertical';
+			}
+
+			// Vertical slides use the fixed height, autoHeight does not work with it.
+			if ( ! $is_vertical && isset( $attrs['layoutHeightSwitcher'] ) && 'adapt' === $attrs['layoutHeightSwitcher'] ) {
 				$config['autoHeight'] = true;
 			}
 

@@ -15,6 +15,7 @@ export default function Save( { attributes } ) {
 		pauseOnHover,
 		stopOnLastSlide,
 		reverseDirection,
+		direction,
 		carouselEffect,
 		slideEffect,
 		mousewheelControl,
@@ -135,9 +136,12 @@ export default function Save( { attributes } ) {
 			},
 		},
 
-		...( layoutHeightSwitcher === 'adapt' && {
-			autoHeight: true,
-		} ),
+		...( direction === 'vertical' && { direction: 'vertical' } ),
+		// Vertical slides use the fixed height, autoHeight does not work with it
+		...( layoutHeightSwitcher === 'adapt' &&
+			direction !== 'vertical' && {
+				autoHeight: true,
+			} ),
 
 		// Common settings
 		loop: infiniteLoop,
@@ -179,7 +183,12 @@ export default function Save( { attributes } ) {
 		...( slideEffect === 'creative' && {
 			creativeEffect: {
 				prev: { shadow: true, translate: [ 0, 0, -400 ] },
-				next: { translate: [ '100%', 0, 0 ] },
+				next: {
+					translate:
+						direction === 'vertical'
+							? [ 0, '100%', 0 ]
+							: [ '100%', 0, 0 ],
+				},
 			},
 		} ),
 	} );

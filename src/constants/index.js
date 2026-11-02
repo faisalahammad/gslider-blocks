@@ -186,6 +186,10 @@ export const SLIDER_TYPE = [
 	{ label: __( 'Slider', 'gslider-blocks' ), value: 'slider' },
 	{ label: __( 'Carousel', 'gslider-blocks' ), value: 'carousel' },
 ];
+export const SLIDER_DIRECTION = [
+	{ label: __( 'Horizontal', 'gslider-blocks' ), value: 'horizontal' },
+	{ label: __( 'Vertical', 'gslider-blocks' ), value: 'vertical' },
+];
 
 export const PAGINATION_TYPE = [
 	{ label: __( 'Bullets', 'gslider-blocks' ), value: 'bullets' },

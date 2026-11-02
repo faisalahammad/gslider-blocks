@@ -17,6 +17,10 @@ const attributes = {
 		type: 'string',
 		default: 'slider',
 	},
+	direction: {
+		type: 'string',
+		default: 'horizontal',
+	},
 	carouselPerColumn: {
 		type: 'object',
 		default: {
