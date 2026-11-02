@@ -108,6 +108,34 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			} );
 	};
 
+	/**
+	 * Play the background videos of the visible slides and pause the others.
+	 *
+	 * @param {Object} swiper - Swiper instance.
+	 */
+	const syncSlideVideos = ( swiper ) => {
+		// Visible slides are next to each other in the DOM, loop mode too
+		const perView = Math.ceil( swiper.slidesPerViewDynamic() );
+
+		swiper.slides.forEach( ( slide, index ) => {
+			// Direct child only, videos of a nested slider belong to it
+			const video = slide.querySelector( ':scope > .gslider-video-bg' );
+			if ( ! video ) {
+				return;
+			}
+
+			if (
+				index >= swiper.activeIndex &&
+				index < swiper.activeIndex + perView
+			) {
+				// Browsers block autoplay of unmuted videos, poster stays visible then
+				video.play().catch( () => {} );
+			} else {
+				video.pause();
+			}
+		} );
+	};
+
 	const initializeSliders = () => {
 		// Select all slider containers
 		const sliders = document.querySelectorAll(
@@ -211,7 +239,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					}
 
 					// Initialize Swiper with parsed settings
-					new Swiper( swiperElement, settings );
+					const swiper = new Swiper( swiperElement, settings );
+					syncSlideVideos( swiper );
+					// slideChange pauses the old video before the transition starts
+					swiper.on(
+						'slideChange slideChangeTransitionEnd',
+						syncSlideVideos
+					);
 				}
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
