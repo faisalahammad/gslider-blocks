@@ -722,7 +722,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 				<ToggleControl
 					label={ __( 'URL Hash Navigation', 'gslider-blocks' ) }
 					help={ __(
-						'Set a slug on each slide to link to it, e.g. #pricing. Turn it on for one slider per page.',
+						'Slides get a numbered hash. Set a slug on a slide for a fixed link, e.g. #pricing. Turn it on for one slider per page.',
 						'gslider-blocks'
 					) }
 					checked={ enableHashNavigation }
