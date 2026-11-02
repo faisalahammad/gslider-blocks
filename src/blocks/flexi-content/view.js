@@ -108,6 +108,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			} );
 	};
 
+	// Reduced motion users get the poster, no autoplay
+	const reducedMotion = window.matchMedia(
+		'(prefers-reduced-motion: reduce)'
+	);
+
 	/**
 	 * Play the background videos of the visible slides and pause the others.
 	 *
@@ -116,10 +121,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const syncSlideVideos = ( swiper ) => {
 		// Visible slides are next to each other in the DOM, loop mode too
 		const perView = Math.ceil( swiper.slidesPerViewDynamic() );
-		// Reduced motion users get the poster, no autoplay
-		const reduceMotion = window.matchMedia(
-			'(prefers-reduced-motion: reduce)'
-		).matches;
 
 		swiper.slides.forEach( ( slide, index ) => {
 			// Direct child only, videos of a nested slider belong to it
@@ -129,7 +130,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			}
 
 			if (
-				! reduceMotion &&
+				! reducedMotion.matches &&
 				index >= swiper.activeIndex &&
 				index < swiper.activeIndex + perView
 			) {
@@ -251,6 +252,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					swiper.on(
 						'slideChange slideChangeTransitionEnd resize',
 						syncSlideVideos
+					);
+					// Pause or resume when the visitor changes the setting
+					reducedMotion.addEventListener( 'change', () =>
+						syncSlideVideos( swiper )
 					);
 				}
 			} catch ( error ) {
