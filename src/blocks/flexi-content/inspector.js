@@ -581,9 +581,23 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					/>
 				) }
 
+				{ direction === 'vertical' && (
+					<p>
+						{ __(
+							'Vertical sliders always use this fixed height. Use px or vh, a percent height can collapse the slider.',
+							'gslider-blocks'
+						) }
+					</p>
+				) }
+
 				{ layoutHeightSwitcher === 'adapt' &&
 					direction !== 'vertical' && (
-						<p>Slides adapt their height to the inside content.</p>
+						<p>
+							{ __(
+								'Slides adapt their height to the inside content.',
+								'gslider-blocks'
+							) }
+						</p>
 					) }
 
 				<ResponsiveRangeControl
