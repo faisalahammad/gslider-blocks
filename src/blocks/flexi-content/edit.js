@@ -44,6 +44,8 @@ export default function Edit( {
 		keyboardNavigation,
 		paginationType,
 		dynamicBullets,
+		enableContinuousMarquee,
+		marqueeSpeed,
 
 		showNavigation,
 		showPagination,
@@ -67,6 +69,13 @@ export default function Edit( {
 
 		layoutHeightSwitcher,
 	} = attributes;
+
+	const marqueeEnabled = !! enableContinuousMarquee?.[ deviceType ];
+	// Effect and loop are shared by all devices on the frontend
+	const anyMarqueeEnabled =
+		!! enableContinuousMarquee?.Desktop ||
+		!! enableContinuousMarquee?.Tablet ||
+		!! enableContinuousMarquee?.Mobile;
 
 	/** Handle block ID generation (handles duplication and initial ID) */
 	useBlockIdGenerator( {
@@ -95,7 +104,7 @@ export default function Edit( {
 			showPagination?.Mobile
 				? 'has-pagination'
 				: ''
-		}`,
+		}${ marqueeEnabled ? ' gslider-marquee-mode' : '' }`,
 	} );
 
 	// Local state management for swiper instance is replaced by useRef
@@ -142,9 +151,13 @@ export default function Edit( {
 			paginationOutsideRef.current.innerHTML = '';
 		}
 
+		const sliderEffect =
+			sliderType === 'carousel' ? carouselEffect : slideEffect;
+
 		// Build Swiper settings
 		const swiperSettings = {
-			effect: sliderType === 'carousel' ? carouselEffect : slideEffect,
+			// Marquee needs the slide effect, other effects can not move in a line
+			effect: anyMarqueeEnabled ? 'slide' : sliderEffect,
 			...( sliderType === 'carousel' && {
 				breakpoints: {
 					0: {
@@ -166,7 +179,7 @@ export default function Edit( {
 			...( layoutHeightSwitcher === 'adapt' && {
 				autoHeight: true,
 			} ),
-			loop: infiniteLoop,
+			loop: anyMarqueeEnabled || infiniteLoop,
 			autoplay: autoplay
 				? {
 						delay: autoplayDelay?.[ deviceType ] || 1000,
@@ -176,7 +189,9 @@ export default function Edit( {
 						reverseDirection,
 				  }
 				: false,
-			speed: speed?.[ deviceType ] || 800,
+			speed: marqueeEnabled
+				? marqueeSpeed?.[ deviceType ] || 5000
+				: speed?.[ deviceType ] || 800,
 			allowTouchMove,
 			mousewheel: mousewheelControl,
 			keyboard: keyboardNavigation
@@ -213,6 +228,14 @@ export default function Edit( {
 				},
 			} ),
 		};
+
+		if ( marqueeEnabled ) {
+			swiperSettings.autoplay = {
+				delay: 0,
+				disableOnInteraction: false,
+				reverseDirection,
+			};
+		}
 
 		// Initialize new Swiper instance
 		swiperInstanceRef.current = new window.Swiper(
@@ -255,6 +278,9 @@ export default function Edit( {
 		navigationArrowsIconLeft,
 		navigationArrowsIconRight,
 		layoutHeightSwitcher,
+		marqueeEnabled,
+		anyMarqueeEnabled,
+		marqueeSpeed,
 		slideCount,
 	] );
 

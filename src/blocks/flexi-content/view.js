@@ -1,4 +1,4 @@
-/* global Swiper, requestAnimationFrame, refreshFsLightbox */
+/* global Swiper, requestAnimationFrame, refreshFsLightbox, DOMMatrix */
 document.addEventListener( 'DOMContentLoaded', () => {
 	const IMAGE_URL_PATTERN = /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
 	// Counter keeps gallery names unique when sliders are added later
@@ -37,6 +37,125 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			return 'Desktop';
 		}
 		return window.innerWidth >= 768 ? 'Tablet' : 'Mobile';
+	};
+
+	// Swiper breakpoint keys from save.js
+	const BREAKPOINT_DEVICES = { 0: 'Mobile', 768: 'Tablet', 1025: 'Desktop' };
+
+	/**
+	 * Check a marquee class of the slider for a device.
+	 *
+	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
+	 * @param {string}      device          - Desktop, Tablet or Mobile.
+	 * @param {string}      type            - marquee or marquee-pause.
+	 * @return {boolean} True when the class is set.
+	 */
+	const hasMarqueeClass = ( sliderContainer, device, type = 'marquee' ) =>
+		sliderContainer.classList.contains(
+			`gslider-${ type }-${ device.toLowerCase() }`
+		);
+
+	/**
+	 * Keep marquee autoplay in sync with breakpoints and pause it on hover.
+	 * Swiper hover pause waits until the slide ends, so we stop the wrapper where it is.
+	 *
+	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
+	 * @param {Object}      swiper          - Swiper instance of this slider.
+	 */
+	const initializeMarquee = ( sliderContainer, swiper ) => {
+		let frozen = null;
+		let onResumeEnd = null;
+
+		// Autoplay is false on breakpoints without marquee or autoplay
+		const startAutoplay = () => {
+			if ( ! swiper.destroyed && swiper.params.autoplay ) {
+				swiper.autoplay.start();
+			}
+		};
+
+		// Swiper does not start or stop autoplay when the breakpoint changes
+		swiper.on( 'breakpoint', () => {
+			if ( ! swiper.params.autoplay ) {
+				swiper.autoplay.stop();
+				frozen = null;
+			} else if ( ! swiper.autoplay.running && ! frozen ) {
+				swiper.autoplay.start();
+			}
+		} );
+
+		sliderContainer.addEventListener( 'pointerenter', ( event ) => {
+			if (
+				event.pointerType !== 'mouse' ||
+				! ( swiper.autoplay.running || onResumeEnd ) ||
+				! hasMarqueeClass(
+					sliderContainer,
+					getCurrentDevice(),
+					'marquee-pause'
+				)
+			) {
+				return;
+			}
+
+			if ( onResumeEnd ) {
+				swiper.wrapperEl.removeEventListener(
+					'transitionend',
+					onResumeEnd
+				);
+				onResumeEnd = null;
+			}
+
+			const { m41, m42 } = new DOMMatrix(
+				window.getComputedStyle( swiper.wrapperEl ).transform
+			);
+			// swiper.translate and the transform are mirrored in RTL, setTranslate mirrors again
+			const sign = swiper.isHorizontal() && swiper.rtlTranslate ? -1 : 1;
+			const current = ( swiper.isHorizontal() ? m41 : m42 ) * sign;
+			const target = swiper.translate * sign;
+			const step =
+				Math.abs( swiper.slidesGrid[ 1 ] - swiper.slidesGrid[ 0 ] ) ||
+				swiper.width;
+
+			swiper.autoplay.stop();
+			swiper.setTransition( 0 );
+			swiper.setTranslate( current );
+			frozen = {
+				target,
+				remaining:
+					Math.min( 1, Math.abs( target - current ) / step ) *
+					swiper.params.speed,
+			};
+		} );
+
+		sliderContainer.addEventListener( 'pointerleave', () => {
+			if ( ! frozen ) {
+				return;
+			}
+
+			const { target, remaining } = frozen;
+			frozen = null;
+
+			if ( remaining < 1 ) {
+				swiper.setTranslate( target );
+				startAutoplay();
+				return;
+			}
+
+			// Finish the stopped slide at the same speed, then autoplay goes on
+			onResumeEnd = ( event ) => {
+				if ( event.target !== swiper.wrapperEl ) {
+					return;
+				}
+				swiper.wrapperEl.removeEventListener(
+					'transitionend',
+					onResumeEnd
+				);
+				onResumeEnd = null;
+				startAutoplay();
+			};
+			swiper.wrapperEl.addEventListener( 'transitionend', onResumeEnd );
+			swiper.setTransition( remaining );
+			swiper.setTranslate( target );
+		} );
 	};
 
 	/**
@@ -210,8 +329,36 @@ document.addEventListener( 'DOMContentLoaded', () => {
 						}
 					}
 
+					const hasMarquee = Object.values( BREAKPOINT_DEVICES ).some(
+						( device ) => hasMarqueeClass( sliderContainer, device )
+					);
+
+					// Moving content is turned off for users who ask for less motion
+					if (
+						hasMarquee &&
+						window.matchMedia( '(prefers-reduced-motion: reduce)' )
+							.matches
+					) {
+						Object.entries( settings.breakpoints || {} ).forEach(
+							( [ width, params ] ) => {
+								if (
+									hasMarqueeClass(
+										sliderContainer,
+										BREAKPOINT_DEVICES[ width ] || ''
+									)
+								) {
+									params.autoplay = false;
+								}
+							}
+						);
+					}
+
 					// Initialize Swiper with parsed settings
-					new Swiper( swiperElement, settings );
+					const swiper = new Swiper( swiperElement, settings );
+
+					if ( hasMarquee ) {
+						initializeMarquee( sliderContainer, swiper );
+					}
 				}
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
