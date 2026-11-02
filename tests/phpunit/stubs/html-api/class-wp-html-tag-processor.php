@@ -526,6 +526,8 @@ class WP_HTML_Tag_Processor {
 	 *     @type string|null $tag_closers  "visit" or "skip": whether to stop on tag closers, e.g. </div>.
 	 * }
 	 * @return boolean Whether a tag was matched.
+	 *
+	 * @phpstan-impure
 	 */
 	public function next_tag( $query = null ) {
 		$this->parse_query( $query );
