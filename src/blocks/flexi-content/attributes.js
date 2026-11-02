@@ -124,6 +124,30 @@ const attributes = {
 			Mobile: false,
 		},
 	},
+	enableCursorFollower: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	cursorFollowerBg: {
+		type: 'string',
+		default: 'rgba(0, 0, 0, 0.75)',
+	},
+	cursorFollowerColor: {
+		type: 'string',
+		default: '#ffffff',
+	},
+	cursorFollowerSize: {
+		type: 'object',
+		default: {
+			Desktop: 48,
+			Tablet: 48,
+			Mobile: 48,
+		},
+	},
 	paginationPositionType: {
 		type: 'string',
 		default: 'inside',

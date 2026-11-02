@@ -77,6 +77,18 @@ return [
 		'Tablet' => false,
 		'Mobile' => false,
 	],
+	'enableCursorFollower' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'cursorFollowerBg' => 'rgba(0, 0, 0, 0.75)',
+	'cursorFollowerColor' => '#ffffff',
+	'cursorFollowerSize' => [
+		'Desktop' => 48,
+		'Tablet' => 48,
+		'Mobile' => 48,
+	],
 	'paginationPositionType' => 'inside',
 	'layoutHeightSwitcher' => 'fixed',
 	'layoutHeight' => [

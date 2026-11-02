@@ -108,6 +108,113 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			} );
 	};
 
+	/**
+	 * Add a bubble that follows the mouse over the slider.
+	 * Click on the left half goes to the previous slide, right half to the next one.
+	 *
+	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
+	 * @param {HTMLElement} swiperElement   - Swiper element of this slider.
+	 * @param {Object}      swiper          - Swiper instance of this slider.
+	 */
+	const initializeCursorFollower = (
+		sliderContainer,
+		swiperElement,
+		swiper
+	) => {
+		// Touch screens have no mouse to follow, keep the normal swipe there
+		if ( window.matchMedia( '(pointer: coarse)' ).matches ) {
+			return;
+		}
+
+		const devices = sliderContainer.dataset.cursorFollower.split( ' ' );
+		// Clicks on these keep their own action, the follower hides over them
+		const interactiveSelector =
+			'a, button, input, select, textarea, label, summary, iframe, video, [role="button"], .swiper-pagination';
+
+		const follower = document.createElement( 'div' );
+		follower.className = 'gslider-cursor-follower';
+		follower.setAttribute( 'aria-hidden', 'true' );
+		swiperElement.appendChild( follower );
+
+		let pointer = null;
+		let pointerType = '';
+		let frame = 0;
+
+		// Nested sliders and buttons inside slides handle the pointer themselves
+		const isFreeArea = ( target ) =>
+			target.closest( '.swiper' ) === swiperElement &&
+			! target.closest( interactiveSelector );
+
+		const isLeftHalf = ( clientX ) => {
+			const rect = swiperElement.getBoundingClientRect();
+			return clientX - rect.left < rect.width / 2;
+		};
+
+		const render = () => {
+			frame = 0;
+			const active =
+				pointer &&
+				devices.includes( getCurrentDevice() ) &&
+				isFreeArea( pointer.target );
+
+			swiperElement.classList.toggle( 'gslider-cursor-active', active );
+			if ( ! active ) {
+				return;
+			}
+
+			const rect = swiperElement.getBoundingClientRect();
+			const x = pointer.clientX - rect.left;
+			follower.classList.toggle( 'is-left', x < rect.width / 2 );
+			follower.style.transform = `translate3d(${ x }px, ${
+				pointer.clientY - rect.top
+			}px, 0) translate(-50%, -50%)`;
+		};
+
+		const scheduleRender = () => {
+			if ( ! frame ) {
+				frame = requestAnimationFrame( render );
+			}
+		};
+
+		// Touch laptops have a fine primary pointer, so check each finger or pen too
+		swiperElement.addEventListener(
+			'pointerdown',
+			( event ) => {
+				pointerType = event.pointerType;
+			},
+			true
+		);
+
+		swiperElement.addEventListener( 'pointermove', ( event ) => {
+			pointer = event.pointerType === 'mouse' ? event : null;
+			scheduleRender();
+		} );
+
+		swiperElement.addEventListener( 'pointerleave', () => {
+			pointer = null;
+			scheduleRender();
+		} );
+
+		swiperElement.addEventListener( 'click', ( event ) => {
+			// allowClick is false right after a drag, the drag already moved the slide
+			if (
+				pointerType !== 'mouse' ||
+				! swiper.allowClick ||
+				! devices.includes( getCurrentDevice() ) ||
+				! isFreeArea( event.target )
+			) {
+				return;
+			}
+
+			// In RTL the previous slide is on the right side
+			if ( isLeftHalf( event.clientX ) !== swiper.rtlTranslate ) {
+				swiper.slidePrev();
+			} else {
+				swiper.slideNext();
+			}
+		} );
+	};
+
 	const initializeSliders = () => {
 		// Select all slider containers
 		const sliders = document.querySelectorAll(
@@ -211,7 +318,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					}
 
 					// Initialize Swiper with parsed settings
-					new Swiper( swiperElement, settings );
+					const swiper = new Swiper( swiperElement, settings );
+
+					if ( sliderContainer.dataset.cursorFollower ) {
+						initializeCursorFollower(
+							sliderContainer,
+							swiperElement,
+							swiper
+						);
+					}
 				}
 			} catch ( error ) {
 				// eslint-disable-next-line no-console

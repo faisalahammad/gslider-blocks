@@ -76,6 +76,10 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		showNavigation,
 		showPagination,
 		enableSlideLightbox,
+		enableCursorFollower,
+		cursorFollowerBg,
+		cursorFollowerColor,
+		cursorFollowerSize,
 		paginationPositionType,
 		/** End Show/Hide Elements */
 
@@ -534,6 +538,60 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					deviceType={ deviceType }
 					setAttributes={ setAttributes }
 				/>
+				<ResponsiveToggleControl
+					label={ __(
+						'Cursor Follower Navigation',
+						'gslider-blocks'
+					) }
+					toggleValue={ enableCursorFollower }
+					setToggleValue={ ( value ) =>
+						setAttributes( { enableCursorFollower: value } )
+					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
+				/>
+				{ enableCursorFollower?.[ deviceType ] && (
+					<>
+						<ColorControl
+							label={ __(
+								'Follower Background',
+								'gslider-blocks'
+							) }
+							color={ cursorFollowerBg }
+							onChangeColor={ ( value ) =>
+								setAttributes( { cursorFollowerBg: value } )
+							}
+							defaultColor="rgba(0, 0, 0, 0.75)"
+						/>
+						<ColorControl
+							label={ __(
+								'Follower Icon Color',
+								'gslider-blocks'
+							) }
+							color={ cursorFollowerColor }
+							onChangeColor={ ( value ) =>
+								setAttributes( { cursorFollowerColor: value } )
+							}
+							defaultColor="#ffffff"
+						/>
+						<ResponsiveRangeControl
+							min={ 32 }
+							max={ 80 }
+							label={ __(
+								'Follower Size (px)',
+								'gslider-blocks'
+							) }
+							rangeValue={ cursorFollowerSize }
+							onChangeValue={ ( value ) =>
+								setAttributes( { cursorFollowerSize: value } )
+							}
+							deviceType={ deviceType }
+							step={ 1 }
+							resetFallbackValue="48"
+							isRangeUnit={ false }
+						/>
+					</>
+				) }
 			</PanelBody>
 			<PanelBody
 				title={ __( 'Layout & Content Setting', 'gslider-blocks' ) }

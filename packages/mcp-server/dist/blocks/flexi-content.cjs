@@ -200,6 +200,30 @@ var attributes = {
       Mobile: false
     }
   },
+  enableCursorFollower: {
+    type: "object",
+    default: {
+      Desktop: false,
+      Tablet: false,
+      Mobile: false
+    }
+  },
+  cursorFollowerBg: {
+    type: "string",
+    default: "rgba(0, 0, 0, 0.75)"
+  },
+  cursorFollowerColor: {
+    type: "string",
+    default: "#ffffff"
+  },
+  cursorFollowerSize: {
+    type: "object",
+    default: {
+      Desktop: 48,
+      Tablet: 48,
+      Mobile: 48
+    }
+  },
   paginationPositionType: {
     type: "string",
     default: "inside"
@@ -1880,7 +1904,8 @@ function Save({ attributes: attributes2 }) {
     navigationArrowsIconRightImageUrl,
     navigationArrowsIconRightImageAlt,
     layoutHeightSwitcher,
-    enableSlideLightbox
+    enableSlideLightbox,
+    enableCursorFollower
   } = attributes2;
   const blockProps = import_block_editor.useBlockProps.save({
     className: `gslider-flexi-content-wrapper ${blockId} ${navigationArrowPositionType} ${navigationArrowPosition} ${showPagination?.Desktop || showPagination?.Tablet || showPagination?.Mobile ? "has-pagination" : ""}`
@@ -1901,6 +1926,7 @@ function Save({ attributes: attributes2 }) {
   };
   const anyPaginationEnabled = paginationEnabled.Mobile || paginationEnabled.Tablet || paginationEnabled.Desktop;
   const lightboxDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableSlideLightbox?.[device] === true).join(" ");
+  const cursorFollowerDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableCursorFollower?.[device] === true).join(" ");
   const swiperSettings = JSON.stringify({
     effect: sliderType === "carousel" ? carouselEffect : slideEffect,
     // Responsive breakpoints for Desktop, Tablet, and Mobile
@@ -1987,6 +2013,9 @@ function Save({ attributes: attributes2 }) {
       "data-swiper-settings": swiperSettings,
       ...lightboxDevices && {
         "data-slide-lightbox": lightboxDevices
+      },
+      ...cursorFollowerDevices && {
+        "data-cursor-follower": cursorFollowerDevices
       },
       children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
@@ -2184,6 +2213,7 @@ var getHasPaginationCss = (blockId, showPagination, device, fallbackDevices, off
   }
   return "";
 };
+var getCursorFollowerSizeCss = (blockId, enabled, size) => enabled && size ? `.${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${size}px; height: ${size}px; }` : "";
 var generateFlexiContentStyle = (attributes2) => {
   const {
     blockId,
@@ -2506,9 +2536,16 @@ var generateFlexiContentStyle = (attributes2) => {
     globalBoxShadowValues,
     globalBoxShadowCssValue,
     globalBoxShadowHoverValues,
-    globalBoxShadowHoverCssValue
+    globalBoxShadowHoverCssValue,
     /** End Global Box Shadow */
+    enableCursorFollower,
+    cursorFollowerBg,
+    cursorFollowerColor,
+    cursorFollowerSize
   } = attributes2;
+  const hasCursorFollower = Object.values(enableCursorFollower || {}).some(
+    Boolean
+  );
   const getGlobalBackgroundNormalStyles = (device) => {
     const bgType = globalNormalBackgroundType;
     const bgColor = globalNormalClassicColor;
@@ -2874,7 +2911,23 @@ var generateFlexiContentStyle = (attributes2) => {
         ` : ""}
 
 
+        ${hasCursorFollower ? `.${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower {
+            ${cursorFollowerBg ? `background: ${cursorFollowerBg};` : ""}
+            ${cursorFollowerColor ? `color: ${cursorFollowerColor};` : ""}
+        }` : ""}
+        ${getCursorFollowerSizeCss(
+    blockId,
+    hasCursorFollower,
+    cursorFollowerSize?.Desktop
+  )}
+
         @media only screen and (max-width: 1024px) {
+
+            ${getCursorFollowerSizeCss(
+    blockId,
+    hasCursorFollower,
+    cursorFollowerSize?.Tablet
+  )}
 
             .${blockId}.gslider-flexi-content-wrapper {
                 ${globalTabletBackgroundNormalStyles}
@@ -3059,6 +3112,12 @@ var generateFlexiContentStyle = (attributes2) => {
         }
         
         @media only screen and (max-width: 767px) {
+
+            ${getCursorFollowerSizeCss(
+    blockId,
+    hasCursorFollower,
+    cursorFollowerSize?.Mobile
+  )}
 
             .${blockId}.gslider-flexi-content-wrapper {
                 ${globalMobileBackgroundNormalStyles}

@@ -44,6 +44,7 @@ export default function Save( { attributes } ) {
 
 		layoutHeightSwitcher,
 		enableSlideLightbox,
+		enableCursorFollower,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -83,6 +84,9 @@ export default function Save( { attributes } ) {
 	// Only output the attribute when enabled, so markup of existing blocks stays the same
 	const lightboxDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
 		.filter( ( device ) => enableSlideLightbox?.[ device ] === true )
+		.join( ' ' );
+	const cursorFollowerDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
+		.filter( ( device ) => enableCursorFollower?.[ device ] === true )
 		.join( ' ' );
 
 	// Configure Swiper settings for frontend rendering
@@ -190,6 +194,9 @@ export default function Save( { attributes } ) {
 			data-swiper-settings={ swiperSettings }
 			{ ...( lightboxDevices && {
 				'data-slide-lightbox': lightboxDevices,
+			} ) }
+			{ ...( cursorFollowerDevices && {
+				'data-cursor-follower': cursorFollowerDevices,
 			} ) }
 		>
 			<div

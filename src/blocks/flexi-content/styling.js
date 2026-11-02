@@ -60,6 +60,11 @@ const getHasPaginationCss = (
 	return '';
 };
 
+const getCursorFollowerSizeCss = ( blockId, enabled, size ) =>
+	enabled && size
+		? `.${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${ size }px; height: ${ size }px; }`
+		: '';
+
 /**
  * Generate block styles from attributes
  * @param {Object} attributes - Block attributes
@@ -427,7 +432,17 @@ const generateFlexiContentStyle = ( attributes ) => {
 		globalBoxShadowHoverValues,
 		globalBoxShadowHoverCssValue,
 		/** End Global Box Shadow */
+
+		enableCursorFollower,
+		cursorFollowerBg,
+		cursorFollowerColor,
+		cursorFollowerSize,
 	} = attributes;
+
+	// Skip the follower rules on blocks that do not use it
+	const hasCursorFollower = Object.values( enableCursorFollower || {} ).some(
+		Boolean
+	);
 
 	/**
 	 * Get global background normal styles
@@ -1241,7 +1256,27 @@ const generateFlexiContentStyle = ( attributes ) => {
 		}
 
 
+        ${
+			hasCursorFollower
+				? `.${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower {
+            ${ cursorFollowerBg ? `background: ${ cursorFollowerBg };` : '' }
+            ${ cursorFollowerColor ? `color: ${ cursorFollowerColor };` : '' }
+        }`
+				: ''
+		}
+        ${ getCursorFollowerSizeCss(
+			blockId,
+			hasCursorFollower,
+			cursorFollowerSize?.Desktop
+		) }
+
         @media only screen and (max-width: 1024px) {
+
+            ${ getCursorFollowerSizeCss(
+				blockId,
+				hasCursorFollower,
+				cursorFollowerSize?.Tablet
+			) }
 
             .${ blockId }.gslider-flexi-content-wrapper {
                 ${ globalTabletBackgroundNormalStyles }
@@ -1690,6 +1725,12 @@ const generateFlexiContentStyle = ( attributes ) => {
         }
         
         @media only screen and (max-width: 767px) {
+
+            ${ getCursorFollowerSizeCss(
+				blockId,
+				hasCursorFollower,
+				cursorFollowerSize?.Mobile
+			) }
 
             .${ blockId }.gslider-flexi-content-wrapper {
                 ${ globalMobileBackgroundNormalStyles }
