@@ -10,6 +10,8 @@ export default function Save( { attributes } ) {
 		speed,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
+		autoplayProgressPosition,
 		infiniteLoop,
 		allowTouchMove,
 		pauseOnHover,
@@ -79,6 +81,13 @@ export default function Save( { attributes } ) {
 		paginationEnabled.Mobile ||
 		paginationEnabled.Tablet ||
 		paginationEnabled.Desktop;
+
+	// Only output the progress bar when enabled, so markup of existing blocks stays the same
+	const showAutoplayProgress =
+		autoplay &&
+		( enableAutoplayProgress?.Desktop ||
+			enableAutoplayProgress?.Tablet ||
+			enableAutoplayProgress?.Mobile );
 
 	// Only output the attribute when enabled, so markup of existing blocks stays the same
 	const lightboxDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
@@ -197,6 +206,15 @@ export default function Save( { attributes } ) {
 				{ ...( globalID && { id: globalID } ) }
 			>
 				<div { ...innerBlocksProps } />
+
+				{ showAutoplayProgress && (
+					<div
+						className={ `gslider-autoplay-progress ${ autoplayProgressPosition }` }
+						aria-hidden="true"
+					>
+						<div className="gslider-autoplay-progress-fill"></div>
+					</div>
+				) }
 
 				{ anyNavigationEnabled &&
 					! navigationArrowsIconSwitcher &&

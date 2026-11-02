@@ -29,6 +29,7 @@ import {
 	NAVIGATION_ARROW_DIRECTION,
 	LAYOUT_HEIGHT_SWITCHER,
 	PAGINATION_POSITION_TYPE,
+	AUTOPLAY_PROGRESS_POSITION,
 } from '@Constants';
 
 import './editor.scss';
@@ -60,6 +61,10 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		speed,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
+		autoplayProgressPosition,
+		autoplayProgressColor,
+		autoplayProgressHeight,
 		infiniteLoop,
 		allowTouchMove,
 		pauseOnHover,
@@ -739,6 +744,64 @@ const Inspector = ( { attributes, setAttributes } ) => {
 						resetFallbackValue={ '1000' }
 						isRangeUnit={ false }
 					/>
+				) }
+				{ autoplay && (
+					<ResponsiveToggleControl
+						label={ __(
+							'Autoplay Progress Bar',
+							'gslider-blocks'
+						) }
+						toggleValue={ enableAutoplayProgress }
+						setToggleValue={ ( value ) =>
+							setAttributes( { enableAutoplayProgress: value } )
+						}
+						deviceType={ deviceType }
+						setAttributes={ setAttributes }
+					/>
+				) }
+				{ autoplay && enableAutoplayProgress?.[ deviceType ] && (
+					<>
+						<SwitcherControl
+							label={ __(
+								'Progress Position',
+								'gslider-blocks'
+							) }
+							options={ AUTOPLAY_PROGRESS_POSITION }
+							value={ autoplayProgressPosition }
+							onChange={ ( value ) =>
+								setAttributes( {
+									autoplayProgressPosition: value,
+								} )
+							}
+						/>
+						<ColorControl
+							label={ __( 'Progress Color', 'gslider-blocks' ) }
+							color={ autoplayProgressColor }
+							onChangeColor={ ( value ) =>
+								setAttributes( {
+									autoplayProgressColor: value,
+								} )
+							}
+							defaultColor="#007cba"
+						/>
+						<ResponsiveRangeControl
+							min={ 1 }
+							max={ 20 }
+							label={ __(
+								'Progress Height (px)',
+								'gslider-blocks'
+							) }
+							rangeValue={ autoplayProgressHeight }
+							onChangeValue={ ( value ) =>
+								setAttributes( {
+									autoplayProgressHeight: value,
+								} )
+							}
+							deviceType={ deviceType }
+							resetFallbackValue={ '3' }
+							isRangeUnit={ false }
+						/>
+					</>
 				) }
 
 				<ResponsiveRangeControl

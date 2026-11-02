@@ -130,6 +130,30 @@ var attributes = {
       Mobile: 1e3
     }
   },
+  enableAutoplayProgress: {
+    type: "object",
+    default: {
+      Desktop: false,
+      Tablet: false,
+      Mobile: false
+    }
+  },
+  autoplayProgressPosition: {
+    type: "string",
+    default: "bottom"
+  },
+  autoplayProgressColor: {
+    type: "string",
+    default: "#007cba"
+  },
+  autoplayProgressHeight: {
+    type: "object",
+    default: {
+      Desktop: 3,
+      Tablet: 3,
+      Mobile: 3
+    }
+  },
   infiniteLoop: {
     type: "boolean",
     default: true
@@ -1852,6 +1876,8 @@ function Save({ attributes: attributes2 }) {
     speed,
     autoplay,
     autoplayDelay,
+    enableAutoplayProgress,
+    autoplayProgressPosition,
     infiniteLoop,
     allowTouchMove,
     pauseOnHover,
@@ -1900,6 +1926,7 @@ function Save({ attributes: attributes2 }) {
     Desktop: !!showPagination?.Desktop
   };
   const anyPaginationEnabled = paginationEnabled.Mobile || paginationEnabled.Tablet || paginationEnabled.Desktop;
+  const showAutoplayProgress = autoplay && (enableAutoplayProgress?.Desktop || enableAutoplayProgress?.Tablet || enableAutoplayProgress?.Mobile);
   const lightboxDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableSlideLightbox?.[device] === true).join(" ");
   const swiperSettings = JSON.stringify({
     effect: sliderType === "carousel" ? carouselEffect : slideEffect,
@@ -1996,6 +2023,14 @@ function Save({ attributes: attributes2 }) {
             ...globalID && { id: globalID },
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { ...innerBlocksProps }),
+              showAutoplayProgress && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                "div",
+                {
+                  className: `gslider-autoplay-progress ${autoplayProgressPosition}`,
+                  "aria-hidden": "true",
+                  children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "gslider-autoplay-progress-fill" })
+                }
+              ),
               anyNavigationEnabled && !navigationArrowsIconSwitcher && navigationArrowPositionType === "inside" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
                 "div",
                 {
@@ -2184,6 +2219,25 @@ var getHasPaginationCss = (blockId, showPagination, device, fallbackDevices, off
   }
   return "";
 };
+var getAutoplayProgressCss = (blockId, enabled, color, height) => {
+  const deviceRule = (device) => `
+        .${blockId} > .swiper > .gslider-autoplay-progress {
+            ${enabled?.[device] ? `display: block; height: ${height?.[device] ?? 3}px;` : "display: none;"}
+        }
+    `;
+  return `
+        .${blockId} > .swiper > .gslider-autoplay-progress > .gslider-autoplay-progress-fill {
+            ${color ? `background-color: ${color};` : ""}
+        }
+        ${deviceRule("Desktop")}
+        @media only screen and (max-width: 1024px) {
+            ${deviceRule("Tablet")}
+        }
+        @media only screen and (max-width: 767px) {
+            ${deviceRule("Mobile")}
+        }
+    `;
+};
 var generateFlexiContentStyle = (attributes2) => {
   const {
     blockId,
@@ -2195,6 +2249,9 @@ var generateFlexiContentStyle = (attributes2) => {
     speed,
     autoplay,
     autoplayDelay,
+    enableAutoplayProgress,
+    autoplayProgressColor,
+    autoplayProgressHeight,
     infiniteLoop,
     allowTouchMove,
     pauseOnHover,
@@ -3242,7 +3299,13 @@ var generateFlexiContentStyle = (attributes2) => {
             ` : ""}
         }
     `;
-  return `${flexiContentCSS}`.replace(/\s+/g, " ").trim();
+  const autoplayProgressCSS = autoplay && (enableAutoplayProgress?.Desktop || enableAutoplayProgress?.Tablet || enableAutoplayProgress?.Mobile) ? getAutoplayProgressCss(
+    blockId,
+    enableAutoplayProgress,
+    autoplayProgressColor,
+    autoplayProgressHeight
+  ) : "";
+  return `${flexiContentCSS}${autoplayProgressCSS}`.replace(/\s+/g, " ").trim();
 };
 var styling_default = generateFlexiContentStyle;
 

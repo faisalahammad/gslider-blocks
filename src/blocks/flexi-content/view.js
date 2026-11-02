@@ -211,7 +211,22 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					}
 
 					// Initialize Swiper with parsed settings
-					new Swiper( swiperElement, settings );
+					const swiper = new Swiper( swiperElement, settings );
+
+					const progressFill = swiperElement.querySelector(
+						':scope > .gslider-autoplay-progress > .gslider-autoplay-progress-fill'
+					);
+					if ( progressFill ) {
+						// Progress goes from 1 to 0 while the delay runs out
+						swiper.on(
+							'autoplayTimeLeft',
+							( s, timeLeft, progress ) => {
+								progressFill.style.width = `${
+									( 1 - progress ) * 100
+								}%`;
+							}
+						);
+					}
 				}
 			} catch ( error ) {
 				// eslint-disable-next-line no-console

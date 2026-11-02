@@ -61,6 +61,34 @@ const getHasPaginationCss = (
 };
 
 /**
+ * Autoplay progress bar color, height and per device visibility.
+ */
+const getAutoplayProgressCss = ( blockId, enabled, color, height ) => {
+	const deviceRule = ( device ) => `
+        .${ blockId } > .swiper > .gslider-autoplay-progress {
+            ${
+				enabled?.[ device ]
+					? `display: block; height: ${ height?.[ device ] ?? 3 }px;`
+					: 'display: none;'
+			}
+        }
+    `;
+
+	return `
+        .${ blockId } > .swiper > .gslider-autoplay-progress > .gslider-autoplay-progress-fill {
+            ${ color ? `background-color: ${ color };` : '' }
+        }
+        ${ deviceRule( 'Desktop' ) }
+        @media only screen and (max-width: 1024px) {
+            ${ deviceRule( 'Tablet' ) }
+        }
+        @media only screen and (max-width: 767px) {
+            ${ deviceRule( 'Mobile' ) }
+        }
+    `;
+};
+
+/**
  * Generate block styles from attributes
  * @param {Object} attributes - Block attributes
  * @return {string} CSS string
@@ -76,6 +104,9 @@ const generateFlexiContentStyle = ( attributes ) => {
 		speed,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
+		autoplayProgressColor,
+		autoplayProgressHeight,
 		infiniteLoop,
 		allowTouchMove,
 		pauseOnHover,
@@ -2139,7 +2170,22 @@ const generateFlexiContentStyle = ( attributes ) => {
     `;
 	/** End All Block Style */
 
-	return `${ flexiContentCSS }`.replace( /\s+/g, ' ' ).trim();
+	const autoplayProgressCSS =
+		autoplay &&
+		( enableAutoplayProgress?.Desktop ||
+			enableAutoplayProgress?.Tablet ||
+			enableAutoplayProgress?.Mobile )
+			? getAutoplayProgressCss(
+					blockId,
+					enableAutoplayProgress,
+					autoplayProgressColor,
+					autoplayProgressHeight
+			  )
+			: '';
+
+	return `${ flexiContentCSS }${ autoplayProgressCSS }`
+		.replace( /\s+/g, ' ' )
+		.trim();
 };
 
 export default generateFlexiContentStyle;
