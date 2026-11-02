@@ -11,11 +11,12 @@ import { useDeviceType } from '@Utils/displayType';
 import './editor.scss';
 
 /** Only a strict ID match is stored, so the ID is safe to put in an embed URL later */
+/** The provider host must start the URL, so a provider name inside another URL does not match */
 const VIDEO_ID_PATTERNS = {
 	youtube:
-		/(?:^|[/.])(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([\w-]{11})(?![\w-])/i,
-	/** A showcase or album number is not a video ID */
-	vimeo: /(?:^|[/.])vimeo\.com\/(?:(?:showcase|album)\/\d+\/|(?!(?:showcase|album)\/)[^/?#]+\/)*(\d+)(?:[/?#]|$)/i,
+		/^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([\w-]{11})(?![\w-])/i,
+	/** A showcase, album, channel or group name and the private link hash are not the video ID */
+	vimeo: /^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*vimeo\.com\/(?:(?:showcase|album|channels|groups)\/[^/?#]+\/|(?!(?:showcase|album|channels|groups)\/|\d+\/)[^/?#]+\/)*(\d+)(?:[/?#]|$)/i,
 };
 
 const getVideoId = ( type, url ) =>
