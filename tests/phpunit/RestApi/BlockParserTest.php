@@ -9,6 +9,7 @@
  * 4. Image, Logo, Testimonial, and Flexi-Content slide structures are parsed with appropriate fields.
  * 5. blockStyle CSS is strictly sanitized to prevent arbitrary code injection for REST consumers.
  * 6. Flexi Content slides keep their CSS in REST output (slides[].css and <style> in innerHtml).
+ * 7. Flexi Content vertical direction reaches swiperConfig and turns off autoHeight.
  *
  * @package GSlider\Tests\RestApi
  */
@@ -109,6 +110,7 @@ class BlockParserTest {
 		$this->test_block_types_normalization();
 		$this->test_css_sanitization();
 		$this->test_flexi_slide_css_in_rest_output();
+		$this->test_flexi_vertical_direction();
 
 		fwrite( STDOUT, "\nAll BlockParser tests passed successfully!\n" );
 	}
@@ -404,6 +406,27 @@ class BlockParserTest {
 		$slide = $flexi['slides'][0];
 		$this->assert_true( false !== strpos( $slide['css'], '.slide-a{color:#abcdef}' ) && false !== strpos( $slide['css'], '.slide-a-inner{margin:1px}' ), 'flexi slides[].css carries own and nested CSS' );
 		$this->assert_true( false !== strpos( $slide['innerHtml'], '<style id="gslider-style-slide-a">' ), 'flexi innerHtml keeps its <style> during REST requests' );
+	}
+
+	/**
+	 * Test 7: Flexi Content Vertical Direction.
+	 *
+	 * @return void
+	 */
+	public function test_flexi_vertical_direction(): void {
+		$horizontal = $this->normalize( [ 'layoutHeightSwitcher' => 'adapt' ], 'gslider-blocks/flexi-content' );
+		$this->assert_true( ! isset( $horizontal['swiperConfig']['direction'] ), 'default flexi config has no direction key' );
+		$this->assert_true( true === $horizontal['swiperConfig']['autoHeight'], 'horizontal adapt height keeps autoHeight' );
+
+		$vertical = $this->normalize(
+			[
+				'direction'            => 'vertical',
+				'layoutHeightSwitcher' => 'adapt',
+			],
+			'gslider-blocks/flexi-content'
+		);
+		$this->assert_true( 'vertical' === $vertical['swiperConfig']['direction'], 'vertical flexi config sets direction' );
+		$this->assert_true( ! isset( $vertical['swiperConfig']['autoHeight'] ), 'vertical flexi config skips autoHeight' );
 	}
 }
 
