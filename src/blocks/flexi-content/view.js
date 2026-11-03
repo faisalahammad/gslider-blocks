@@ -106,6 +106,17 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		// Swiper does not start or stop autoplay when the breakpoint changes
 		swiper.on( 'breakpoint', () => {
+			// Swiper drops the common options when it switches from autoplay false, so build them again
+			const breakpointAutoplay =
+				swiper.params.breakpoints?.[ swiper.currentBreakpoint ]
+					?.autoplay;
+			if ( breakpointAutoplay ) {
+				swiper.params.autoplay = {
+					...swiper.originalParams.autoplay,
+					...breakpointAutoplay,
+				};
+			}
+
 			if ( ! swiper.params.autoplay ) {
 				swiper.autoplay.stop();
 				// A normal slider should not rest between slides, finish the slide at once
@@ -116,6 +127,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					cancelResume();
 					swiper.setTransition( 0 );
 					swiper.setTranslate( target );
+					// The stopped transition sends no transitionend, loop mode does not slide while animating
+					swiper.animating = false;
 				}
 				frozen = null;
 			} else if ( ! swiper.autoplay.running && ! frozen ) {
@@ -147,6 +160,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			swiper.autoplay.stop();
 			swiper.setTransition( 0 );
 			swiper.setTranslate( current );
+			// The stopped transition sends no transitionend, loop mode does not slide while animating
+			swiper.animating = false;
 			frozen = {
 				target,
 				remaining:
