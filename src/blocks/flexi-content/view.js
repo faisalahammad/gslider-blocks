@@ -1,4 +1,4 @@
-/* global Swiper, requestAnimationFrame, refreshFsLightbox */
+/* global Swiper, requestAnimationFrame, refreshFsLightbox, DOMMatrix */
 document.addEventListener( 'DOMContentLoaded', () => {
 	const IMAGE_URL_PATTERN = /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
 	// Counter keeps gallery names unique when sliders are added later
@@ -37,6 +37,181 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			return 'Desktop';
 		}
 		return window.innerWidth >= 768 ? 'Tablet' : 'Mobile';
+	};
+
+	// Swiper breakpoint keys from save.js
+	const BREAKPOINT_DEVICES = { 0: 'Mobile', 768: 'Tablet', 1025: 'Desktop' };
+
+	/**
+	 * Check a marquee class of the slider for a device.
+	 *
+	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
+	 * @param {string}      device          - Desktop, Tablet or Mobile.
+	 * @param {string}      type            - marquee or marquee-pause.
+	 * @return {boolean} True when the class is set.
+	 */
+	const hasMarqueeClass = ( sliderContainer, device, type = 'marquee' ) =>
+		sliderContainer.classList.contains(
+			`gslider-${ type }-${ device.toLowerCase() }`
+		);
+
+	/**
+	 * Keep marquee autoplay in sync with breakpoints and pause it on hover.
+	 * Swiper hover pause waits until the slide ends, so we stop the wrapper where it is.
+	 *
+	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
+	 * @param {Object}      swiper          - Swiper instance of this slider.
+	 */
+	const initializeMarquee = ( sliderContainer, swiper ) => {
+		let frozen = null;
+		let onResumeEnd = null;
+
+		// swiper.translate and the transform are mirrored in RTL, setTranslate mirrors again
+		const getSign = () =>
+			swiper.isHorizontal() && swiper.rtlTranslate ? -1 : 1;
+
+		/**
+		 * Get the current wrapper position, Swiper only knows where the slide ends.
+		 *
+		 * @return {number} Translate in the same form as swiper.translate.
+		 */
+		const getCurrentTranslate = () => {
+			const { m41, m42 } = new DOMMatrix(
+				window.getComputedStyle( swiper.wrapperEl ).transform
+			);
+			return ( swiper.isHorizontal() ? m41 : m42 ) * getSign();
+		};
+
+		// Stop a running resume transition where it is
+		const cancelResume = () => {
+			if ( ! onResumeEnd ) {
+				return;
+			}
+			swiper.wrapperEl.removeEventListener(
+				'transitionend',
+				onResumeEnd
+			);
+			onResumeEnd = null;
+			const current = getCurrentTranslate();
+			swiper.setTransition( 0 );
+			swiper.setTranslate( current );
+		};
+
+		// Autoplay is false on breakpoints without marquee or autoplay
+		const startAutoplay = () => {
+			if ( ! swiper.destroyed && swiper.params.autoplay ) {
+				swiper.autoplay.start();
+			}
+		};
+
+		// Swiper does not start or stop autoplay when the breakpoint changes
+		swiper.on( 'breakpoint', () => {
+			// Swiper drops the common options when it switches from autoplay false, so build them again
+			const breakpointAutoplay =
+				swiper.params.breakpoints?.[ swiper.currentBreakpoint ]
+					?.autoplay;
+			if ( breakpointAutoplay ) {
+				swiper.params.autoplay = {
+					...swiper.originalParams.autoplay,
+					...breakpointAutoplay,
+				};
+			}
+
+			if ( ! swiper.params.autoplay ) {
+				swiper.autoplay.stop();
+				// A normal slider should not rest between slides, finish the slide at once
+				if ( frozen || onResumeEnd ) {
+					const target = frozen
+						? frozen.target
+						: swiper.translate * getSign();
+					cancelResume();
+					swiper.setTransition( 0 );
+					swiper.setTranslate( target );
+					// The stopped transition sends no transitionend, loop mode does not slide while animating
+					swiper.animating = false;
+				}
+				frozen = null;
+			} else if ( ! swiper.autoplay.running && ! frozen ) {
+				swiper.autoplay.start();
+			}
+		} );
+
+		sliderContainer.addEventListener( 'pointerenter', ( event ) => {
+			if (
+				event.pointerType !== 'mouse' ||
+				! ( swiper.autoplay.running || onResumeEnd ) ||
+				! hasMarqueeClass(
+					sliderContainer,
+					getCurrentDevice(),
+					'marquee-pause'
+				)
+			) {
+				return;
+			}
+
+			// A pending resume already moves to the slide end, so read it first
+			const target = swiper.translate * getSign();
+			cancelResume();
+			const current = getCurrentTranslate();
+			const step =
+				Math.abs( swiper.slidesGrid[ 1 ] - swiper.slidesGrid[ 0 ] ) ||
+				swiper.width;
+
+			swiper.autoplay.stop();
+			swiper.setTransition( 0 );
+			swiper.setTranslate( current );
+			// The stopped transition sends no transitionend, loop mode does not slide while animating
+			swiper.animating = false;
+			frozen = {
+				target,
+				remaining:
+					Math.min( 1, Math.abs( target - current ) / step ) *
+					swiper.params.speed,
+			};
+		} );
+
+		// Navigation while paused moves to a new slide, so resume from there and not the old target
+		swiper.on( 'slideChangeTransitionStart', () => {
+			if ( frozen ) {
+				frozen = { target: swiper.translate * getSign(), remaining: 0 };
+			}
+		} );
+
+		sliderContainer.addEventListener( 'pointerleave', () => {
+			if ( ! frozen ) {
+				return;
+			}
+
+			const { target, remaining } = frozen;
+			frozen = null;
+
+			if ( remaining < 1 ) {
+				swiper.setTranslate( target );
+				// Loop mode does not slide during a navigation transition, so wait for it
+				if ( ! swiper.animating ) {
+					startAutoplay();
+					return;
+				}
+			}
+
+			// Finish the stopped slide or the navigation, then autoplay goes on
+			onResumeEnd = ( event ) => {
+				if ( event.target !== swiper.wrapperEl ) {
+					return;
+				}
+				swiper.wrapperEl.removeEventListener(
+					'transitionend',
+					onResumeEnd
+				);
+				onResumeEnd = null;
+				startAutoplay();
+			};
+			swiper.wrapperEl.addEventListener( 'transitionend', onResumeEnd );
+			if ( remaining >= 1 ) {
+				swiper.setTransition( remaining );
+				swiper.setTranslate( target );
+			}
+		} );
 	};
 
 	/**
@@ -210,6 +385,32 @@ document.addEventListener( 'DOMContentLoaded', () => {
 						}
 					}
 
+					const hasMarquee = Object.values( BREAKPOINT_DEVICES ).some(
+						( device ) => hasMarqueeClass( sliderContainer, device )
+					);
+
+					// Moving content is turned off for users who ask for less motion
+					if (
+						hasMarquee &&
+						window.matchMedia( '(prefers-reduced-motion: reduce)' )
+							.matches
+					) {
+						Object.entries( settings.breakpoints || {} ).forEach(
+							( [ width, params ] ) => {
+								if (
+									hasMarqueeClass(
+										sliderContainer,
+										BREAKPOINT_DEVICES[ width ] || ''
+									)
+								) {
+									// No autoplay and no long animation on navigation
+									params.autoplay = false;
+									params.speed = 0;
+								}
+							}
+						);
+					}
+
 					// Initialize Swiper with parsed settings
 					const swiper = new Swiper( swiperElement, settings );
 
@@ -226,6 +427,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 								})`;
 							}
 						);
+					}
+
+					if ( hasMarquee ) {
+						initializeMarquee( sliderContainer, swiper );
 					}
 				}
 			} catch ( error ) {
