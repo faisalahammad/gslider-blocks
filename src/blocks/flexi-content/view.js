@@ -414,6 +414,21 @@ document.addEventListener( 'DOMContentLoaded', () => {
 					// Initialize Swiper with parsed settings
 					const swiper = new Swiper( swiperElement, settings );
 
+					const progressFill = swiperElement.querySelector(
+						':scope > .gslider-autoplay-progress > .gslider-autoplay-progress-fill'
+					);
+					if ( progressFill ) {
+						// Progress goes from 1 to 0 while the delay runs out
+						swiper.on(
+							'autoplayTimeLeft',
+							( s, timeLeft, progress ) => {
+								progressFill.style.transform = `scaleX(${
+									1 - progress
+								})`;
+							}
+						);
+					}
+
 					if ( hasMarquee ) {
 						initializeMarquee( sliderContainer, swiper );
 					}
