@@ -129,7 +129,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const devices = sliderContainer.dataset.cursorFollower.split( ' ' );
 		// Clicks on these keep their own action, the follower hides over them
 		const interactiveSelector =
-			'a, button, input, select, textarea, label, summary, iframe, video, [role="button"], [contenteditable]:not([contenteditable="false"]), .swiper-pagination';
+			'a, button, input, select, textarea, label, summary, iframe, video, [role="button"], [role="link"], [role="tab"], [role="checkbox"], [role="switch"], [role="menuitem"], [role="option"], [role="slider"], [contenteditable]:not([contenteditable="false"]), .swiper-pagination';
 
 		const follower = document.createElement( 'div' );
 		follower.className = 'gslider-cursor-follower';
