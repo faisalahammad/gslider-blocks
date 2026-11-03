@@ -75,6 +75,21 @@ return [
 	'keyboardNavigation' => false,
 	'paginationType' => 'bullets',
 	'dynamicBullets' => false,
+	'enableContinuousMarquee' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'marqueeSpeed' => [
+		'Desktop' => 5000,
+		'Tablet' => 5000,
+		'Mobile' => 5000,
+	],
+	'marqueePauseOnHover' => [
+		'Desktop' => true,
+		'Tablet' => true,
+		'Mobile' => true,
+	],
 	'showNavigation' => [
 		'Desktop' => true,
 		'Tablet' => true,

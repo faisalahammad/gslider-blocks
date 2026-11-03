@@ -18,6 +18,33 @@
 		}
 	}
 
+	// Linear timing keeps the marquee at one speed.
+	// Media queries match the Swiper breakpoints in save.js.
+	&.gslider-marquee-mode > .swiper > .swiper-wrapper {
+		transition-timing-function: linear !important;
+	}
+
+	@media (max-width: 767px) {
+
+		&.gslider-marquee-mobile > .swiper > .swiper-wrapper {
+			transition-timing-function: linear !important;
+		}
+	}
+
+	@media (min-width: 768px) and (max-width: 1024px) {
+
+		&.gslider-marquee-tablet > .swiper > .swiper-wrapper {
+			transition-timing-function: linear !important;
+		}
+	}
+
+	@media (min-width: 1025px) {
+
+		&.gslider-marquee-desktop > .swiper > .swiper-wrapper {
+			transition-timing-function: linear !important;
+		}
+	}
+
 	.gslider-shape-divider {
 		position: absolute;
 		left: 0;
