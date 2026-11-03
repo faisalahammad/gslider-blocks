@@ -90,6 +90,16 @@ return [
 		'Tablet' => 'px',
 		'Mobile' => 'px',
 	],
+	'verticalHeight' => [
+		'Desktop' => '350',
+		'Tablet' => '350',
+		'Mobile' => '350',
+	],
+	'verticalHeightUnits' => [
+		'Desktop' => 'px',
+		'Tablet' => 'px',
+		'Mobile' => 'px',
+	],
 	'contentWidth' => [
 		'Desktop' => '100',
 		'Tablet' => '100',

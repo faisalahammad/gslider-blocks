@@ -230,6 +230,22 @@ var attributes = {
       Mobile: "px"
     }
   },
+  verticalHeight: {
+    type: "object",
+    default: {
+      Desktop: "350",
+      Tablet: "350",
+      Mobile: "350"
+    }
+  },
+  verticalHeightUnits: {
+    type: "object",
+    default: {
+      Desktop: "px",
+      Tablet: "px",
+      Mobile: "px"
+    }
+  },
   contentWidth: {
     type: "object",
     default: {
@@ -2445,6 +2461,8 @@ var generateFlexiContentStyle = (attributes2) => {
     layoutHeightSwitcher,
     layoutHeight,
     layoutHeightUnits,
+    verticalHeight,
+    verticalHeightUnits,
     direction,
     contentWidth,
     contentWidthUnits,
@@ -2886,8 +2904,8 @@ var generateFlexiContentStyle = (attributes2) => {
             ${layoutHeight.Desktop && layoutHeightSwitcher === "fixed" ? `min-height: ${layoutHeight.Desktop}${layoutHeightUnits.Desktop};` : "auto"}
         }
 
-        ${direction === "vertical" && Number(layoutHeight.Desktop) > 0 && layoutHeightUnits.Desktop !== "%" ? `.${blockId}.gslider-flexi-content-wrapper > .swiper {
-            height: ${layoutHeight.Desktop}${layoutHeightUnits.Desktop || "px"};
+        ${direction === "vertical" && Number(verticalHeight?.Desktop || layoutHeight.Desktop) > 0 && (verticalHeightUnits?.Desktop || layoutHeightUnits.Desktop) !== "%" ? `.${blockId}.gslider-flexi-content-wrapper > .swiper {
+            height: ${verticalHeight?.Desktop || layoutHeight.Desktop}${verticalHeightUnits?.Desktop || layoutHeightUnits.Desktop || "px"};
         }` : ""}
 
         .${blockId} .swiper-slide{
@@ -3165,8 +3183,8 @@ var generateFlexiContentStyle = (attributes2) => {
                 ${layoutHeight.Tablet && layoutHeightSwitcher === "fixed" ? `min-height: ${layoutHeight.Tablet}${layoutHeightUnits.Tablet};` : "auto"}
             }
 
-            ${direction === "vertical" && Number(layoutHeight.Tablet) > 0 && layoutHeightUnits.Tablet !== "%" ? `.${blockId}.gslider-flexi-content-wrapper > .swiper {
-                height: ${layoutHeight.Tablet}${layoutHeightUnits.Tablet || "px"};
+            ${direction === "vertical" && Number(verticalHeight?.Tablet || layoutHeight.Tablet) > 0 && (verticalHeightUnits?.Tablet || layoutHeightUnits.Tablet) !== "%" ? `.${blockId}.gslider-flexi-content-wrapper > .swiper {
+                height: ${verticalHeight?.Tablet || layoutHeight.Tablet}${verticalHeightUnits?.Tablet || layoutHeightUnits.Tablet || "px"};
             }` : ""}
 
             .${blockId} .swiper-slide{
@@ -3360,8 +3378,8 @@ var generateFlexiContentStyle = (attributes2) => {
                 ${layoutHeight.Mobile && layoutHeightSwitcher === "fixed" ? `min-height: ${layoutHeight.Mobile}${layoutHeightUnits.Mobile};` : "auto"}
             }
 
-            ${direction === "vertical" && Number(layoutHeight.Mobile) > 0 && layoutHeightUnits.Mobile !== "%" ? `.${blockId}.gslider-flexi-content-wrapper > .swiper {
-                height: ${layoutHeight.Mobile}${layoutHeightUnits.Mobile || "px"};
+            ${direction === "vertical" && Number(verticalHeight?.Mobile || layoutHeight.Mobile) > 0 && (verticalHeightUnits?.Mobile || layoutHeightUnits.Mobile) !== "%" ? `.${blockId}.gslider-flexi-content-wrapper > .swiper {
+                height: ${verticalHeight?.Mobile || layoutHeight.Mobile}${verticalHeightUnits?.Mobile || layoutHeightUnits.Mobile || "px"};
             }` : ""}
 
             .${blockId} .swiper-slide{

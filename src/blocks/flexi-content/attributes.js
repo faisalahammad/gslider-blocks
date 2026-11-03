@@ -155,6 +155,22 @@ const attributes = {
 			Mobile: 'px',
 		},
 	},
+	verticalHeight: {
+		type: 'object',
+		default: {
+			Desktop: '350',
+			Tablet: '350',
+			Mobile: '350',
+		},
+	},
+	verticalHeightUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
 	contentWidth: {
 		type: 'object',
 		default: {

@@ -147,6 +147,8 @@ const generateFlexiContentStyle = ( attributes ) => {
 		layoutHeightSwitcher,
 		layoutHeight,
 		layoutHeightUnits,
+		verticalHeight,
+		verticalHeightUnits,
 		direction,
 		contentWidth,
 		contentWidthUnits,
@@ -712,11 +714,14 @@ const generateFlexiContentStyle = ( attributes ) => {
 
         ${
 			direction === 'vertical' &&
-			Number( layoutHeight.Desktop ) > 0 &&
-			layoutHeightUnits.Desktop !== '%'
+			Number( verticalHeight?.Desktop || layoutHeight.Desktop ) > 0 &&
+			( verticalHeightUnits?.Desktop || layoutHeightUnits.Desktop ) !==
+				'%'
 				? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
-            height: ${ layoutHeight.Desktop }${
-				layoutHeightUnits.Desktop || 'px'
+            height: ${ verticalHeight?.Desktop || layoutHeight.Desktop }${
+				verticalHeightUnits?.Desktop ||
+				layoutHeightUnits.Desktop ||
+				'px'
 			};
         }`
 				: ''
@@ -1389,11 +1394,14 @@ const generateFlexiContentStyle = ( attributes ) => {
 
             ${
 				direction === 'vertical' &&
-				Number( layoutHeight.Tablet ) > 0 &&
-				layoutHeightUnits.Tablet !== '%'
+				Number( verticalHeight?.Tablet || layoutHeight.Tablet ) > 0 &&
+				( verticalHeightUnits?.Tablet || layoutHeightUnits.Tablet ) !==
+					'%'
 					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
-                height: ${ layoutHeight.Tablet }${
-					layoutHeightUnits.Tablet || 'px'
+                height: ${ verticalHeight?.Tablet || layoutHeight.Tablet }${
+					verticalHeightUnits?.Tablet ||
+					layoutHeightUnits.Tablet ||
+					'px'
 				};
             }`
 					: ''
@@ -1858,11 +1866,14 @@ const generateFlexiContentStyle = ( attributes ) => {
 
             ${
 				direction === 'vertical' &&
-				Number( layoutHeight.Mobile ) > 0 &&
-				layoutHeightUnits.Mobile !== '%'
+				Number( verticalHeight?.Mobile || layoutHeight.Mobile ) > 0 &&
+				( verticalHeightUnits?.Mobile || layoutHeightUnits.Mobile ) !==
+					'%'
 					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
-                height: ${ layoutHeight.Mobile }${
-					layoutHeightUnits.Mobile || 'px'
+                height: ${ verticalHeight?.Mobile || layoutHeight.Mobile }${
+					verticalHeightUnits?.Mobile ||
+					layoutHeightUnits.Mobile ||
+					'px'
 				};
             }`
 					: ''

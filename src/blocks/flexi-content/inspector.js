@@ -91,6 +91,8 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		layoutHeightSwitcher,
 		layoutHeight,
 		layoutHeightUnits,
+		verticalHeight,
+		verticalHeightUnits,
 		contentWidth,
 		contentWidthUnits,
 		contentAlignment,
@@ -581,66 +583,86 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					}
 				/>
 
-				{ direction !== 'vertical' && (
-					<SwitcherControl
-						label={ __(
-							'Layout Height Switcher',
-							'gslider-blocks'
-						) }
-						options={ LAYOUT_HEIGHT_SWITCHER }
-						value={ layoutHeightSwitcher }
-						onChange={ ( value ) =>
-							setAttributes( { layoutHeightSwitcher: value } )
-						}
-					/>
-				) }
+				{ direction === 'vertical' ? (
+					<>
+						<ResponsiveRangeControl
+							label={ __( 'Slider Height', 'gslider-blocks' ) }
+							rangeValue={ verticalHeight }
+							onChangeValue={ ( value ) =>
+								setAttributes( { verticalHeight: value } )
+							}
+							onUnitChange={ ( value ) =>
+								setAttributes( { verticalHeightUnits: value } )
+							}
+							deviceType={ deviceType }
+							units={ verticalHeightUnits }
+							resetFallbackValue={ {
+								px: '350',
+								vh: '50',
+								em: '20',
+								rem: '20',
+							} }
+						/>
 
-				{ ( layoutHeightSwitcher === 'fixed' ||
-					direction === 'vertical' ) && (
-					<ResponsiveRangeControl
-						label={
-							direction === 'vertical'
-								? __( 'Slider Height', 'gslider-blocks' )
-								: __( 'Minimum Height', 'gslider-blocks' )
-						}
-						rangeValue={ layoutHeight }
-						onChangeValue={ ( value ) =>
-							setAttributes( { layoutHeight: value } )
-						}
-						onUnitChange={ ( value ) =>
-							setAttributes( { layoutHeightUnits: value } )
-						}
-						deviceType={ deviceType }
-						units={ layoutHeightUnits }
-						resetFallbackValue={ {
-							px: '350',
-							'%': '50',
-							vh: '50',
-							vw: '50',
-							em: '20',
-							rem: '20',
-						} }
-					/>
-				) }
-
-				{ direction === 'vertical' && (
-					<p>
-						{ __(
-							'Vertical sliders always use this fixed height. Use px or vh, a percent height is ignored.',
-							'gslider-blocks'
-						) }
-					</p>
-				) }
-
-				{ layoutHeightSwitcher === 'adapt' &&
-					direction !== 'vertical' && (
 						<p>
 							{ __(
-								'Slides adapt their height to the inside content.',
+								'Vertical sliders always use this fixed height. Use px or vh, a percent height is ignored.',
 								'gslider-blocks'
 							) }
 						</p>
-					) }
+					</>
+				) : (
+					<>
+						<SwitcherControl
+							label={ __(
+								'Layout Height Switcher',
+								'gslider-blocks'
+							) }
+							options={ LAYOUT_HEIGHT_SWITCHER }
+							value={ layoutHeightSwitcher }
+							onChange={ ( value ) =>
+								setAttributes( { layoutHeightSwitcher: value } )
+							}
+						/>
+
+						{ layoutHeightSwitcher === 'fixed' && (
+							<ResponsiveRangeControl
+								label={ __(
+									'Minimum Height',
+									'gslider-blocks'
+								) }
+								rangeValue={ layoutHeight }
+								onChangeValue={ ( value ) =>
+									setAttributes( { layoutHeight: value } )
+								}
+								onUnitChange={ ( value ) =>
+									setAttributes( {
+										layoutHeightUnits: value,
+									} )
+								}
+								deviceType={ deviceType }
+								units={ layoutHeightUnits }
+								resetFallbackValue={ {
+									px: '350',
+									'%': '50',
+									vh: '50',
+									vw: '50',
+									em: '20',
+									rem: '20',
+								} }
+							/>
+						) }
+
+						{ layoutHeightSwitcher === 'adapt' && (
+							<p>
+								{ __(
+									'Slides adapt their height to the inside content.',
+									'gslider-blocks'
+								) }
+							</p>
+						) }
+					</>
+				) }
 
 				<ResponsiveRangeControl
 					label={ __( 'Max Width', 'gslider-blocks' ) }
