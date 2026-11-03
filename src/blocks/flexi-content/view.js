@@ -155,6 +155,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			};
 		} );
 
+		// Navigation while paused moves to a new slide, so resume from there and not the old target
+		swiper.on( 'slideChangeTransitionStart', () => {
+			if ( frozen ) {
+				frozen = { target: swiper.translate * getSign(), remaining: 0 };
+			}
+		} );
+
 		sliderContainer.addEventListener( 'pointerleave', () => {
 			if ( ! frozen ) {
 				return;

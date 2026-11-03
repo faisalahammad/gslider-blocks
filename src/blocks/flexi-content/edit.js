@@ -245,11 +245,16 @@ export default function Edit( {
 		};
 
 		if ( marqueeEnabled ) {
-			swiperSettings.autoplay = {
-				delay: 0,
-				disableOnInteraction: false,
-				reverseDirection,
-			};
+			// Same as the frontend, the marquee does not move for users who ask for less motion
+			swiperSettings.autoplay = window.matchMedia(
+				'(prefers-reduced-motion: reduce)'
+			).matches
+				? false
+				: {
+						delay: 0,
+						disableOnInteraction: false,
+						reverseDirection,
+				  };
 		}
 
 		// Initialize new Swiper instance
