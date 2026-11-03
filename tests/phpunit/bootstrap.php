@@ -607,8 +607,14 @@ if ( ! function_exists( 'esc_attr' ) ) {
 
 if ( ! function_exists( 'add_query_arg' ) ) {
 	function add_query_arg( $args, $url ) {
-		$query = http_build_query( $args );
-		return $url . '?' . $query;
+		// WordPress does not encode values passed as an array, so neither does this stub.
+		$pairs = [];
+		foreach ( $args as $key => $value ) {
+			$pairs[] = is_array( $value )
+				? http_build_query( [ $key => $value ] )
+				: $key . '=' . $value;
+		}
+		return $url . '?' . implode( '&', $pairs );
 	}
 }
 

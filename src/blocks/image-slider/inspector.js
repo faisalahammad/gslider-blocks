@@ -746,16 +746,14 @@ const Inspector = ( { attributes, setAttributes } ) => {
 						setAttributes( { enableimageLinks: value } )
 					}
 				/>
-				<ToggleControl
+				<ResponsiveToggleControl
 					label={ __( 'Enable Lightbox', 'gslider-blocks' ) }
-					help={ __(
-						'Open images in a lightbox on click',
-						'gslider-blocks'
-					) }
-					checked={ enableLightbox }
-					onChange={ ( value ) =>
+					toggleValue={ enableLightbox }
+					setToggleValue={ ( value ) =>
 						setAttributes( { enableLightbox: value } )
 					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
 				/>
 				<ToggleControl
 					label={ __( 'Enable Tooltip', 'gslider-blocks' ) }

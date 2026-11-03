@@ -23,6 +23,7 @@
 			justify-content: center;
 			padding: 5px;
 			line-height: 16px;
+			border-color: $border_color;
 			box-shadow: inset 0 0 0 1px $background_color;
 			color: $secondary_color;
 			height: 32px;
@@ -30,6 +31,7 @@
 			&.active {
 				background-color: $active_bg_color !important;
 				color: $primary_color !important;
+				border-color: $border_color !important;
 				box-shadow: inset 0 0 0 1px $active_border_color !important;
 			}
 
@@ -41,6 +43,15 @@
 			&:hover {
 				background-color: $active_bg_color;
 				color: $primary_color;
+				border-color: $border_color;
+			}
+
+			&:first-child {
+				border-radius: 4px 0 0 4px;
+			}
+
+			&:last-child {
+				border-radius: 0 4px 4px 0;
 			}
 		}
 	}

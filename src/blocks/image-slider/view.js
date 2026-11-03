@@ -1,5 +1,99 @@
 /* global Swiper, refreshFsLightbox */
 document.addEventListener( 'DOMContentLoaded', () => {
+	/**
+	 * Get the current device, using the same breakpoints as the Swiper settings in save.js.
+	 *
+	 * @return {string} Desktop, Tablet or Mobile.
+	 */
+	const getCurrentDevice = () => {
+		if ( window.innerWidth >= 1025 ) {
+			return 'Desktop';
+		}
+		return window.innerWidth >= 768 ? 'Tablet' : 'Mobile';
+	};
+
+	/**
+	 * Block lightbox clicks on devices where the lightbox is off,
+	 * and open the custom image link there when one is saved (left or middle click).
+	 *
+	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
+	 */
+	const initializeLightboxDevices = ( sliderContainer ) => {
+		if (
+			! sliderContainer.dataset.slideLightbox ||
+			sliderContainer.dataset.lightboxInitialized === 'true'
+		) {
+			return;
+		}
+		sliderContainer.dataset.lightboxInitialized = 'true';
+
+		const devices = sliderContainer.dataset.slideLightbox.split( ' ' );
+
+		const openImageLink = ( event ) => {
+			// auxclick also fires for the right button, only handle middle click
+			if ( event.type === 'auxclick' && event.button !== 1 ) {
+				return;
+			}
+
+			const link = event.target.closest( '[data-fslightbox]' );
+			if ( ! link || devices.includes( getCurrentDevice() ) ) {
+				return;
+			}
+
+			const swiper = sliderContainer.querySelector( '.swiper' )?.swiper;
+			event.stopImmediatePropagation();
+			// The link points to the image file, so do not open it either
+			event.preventDefault();
+			if ( swiper && ! swiper.allowClick ) {
+				return;
+			}
+
+			const { imageLink, imageLinkTarget, imageLinkRel } = link.dataset;
+			if ( ! imageLink ) {
+				return;
+			}
+
+			// data-* values skip the KSES protocol check, so never open javascript: or data: URLs
+			let url;
+			try {
+				url = new URL( imageLink, document.baseURI );
+			} catch ( error ) {
+				return;
+			}
+			if (
+				! [ 'http:', 'https:', 'mailto:', 'tel:' ].includes(
+					url.protocol
+				)
+			) {
+				return;
+			}
+
+			// Middle click and Ctrl or Cmd click open a new tab, like on a normal link
+			const target =
+				event.type === 'auxclick' || event.ctrlKey || event.metaKey
+					? '_blank'
+					: imageLinkTarget || '_self';
+			// rel is case insensitive and split on any ASCII whitespace
+			const rels = ( imageLinkRel || '' )
+				.toLowerCase()
+				.split( /[\t\n\f\r ]+/ );
+			// Unlike a target="_blank" link, window.open does not imply noopener
+			if ( target === '_blank' ) {
+				rels.push( 'noopener' );
+			}
+
+			// window.open takes noopener and noreferrer as features, not as rel
+			const features = [ 'noopener', 'noreferrer' ]
+				.filter( ( rel ) => rels.includes( rel ) )
+				.join( ',' );
+			window.open( url.href, target, features );
+		};
+
+		// Capture on the wrapper runs before the fsLightbox onclick on the link
+		sliderContainer.addEventListener( 'click', openImageLink, true );
+		sliderContainer.addEventListener( 'auxclick', openImageLink, true );
+	};
+
 	const initializeSliders = () => {
 		// Select all slider containers
 		const sliders = document.querySelectorAll(
@@ -67,6 +161,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 						}
 					}
 				}
+
+				initializeLightboxDevices( sliderContainer );
 
 				// Initialize hover effects for image links
 				initializeImageLinkHoverEffects( sliderContainer );

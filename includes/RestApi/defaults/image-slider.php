@@ -79,7 +79,11 @@ return [
 		'Mobile' => true,
 	],
 	'enableimageLinks' => false,
-	'enableLightbox' => false,
+	'enableLightbox' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
 	'showTooltip' => false,
 	'imageLinkTarget' => '_blank',
 	'imageLinkRel' => 'noopener noreferrer',
