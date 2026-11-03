@@ -245,6 +245,8 @@ const Inspector = ( { attributes, setAttributes } ) => {
 									backgroundVideoUrl: media.url,
 									backgroundVideoId: media.id,
 									backgroundVideoType: media.mime || '',
+									// The old poster belongs to the old video
+									backgroundVideoPoster: '',
 								} )
 							}
 							render={ ( { open } ) => (
@@ -273,6 +275,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 										backgroundVideoUrl: '',
 										backgroundVideoId: 0,
 										backgroundVideoType: '',
+										backgroundVideoPoster: '',
 									} )
 								}
 							>
