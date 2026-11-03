@@ -52,6 +52,18 @@ return [
 		'Tablet' => 1000,
 		'Mobile' => 1000,
 	],
+	'enableAutoplayProgress' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'autoplayProgressPosition' => 'bottom',
+	'autoplayProgressColor' => '#007cba',
+	'autoplayProgressHeight' => [
+		'Desktop' => 3,
+		'Tablet' => 3,
+		'Mobile' => 3,
+	],
 	'infiniteLoop' => true,
 	'allowTouchMove' => true,
 	'pauseOnHover' => false,
