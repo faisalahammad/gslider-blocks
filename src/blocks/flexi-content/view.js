@@ -66,6 +66,37 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		let frozen = null;
 		let onResumeEnd = null;
 
+		// swiper.translate and the transform are mirrored in RTL, setTranslate mirrors again
+		const getSign = () =>
+			swiper.isHorizontal() && swiper.rtlTranslate ? -1 : 1;
+
+		/**
+		 * Get the current wrapper position, Swiper only knows where the slide ends.
+		 *
+		 * @return {number} Translate in the same form as swiper.translate.
+		 */
+		const getCurrentTranslate = () => {
+			const { m41, m42 } = new DOMMatrix(
+				window.getComputedStyle( swiper.wrapperEl ).transform
+			);
+			return ( swiper.isHorizontal() ? m41 : m42 ) * getSign();
+		};
+
+		// Stop a running resume transition where it is
+		const cancelResume = () => {
+			if ( ! onResumeEnd ) {
+				return;
+			}
+			swiper.wrapperEl.removeEventListener(
+				'transitionend',
+				onResumeEnd
+			);
+			onResumeEnd = null;
+			const current = getCurrentTranslate();
+			swiper.setTransition( 0 );
+			swiper.setTranslate( current );
+		};
+
 		// Autoplay is false on breakpoints without marquee or autoplay
 		const startAutoplay = () => {
 			if ( ! swiper.destroyed && swiper.params.autoplay ) {
@@ -77,6 +108,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		swiper.on( 'breakpoint', () => {
 			if ( ! swiper.params.autoplay ) {
 				swiper.autoplay.stop();
+				// A normal slider should not rest between slides, finish the slide at once
+				if ( frozen || onResumeEnd ) {
+					const target = frozen
+						? frozen.target
+						: swiper.translate * getSign();
+					cancelResume();
+					swiper.setTransition( 0 );
+					swiper.setTranslate( target );
+				}
 				frozen = null;
 			} else if ( ! swiper.autoplay.running && ! frozen ) {
 				swiper.autoplay.start();
@@ -96,21 +136,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				return;
 			}
 
-			if ( onResumeEnd ) {
-				swiper.wrapperEl.removeEventListener(
-					'transitionend',
-					onResumeEnd
-				);
-				onResumeEnd = null;
-			}
-
-			const { m41, m42 } = new DOMMatrix(
-				window.getComputedStyle( swiper.wrapperEl ).transform
-			);
-			// swiper.translate and the transform are mirrored in RTL, setTranslate mirrors again
-			const sign = swiper.isHorizontal() && swiper.rtlTranslate ? -1 : 1;
-			const current = ( swiper.isHorizontal() ? m41 : m42 ) * sign;
-			const target = swiper.translate * sign;
+			// A pending resume already moves to the slide end, so read it first
+			const target = swiper.translate * getSign();
+			cancelResume();
+			const current = getCurrentTranslate();
 			const step =
 				Math.abs( swiper.slidesGrid[ 1 ] - swiper.slidesGrid[ 0 ] ) ||
 				swiper.width;

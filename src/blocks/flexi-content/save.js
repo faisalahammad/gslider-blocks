@@ -1,5 +1,6 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import renderSVG from '@Components/icon-picker/components/icon-picker/controls/renderIcon';
+import { renderShapeDivider } from '@Constants/shapeDividers';
 
 export default function Save( { attributes } ) {
 	const {
@@ -15,6 +16,7 @@ export default function Save( { attributes } ) {
 		pauseOnHover,
 		stopOnLastSlide,
 		reverseDirection,
+		direction,
 		carouselEffect,
 		slideEffect,
 		mousewheelControl,
@@ -46,6 +48,11 @@ export default function Save( { attributes } ) {
 		navigationArrowsIconRightImageAlt,
 
 		layoutHeightSwitcher,
+
+		enableTopDivider,
+		topDividerShape,
+		enableBottomDivider,
+		bottomDividerShape,
 		enableSlideLightbox,
 	} = attributes;
 
@@ -89,7 +96,7 @@ export default function Save( { attributes } ) {
 
 	/**
 	 * Get the autoplay settings of a breakpoint.
-	 * Marquee gets full options, Swiper replaces the whole autoplay object when switching.
+	 * Marquee lists all options, Swiper drops the defaults when it switches from autoplay false.
 	 *
 	 * @param {string} device - Desktop, Tablet or Mobile.
 	 * @return {Object|boolean} Autoplay settings.
@@ -98,6 +105,7 @@ export default function Save( { attributes } ) {
 		if ( marqueeEnabled[ device ] ) {
 			return {
 				delay: 0,
+				waitForTransition: true,
 				pauseOnMouseEnter: false,
 				disableOnInteraction: false,
 				reverseDirection,
@@ -128,6 +136,16 @@ export default function Save( { attributes } ) {
 		paginationEnabled.Mobile ||
 		paginationEnabled.Tablet ||
 		paginationEnabled.Desktop;
+
+	// Per device show/hide is handled in styling.js.
+	const anyTopDivider =
+		enableTopDivider?.Desktop ||
+		enableTopDivider?.Tablet ||
+		enableTopDivider?.Mobile;
+	const anyBottomDivider =
+		enableBottomDivider?.Desktop ||
+		enableBottomDivider?.Tablet ||
+		enableBottomDivider?.Mobile;
 
 	// Only output the attribute when enabled, so markup of existing blocks stays the same
 	const lightboxDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
@@ -179,9 +197,12 @@ export default function Save( { attributes } ) {
 			},
 		},
 
-		...( layoutHeightSwitcher === 'adapt' && {
-			autoHeight: true,
-		} ),
+		...( direction === 'vertical' && { direction: 'vertical' } ),
+		// Vertical slides use the fixed height, autoHeight does not work with it
+		...( layoutHeightSwitcher === 'adapt' &&
+			direction !== 'vertical' && {
+				autoHeight: true,
+			} ),
 
 		// Common settings
 		loop: anyMarqueeEnabled || infiniteLoop,
@@ -224,7 +245,12 @@ export default function Save( { attributes } ) {
 		...( slideEffect === 'creative' && {
 			creativeEffect: {
 				prev: { shadow: true, translate: [ 0, 0, -400 ] },
-				next: { translate: [ '100%', 0, 0 ] },
+				next: {
+					translate:
+						direction === 'vertical'
+							? [ 0, '100%', 0 ]
+							: [ '100%', 0, 0 ],
+				},
 			},
 		} ),
 	} );
@@ -242,6 +268,11 @@ export default function Save( { attributes } ) {
 				{ ...( globalID && { id: globalID } ) }
 			>
 				<div { ...innerBlocksProps } />
+
+				{ anyTopDivider &&
+					renderShapeDivider( 'top', topDividerShape ) }
+				{ anyBottomDivider &&
+					renderShapeDivider( 'bottom', bottomDividerShape ) }
 
 				{ anyNavigationEnabled &&
 					! navigationArrowsIconSwitcher &&
