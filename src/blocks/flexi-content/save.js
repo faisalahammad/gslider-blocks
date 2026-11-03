@@ -11,6 +11,8 @@ export default function Save( { attributes } ) {
 		speed,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
+		autoplayProgressPosition,
 		infiniteLoop,
 		allowTouchMove,
 		pauseOnHover,
@@ -87,6 +89,12 @@ export default function Save( { attributes } ) {
 		paginationEnabled.Tablet ||
 		paginationEnabled.Desktop;
 
+	// Only output the progress bar when enabled, so markup of existing blocks stays the same
+	const showAutoplayProgress =
+		autoplay &&
+		( enableAutoplayProgress?.Desktop ||
+			enableAutoplayProgress?.Tablet ||
+			enableAutoplayProgress?.Mobile );
 	// Per device show/hide is handled in styling.js.
 	const anyTopDivider =
 		enableTopDivider?.Desktop ||
@@ -223,6 +231,14 @@ export default function Save( { attributes } ) {
 			>
 				<div { ...innerBlocksProps } />
 
+				{ showAutoplayProgress && (
+					<div
+						className={ `gslider-autoplay-progress ${ autoplayProgressPosition }` }
+						aria-hidden="true"
+					>
+						<div className="gslider-autoplay-progress-fill"></div>
+					</div>
+				) }
 				{ anyTopDivider &&
 					renderShapeDivider( 'top', topDividerShape ) }
 				{ anyBottomDivider &&

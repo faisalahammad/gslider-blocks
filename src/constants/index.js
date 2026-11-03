@@ -278,6 +278,11 @@ export const YES_NO_SWITCHER = [
 	{ label: __( 'No', 'gslider-blocks' ), value: false },
 ];
 
+export const AUTOPLAY_PROGRESS_POSITION = [
+	{ label: __( 'Top', 'gslider-blocks' ), value: 'top' },
+	{ label: __( 'Bottom', 'gslider-blocks' ), value: 'bottom' },
+];
+
 export const OBJECT_FIT_OPTIONS = [
 	{ label: __( 'Contain', 'gslider-blocks' ), value: 'contain' },
 	{ label: __( 'Cover', 'gslider-blocks' ), value: 'cover' },
