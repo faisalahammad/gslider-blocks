@@ -134,6 +134,30 @@ var attributes = {
       Mobile: 1e3
     }
   },
+  enableAutoplayProgress: {
+    type: "object",
+    default: {
+      Desktop: false,
+      Tablet: false,
+      Mobile: false
+    }
+  },
+  autoplayProgressPosition: {
+    type: "string",
+    default: "bottom"
+  },
+  autoplayProgressColor: {
+    type: "string",
+    default: "#007cba"
+  },
+  autoplayProgressHeight: {
+    type: "object",
+    default: {
+      Desktop: 3,
+      Tablet: 3,
+      Mobile: 3
+    }
+  },
   infiniteLoop: {
     type: "boolean",
     default: true
@@ -2078,6 +2102,8 @@ function Save({ attributes: attributes2 }) {
     speed,
     autoplay,
     autoplayDelay,
+    enableAutoplayProgress,
+    autoplayProgressPosition,
     infiniteLoop,
     allowTouchMove,
     pauseOnHover,
@@ -2132,6 +2158,7 @@ function Save({ attributes: attributes2 }) {
     Desktop: !!showPagination?.Desktop
   };
   const anyPaginationEnabled = paginationEnabled.Mobile || paginationEnabled.Tablet || paginationEnabled.Desktop;
+  const showAutoplayProgress = autoplay && (enableAutoplayProgress?.Desktop || enableAutoplayProgress?.Tablet || enableAutoplayProgress?.Mobile);
   const anyTopDivider = enableTopDivider?.Desktop || enableTopDivider?.Tablet || enableTopDivider?.Mobile;
   const anyBottomDivider = enableBottomDivider?.Desktop || enableBottomDivider?.Tablet || enableBottomDivider?.Mobile;
   const lightboxDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableSlideLightbox?.[device] === true).join(" ");
@@ -2238,6 +2265,14 @@ function Save({ attributes: attributes2 }) {
             ...globalID && { id: globalID },
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { ...innerBlocksProps }),
+              showAutoplayProgress && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+                "div",
+                {
+                  className: `gslider-autoplay-progress ${autoplayProgressPosition}`,
+                  "aria-hidden": "true",
+                  children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-autoplay-progress-fill" })
+                }
+              ),
               anyTopDivider && renderShapeDivider("top", topDividerShape),
               anyBottomDivider && renderShapeDivider("bottom", bottomDividerShape),
               anyNavigationEnabled && !navigationArrowsIconSwitcher && navigationArrowPositionType === "inside" && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
@@ -2460,6 +2495,47 @@ var getHasPaginationCss = (blockId, showPagination, device, fallbackDevices, off
   return "";
 };
 var getCursorFollowerSizeCss = (blockId, enabled, size) => enabled && size ? `.${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${size}px; height: ${size}px; }` : "";
+var getAutoplayProgressCss = (blockId, enabled, color, height) => {
+  const deviceRule = (device) => `
+        .${blockId} > .swiper > .gslider-autoplay-progress {
+            ${enabled?.[device] ? `display: block; height: ${height?.[device] ?? 3}px;` : "display: none;"}
+        }
+    `;
+  return `
+        .${blockId} > .swiper > .gslider-autoplay-progress {
+            position: absolute;
+            left: 0;
+            z-index: 10;
+            width: 100%;
+            pointer-events: none;
+        }
+        .${blockId} > .swiper > .gslider-autoplay-progress.top {
+            top: 0;
+        }
+        .${blockId} > .swiper > .gslider-autoplay-progress.bottom {
+            bottom: 0;
+        }
+        .${blockId} > .swiper > .gslider-autoplay-progress > .gslider-autoplay-progress-fill {
+            width: 100%;
+            height: 100%;
+            transform: scaleX(0);
+            transform-origin: left;
+            ${color ? `background-color: ${color};` : ""}
+        }
+        ${deviceRule("Desktop")}
+        @media only screen and (max-width: 1024px) {
+            ${deviceRule("Tablet")}
+        }
+        @media only screen and (max-width: 767px) {
+            ${deviceRule("Mobile")}
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .${blockId} > .swiper > .gslider-autoplay-progress {
+                display: none;
+            }
+        }
+    `;
+};
 var generateFlexiContentStyle = (attributes2) => {
   const {
     blockId,
@@ -2471,6 +2547,9 @@ var generateFlexiContentStyle = (attributes2) => {
     speed,
     autoplay,
     autoplayDelay,
+    enableAutoplayProgress,
+    autoplayProgressColor,
+    autoplayProgressHeight,
     infiniteLoop,
     allowTouchMove,
     pauseOnHover,
@@ -3612,7 +3691,13 @@ var generateFlexiContentStyle = (attributes2) => {
   )}
         }
     `;
-  return `${flexiContentCSS}`.replace(/\s+/g, " ").trim();
+  const autoplayProgressCSS = autoplay && (enableAutoplayProgress?.Desktop || enableAutoplayProgress?.Tablet || enableAutoplayProgress?.Mobile) ? getAutoplayProgressCss(
+    blockId,
+    enableAutoplayProgress,
+    autoplayProgressColor,
+    autoplayProgressHeight
+  ) : "";
+  return `${flexiContentCSS}${autoplayProgressCSS}`.replace(/\s+/g, " ").trim();
 };
 var styling_default = generateFlexiContentStyle;
 

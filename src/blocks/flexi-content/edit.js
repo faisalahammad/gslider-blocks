@@ -34,6 +34,8 @@ export default function Edit( {
 		speed,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
+		autoplayProgressPosition,
 		infiniteLoop,
 		allowTouchMove,
 		pauseOnHover,
@@ -108,6 +110,7 @@ export default function Edit( {
 	// Local state management for swiper instance is replaced by useRef
 	const swiperContainerRef = useRef( null );
 	const swiperInstanceRef = useRef( null );
+	const autoplayProgressFillRef = useRef( null );
 
 	// Ref for panel settings focus management
 	const panelRef = useRef( null );
@@ -235,6 +238,19 @@ export default function Edit( {
 			swiperSettings
 		);
 
+		if ( autoplayProgressFillRef.current ) {
+			swiperInstanceRef.current.on(
+				'autoplayTimeLeft',
+				( swiper, timeLeft, progress ) => {
+					if ( autoplayProgressFillRef.current ) {
+						autoplayProgressFillRef.current.style.transform = `scaleX(${
+							1 - progress
+						})`;
+					}
+				}
+			);
+		}
+
 		// Cleanup on unmount or before re-initialization
 		return () => {
 			if ( swiperInstanceRef.current ) {
@@ -252,6 +268,7 @@ export default function Edit( {
 		infiniteLoop,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
 		pauseOnHover,
 		stopOnLastSlide,
 		reverseDirection,
@@ -309,6 +326,17 @@ export default function Edit( {
 				>
 					<div { ...innerBlocksProps } />
 
+					{ autoplay && enableAutoplayProgress?.[ deviceType ] && (
+						<div
+							className={ `gslider-autoplay-progress ${ autoplayProgressPosition }` }
+							aria-hidden="true"
+						>
+							<div
+								ref={ autoplayProgressFillRef }
+								className="gslider-autoplay-progress-fill"
+							></div>
+						</div>
+					) }
 					{ enableTopDivider?.[ deviceType ] &&
 						renderShapeDivider( 'top', topDividerShape ) }
 					{ enableBottomDivider?.[ deviceType ] &&
