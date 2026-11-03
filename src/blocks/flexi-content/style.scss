@@ -79,6 +79,15 @@
 		backface-visibility: visible !important;
 	}
 
+	// 3D slide effects (Cards, Creative) animate transform on each slide element.
+	// Ensure transition-property includes transform and opacity so item styles do not strip them.
+	&.swiper-cards .swiper-slide,
+	&.swiper-creative .swiper-slide,
+	> .swiper.swiper-cards > .swiper-wrapper > .swiper-slide,
+	> .swiper.swiper-creative > .swiper-wrapper > .swiper-slide {
+		transition-property: transform, opacity !important;
+	}
+
 	// Vertical slider needs a height, 500px matches the verticalHeight default.
 	> .swiper-vertical {
 		height: 500px;

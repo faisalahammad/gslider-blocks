@@ -329,7 +329,7 @@ var generateFlexiContentItemStyle = (attributes2) => {
             ${sliderItemDesktopBackgroundNormalStyles}
             box-sizing: border-box;
             position: relative;
-            transition: background 0.3s ease, background-color 0.3s ease;
+            transition: background 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
         }
         .${blockId}.flexi-content-item:hover {
             ${sliderItemDesktopBackgroundHoverStyles}

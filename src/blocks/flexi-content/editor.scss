@@ -1,1 +1,7 @@
 // Editor-specific styles for the Flexi Content block
+
+// Ensure 3D slide effects preserve transform transitions in editor
+.swiper.swiper-cards .swiper-slide,
+.swiper.swiper-creative .swiper-slide {
+	transition-property: transform, opacity !important;
+}
