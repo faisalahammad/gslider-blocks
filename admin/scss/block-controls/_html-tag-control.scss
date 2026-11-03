@@ -16,6 +16,7 @@
 			line-height: $line_height_3;
 			min-height: 32px;
 			color: $label_color;
+			border-color: $border_color;
 			box-shadow: inset 0 0 0 1px $border_color;
 
 			&.active {
@@ -29,6 +30,14 @@
 				background-color: $active_bg_color;
 				border-color: $active_border_color;
 				box-shadow: inset 0 0 0 1px $active_border_color;
+			}
+
+			&:first-child {
+				border-radius: 4px 0 0 4px;
+			}
+
+			&:last-child {
+				border-radius: 0 4px 4px 0;
 			}
 		}
 	}

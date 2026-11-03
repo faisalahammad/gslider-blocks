@@ -17,6 +17,7 @@
 				font-size: $font_size_13;
 				font-weight: $font_weight_400;
 				color: $label_color;
+				border-color: $border_color;
 				box-shadow: inset 0 0 0 1px $border_color;
 				transition: all 0.3s ease;
 
@@ -24,10 +25,12 @@
 
 					color: $primary_color;
 					background-color: $active_bg_color;
+					border-color: $border_color;
 				}
 
 				&:hover {
 					color: $primary_color;
+					border-color: $border_color;
 				}
 			}
 
