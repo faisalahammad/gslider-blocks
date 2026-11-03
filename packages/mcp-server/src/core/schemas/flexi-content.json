@@ -23,7 +23,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 280,
+  "totalAttributes": 284,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -33,6 +33,10 @@
     "content": "nested blocks"
   },
   "allowedValues": {
+    "autoplayProgressPosition": [
+      "top",
+      "bottom"
+    ],
     "bottomDividerShape": [
       "wave-1",
       "wave-2",
@@ -267,6 +271,30 @@
         "Desktop": 1000,
         "Tablet": 1000,
         "Mobile": 1000
+      }
+    },
+    "enableAutoplayProgress": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
+    },
+    "autoplayProgressPosition": {
+      "type": "string",
+      "default": "bottom"
+    },
+    "autoplayProgressColor": {
+      "type": "string",
+      "default": "#007cba"
+    },
+    "autoplayProgressHeight": {
+      "type": "object",
+      "default": {
+        "Desktop": 3,
+        "Tablet": 3,
+        "Mobile": 3
       }
     },
     "infiniteLoop": {
