@@ -317,10 +317,13 @@ export default function Edit( {
 	 * Refresh fsLightbox when images or lightbox setting changes
 	 */
 	useEffect( () => {
-		if ( enableLightbox && typeof refreshFsLightbox === 'function' ) {
+		if (
+			enableLightbox?.[ deviceType ] &&
+			typeof refreshFsLightbox === 'function'
+		) {
 			refreshFsLightbox();
 		}
-	}, [ images, enableLightbox, blockId ] );
+	}, [ images, enableLightbox, deviceType, blockId ] );
 
 	/**
 	 * Link management functions
@@ -512,7 +515,7 @@ export default function Edit( {
 												}
 											} }
 										>
-											{ enableLightbox ? (
+											{ enableLightbox?.[ deviceType ] ? (
 												<a
 													href={ item.url }
 													data-fslightbox={ blockId }
