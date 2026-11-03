@@ -273,6 +273,11 @@ export const LAYOUT_HEIGHT_SWITCHER = [
 	{ label: __( 'Adapt', 'gslider-blocks' ), value: 'adapt' },
 ];
 
+export const AUTOPLAY_PROGRESS_POSITION = [
+	{ label: __( 'Top', 'gslider-blocks' ), value: 'top' },
+	{ label: __( 'Bottom', 'gslider-blocks' ), value: 'bottom' },
+];
+
 export const OBJECT_FIT_OPTIONS = [
 	{ label: __( 'Contain', 'gslider-blocks' ), value: 'contain' },
 	{ label: __( 'Cover', 'gslider-blocks' ), value: 'cover' },
