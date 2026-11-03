@@ -245,6 +245,9 @@ class BlockParserTest {
 
 		$vertical = $this->normalize( $creative + [ 'direction' => 'vertical' ], 'gslider-blocks/flexi-content' );
 		$this->assert_true( [ 0, '100%', 0 ] === $vertical['swiperConfig']['creativeEffect']['next']['translate'], 'vertical classic moves the next slide on Y' );
+
+		$vertical_stack = $this->normalize( $creative + [ 'direction' => 'vertical', 'creativePreset' => 'stack' ], 'gslider-blocks/flexi-content' );
+		$this->assert_true( [ 0, '-120%', -500 ] === $vertical_stack['swiperConfig']['creativeEffect']['prev']['translate'] && [ 0, '120%', -500 ] === $vertical_stack['swiperConfig']['creativeEffect']['next']['translate'], 'vertical stack moves both prev and next slides on Y' );
 	}
 
 	/**
