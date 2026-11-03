@@ -134,6 +134,30 @@ var attributes = {
       Mobile: 1e3
     }
   },
+  enableAutoplayProgress: {
+    type: "object",
+    default: {
+      Desktop: false,
+      Tablet: false,
+      Mobile: false
+    }
+  },
+  autoplayProgressPosition: {
+    type: "string",
+    default: "bottom"
+  },
+  autoplayProgressColor: {
+    type: "string",
+    default: "#007cba"
+  },
+  autoplayProgressHeight: {
+    type: "object",
+    default: {
+      Desktop: 3,
+      Tablet: 3,
+      Mobile: 3
+    }
+  },
   infiniteLoop: {
     type: "boolean",
     default: true
@@ -177,6 +201,30 @@ var attributes = {
   dynamicBullets: {
     type: "boolean",
     default: false
+  },
+  enableContinuousMarquee: {
+    type: "object",
+    default: {
+      Desktop: false,
+      Tablet: false,
+      Mobile: false
+    }
+  },
+  marqueeSpeed: {
+    type: "object",
+    default: {
+      Desktop: 5e3,
+      Tablet: 5e3,
+      Mobile: 5e3
+    }
+  },
+  marqueePauseOnHover: {
+    type: "object",
+    default: {
+      Desktop: true,
+      Tablet: true,
+      Mobile: true
+    }
   },
   /** End Slider Settings */
   /** Start Show/Hide Elements */
@@ -2054,6 +2102,8 @@ function Save({ attributes: attributes2 }) {
     speed,
     autoplay,
     autoplayDelay,
+    enableAutoplayProgress,
+    autoplayProgressPosition,
     infiniteLoop,
     allowTouchMove,
     pauseOnHover,
@@ -2066,6 +2116,9 @@ function Save({ attributes: attributes2 }) {
     keyboardNavigation,
     paginationType,
     dynamicBullets,
+    enableContinuousMarquee,
+    marqueeSpeed,
+    marqueePauseOnHover,
     showNavigation,
     showPagination,
     paginationPositionType,
@@ -2089,12 +2142,38 @@ function Save({ attributes: attributes2 }) {
     bottomDividerShape,
     enableSlideLightbox
   } = attributes2;
+  const marqueeEnabled = {
+    Mobile: !!enableContinuousMarquee?.Mobile,
+    Tablet: !!enableContinuousMarquee?.Tablet,
+    Desktop: !!enableContinuousMarquee?.Desktop
+  };
+  const anyMarqueeEnabled = marqueeEnabled.Mobile || marqueeEnabled.Tablet || marqueeEnabled.Desktop;
+  const marqueeClasses = ["Desktop", "Tablet", "Mobile"].filter((device) => marqueeEnabled[device]).flatMap((device) => {
+    const slug = device.toLowerCase();
+    return marqueePauseOnHover?.[device] === false ? [`gslider-marquee-${slug}`] : [
+      `gslider-marquee-${slug}`,
+      `gslider-marquee-pause-${slug}`
+    ];
+  }).join(" ");
   const blockProps = import_block_editor.useBlockProps.save({
-    className: `gslider-flexi-content-wrapper ${blockId} ${navigationArrowPositionType} ${navigationArrowPosition} ${showPagination?.Desktop || showPagination?.Tablet || showPagination?.Mobile ? "has-pagination" : ""}`
+    className: `gslider-flexi-content-wrapper ${blockId} ${navigationArrowPositionType} ${navigationArrowPosition} ${showPagination?.Desktop || showPagination?.Tablet || showPagination?.Mobile ? "has-pagination" : ""}${marqueeClasses ? ` ${marqueeClasses}` : ""}`
   });
   const innerBlocksProps = import_block_editor.useInnerBlocksProps.save({
     className: "swiper-wrapper gslider-swiper-wrapper"
   });
+  const getBreakpointAutoplay = (device) => {
+    if (marqueeEnabled[device]) {
+      return {
+        delay: 0,
+        waitForTransition: true,
+        pauseOnMouseEnter: false,
+        disableOnInteraction: false,
+        reverseDirection
+      };
+    }
+    return autoplay ? { delay: autoplayDelay?.[device] || 1e3 } : false;
+  };
+  const sliderEffect = sliderType === "carousel" ? carouselEffect : slideEffect;
   const navigationEnabled = {
     Mobile: !!showNavigation?.Mobile,
     Tablet: !!showNavigation?.Tablet,
@@ -2107,11 +2186,13 @@ function Save({ attributes: attributes2 }) {
     Desktop: !!showPagination?.Desktop
   };
   const anyPaginationEnabled = paginationEnabled.Mobile || paginationEnabled.Tablet || paginationEnabled.Desktop;
+  const showAutoplayProgress = autoplay && (enableAutoplayProgress?.Desktop || enableAutoplayProgress?.Tablet || enableAutoplayProgress?.Mobile);
   const anyTopDivider = enableTopDivider?.Desktop || enableTopDivider?.Tablet || enableTopDivider?.Mobile;
   const anyBottomDivider = enableBottomDivider?.Desktop || enableBottomDivider?.Tablet || enableBottomDivider?.Mobile;
   const lightboxDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableSlideLightbox?.[device] === true).join(" ");
   const swiperSettings = JSON.stringify({
-    effect: sliderType === "carousel" ? carouselEffect : slideEffect,
+    // Marquee needs the slide effect, other effects can not move in a line
+    effect: anyMarqueeEnabled ? "slide" : sliderEffect,
     // Responsive breakpoints for Desktop, Tablet, and Mobile
     breakpoints: {
       0: {
@@ -2119,10 +2200,8 @@ function Save({ attributes: attributes2 }) {
           slidesPerView: carouselPerColumn?.Mobile || 1,
           spaceBetween: carouselPerColumnGap?.Mobile || 0
         },
-        speed: speed?.Mobile || 800,
-        autoplay: autoplay ? {
-          delay: autoplayDelay?.Mobile || 1e3
-        } : false,
+        speed: marqueeEnabled.Mobile ? marqueeSpeed?.Mobile || 5e3 : speed?.Mobile || 800,
+        autoplay: getBreakpointAutoplay("Mobile"),
         navigation: { enabled: navigationEnabled.Mobile },
         pagination: { enabled: paginationEnabled.Mobile }
       },
@@ -2131,10 +2210,8 @@ function Save({ attributes: attributes2 }) {
           slidesPerView: carouselPerColumn?.Tablet || 2,
           spaceBetween: carouselPerColumnGap?.Tablet ?? 20
         },
-        speed: speed?.Tablet || 800,
-        autoplay: autoplay ? {
-          delay: autoplayDelay?.Tablet || 1e3
-        } : false,
+        speed: marqueeEnabled.Tablet ? marqueeSpeed?.Tablet || 5e3 : speed?.Tablet || 800,
+        autoplay: getBreakpointAutoplay("Tablet"),
         navigation: { enabled: navigationEnabled.Tablet },
         pagination: { enabled: paginationEnabled.Tablet }
       },
@@ -2143,10 +2220,8 @@ function Save({ attributes: attributes2 }) {
           slidesPerView: carouselPerColumn?.Desktop || 2,
           spaceBetween: carouselPerColumnGap?.Desktop ?? 20
         },
-        speed: speed?.Desktop || 800,
-        autoplay: autoplay ? {
-          delay: autoplayDelay?.Desktop || 1e3
-        } : false,
+        speed: marqueeEnabled.Desktop ? marqueeSpeed?.Desktop || 5e3 : speed?.Desktop || 800,
+        autoplay: getBreakpointAutoplay("Desktop"),
         navigation: { enabled: navigationEnabled.Desktop },
         pagination: { enabled: paginationEnabled.Desktop }
       }
@@ -2157,9 +2232,9 @@ function Save({ attributes: attributes2 }) {
       autoHeight: true
     },
     // Common settings
-    loop: infiniteLoop,
-    autoplay: autoplay ? {
-      pauseOnMouseEnter: pauseOnHover,
+    loop: anyMarqueeEnabled || infiniteLoop,
+    autoplay: autoplay || anyMarqueeEnabled ? {
+      pauseOnMouseEnter: anyMarqueeEnabled ? false : pauseOnHover,
       disableOnInteraction: false,
       stopOnLastSlide,
       reverseDirection
@@ -2209,6 +2284,14 @@ function Save({ attributes: attributes2 }) {
             ...globalID && { id: globalID },
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { ...innerBlocksProps }),
+              showAutoplayProgress && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+                "div",
+                {
+                  className: `gslider-autoplay-progress ${autoplayProgressPosition}`,
+                  "aria-hidden": "true",
+                  children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-autoplay-progress-fill" })
+                }
+              ),
               anyTopDivider && renderShapeDivider("top", topDividerShape),
               anyBottomDivider && renderShapeDivider("bottom", bottomDividerShape),
               anyNavigationEnabled && !navigationArrowsIconSwitcher && navigationArrowPositionType === "inside" && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
@@ -2430,6 +2513,47 @@ var getHasPaginationCss = (blockId, showPagination, device, fallbackDevices, off
   }
   return "";
 };
+var getAutoplayProgressCss = (blockId, enabled, color, height) => {
+  const deviceRule = (device) => `
+        .${blockId} > .swiper > .gslider-autoplay-progress {
+            ${enabled?.[device] ? `display: block; height: ${height?.[device] ?? 3}px;` : "display: none;"}
+        }
+    `;
+  return `
+        .${blockId} > .swiper > .gslider-autoplay-progress {
+            position: absolute;
+            left: 0;
+            z-index: 10;
+            width: 100%;
+            pointer-events: none;
+        }
+        .${blockId} > .swiper > .gslider-autoplay-progress.top {
+            top: 0;
+        }
+        .${blockId} > .swiper > .gslider-autoplay-progress.bottom {
+            bottom: 0;
+        }
+        .${blockId} > .swiper > .gslider-autoplay-progress > .gslider-autoplay-progress-fill {
+            width: 100%;
+            height: 100%;
+            transform: scaleX(0);
+            transform-origin: left;
+            ${color ? `background-color: ${color};` : ""}
+        }
+        ${deviceRule("Desktop")}
+        @media only screen and (max-width: 1024px) {
+            ${deviceRule("Tablet")}
+        }
+        @media only screen and (max-width: 767px) {
+            ${deviceRule("Mobile")}
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .${blockId} > .swiper > .gslider-autoplay-progress {
+                display: none;
+            }
+        }
+    `;
+};
 var generateFlexiContentStyle = (attributes2) => {
   const {
     blockId,
@@ -2441,6 +2565,9 @@ var generateFlexiContentStyle = (attributes2) => {
     speed,
     autoplay,
     autoplayDelay,
+    enableAutoplayProgress,
+    autoplayProgressColor,
+    autoplayProgressHeight,
     infiniteLoop,
     allowTouchMove,
     pauseOnHover,
@@ -3554,7 +3681,13 @@ var generateFlexiContentStyle = (attributes2) => {
   )}
         }
     `;
-  return `${flexiContentCSS}`.replace(/\s+/g, " ").trim();
+  const autoplayProgressCSS = autoplay && (enableAutoplayProgress?.Desktop || enableAutoplayProgress?.Tablet || enableAutoplayProgress?.Mobile) ? getAutoplayProgressCss(
+    blockId,
+    enableAutoplayProgress,
+    autoplayProgressColor,
+    autoplayProgressHeight
+  ) : "";
+  return `${flexiContentCSS}${autoplayProgressCSS}`.replace(/\s+/g, " ").trim();
 };
 var styling_default = generateFlexiContentStyle;
 

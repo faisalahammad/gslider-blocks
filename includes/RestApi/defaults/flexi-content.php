@@ -52,6 +52,18 @@ return [
 		'Tablet' => 1000,
 		'Mobile' => 1000,
 	],
+	'enableAutoplayProgress' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'autoplayProgressPosition' => 'bottom',
+	'autoplayProgressColor' => '#007cba',
+	'autoplayProgressHeight' => [
+		'Desktop' => 3,
+		'Tablet' => 3,
+		'Mobile' => 3,
+	],
 	'infiniteLoop' => true,
 	'allowTouchMove' => true,
 	'pauseOnHover' => false,
@@ -63,6 +75,21 @@ return [
 	'keyboardNavigation' => false,
 	'paginationType' => 'bullets',
 	'dynamicBullets' => false,
+	'enableContinuousMarquee' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'marqueeSpeed' => [
+		'Desktop' => 5000,
+		'Tablet' => 5000,
+		'Mobile' => 5000,
+	],
+	'marqueePauseOnHover' => [
+		'Desktop' => true,
+		'Tablet' => true,
+		'Mobile' => true,
+	],
 	'showNavigation' => [
 		'Desktop' => true,
 		'Tablet' => true,

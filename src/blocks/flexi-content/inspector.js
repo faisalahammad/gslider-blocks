@@ -30,6 +30,7 @@ import {
 	NAVIGATION_ARROW_DIRECTION,
 	LAYOUT_HEIGHT_SWITCHER,
 	PAGINATION_POSITION_TYPE,
+	AUTOPLAY_PROGRESS_POSITION,
 	SHAPE_DIVIDER_OPTIONS,
 } from '@Constants';
 
@@ -67,6 +68,10 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		speed,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
+		autoplayProgressPosition,
+		autoplayProgressColor,
+		autoplayProgressHeight,
 		infiniteLoop,
 		allowTouchMove,
 		pauseOnHover,
@@ -79,6 +84,9 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		keyboardNavigation,
 		paginationType,
 		dynamicBullets,
+		enableContinuousMarquee,
+		marqueeSpeed,
+		marqueePauseOnHover,
 
 		/** Start Show/Hide Elements */
 		showNavigation,
@@ -827,6 +835,70 @@ const Inspector = ( { attributes, setAttributes } ) => {
 						isRangeUnit={ false }
 					/>
 				) }
+				{ autoplay && (
+					<ResponsiveToggleControl
+						label={ __(
+							'Autoplay Progress Bar',
+							'gslider-blocks'
+						) }
+						toggleValue={ enableAutoplayProgress }
+						setToggleValue={ ( value ) =>
+							setAttributes( { enableAutoplayProgress: value } )
+						}
+						deviceType={ deviceType }
+						setAttributes={ setAttributes }
+					/>
+				) }
+				{ autoplay &&
+					Object.values( enableAutoplayProgress || {} ).some(
+						Boolean
+					) && (
+						<>
+							<SwitcherControl
+								label={ __(
+									'Progress Position',
+									'gslider-blocks'
+								) }
+								options={ AUTOPLAY_PROGRESS_POSITION }
+								value={ autoplayProgressPosition }
+								onChange={ ( value ) =>
+									setAttributes( {
+										autoplayProgressPosition: value,
+									} )
+								}
+							/>
+							<ColorControl
+								label={ __(
+									'Progress Color',
+									'gslider-blocks'
+								) }
+								color={ autoplayProgressColor }
+								onChangeColor={ ( value ) =>
+									setAttributes( {
+										autoplayProgressColor: value,
+									} )
+								}
+								defaultColor="#007cba"
+							/>
+							<ResponsiveRangeControl
+								min={ 1 }
+								max={ 20 }
+								label={ __(
+									'Progress Height (px)',
+									'gslider-blocks'
+								) }
+								rangeValue={ autoplayProgressHeight }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										autoplayProgressHeight: value,
+									} )
+								}
+								deviceType={ deviceType }
+								resetFallbackValue={ '3' }
+								isRangeUnit={ false }
+							/>
+						</>
+					) }
 
 				<ResponsiveRangeControl
 					min={ 100 }
@@ -841,6 +913,47 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					resetFallbackValue={ '800' }
 					isRangeUnit={ false }
 				/>
+				<ResponsiveToggleControl
+					label={ __( 'Continuous Marquee Mode', 'gslider-blocks' ) }
+					toggleValue={ enableContinuousMarquee }
+					setToggleValue={ ( value ) =>
+						setAttributes( { enableContinuousMarquee: value } )
+					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
+				/>
+				{ enableContinuousMarquee?.[ deviceType ] && (
+					<>
+						<ResponsiveRangeControl
+							min={ 1000 }
+							max={ 15000 }
+							label={ __(
+								'Marquee Speed (ms)',
+								'gslider-blocks'
+							) }
+							rangeValue={ marqueeSpeed }
+							onChangeValue={ ( value ) =>
+								setAttributes( { marqueeSpeed: value } )
+							}
+							deviceType={ deviceType }
+							step={ 500 }
+							resetFallbackValue={ '5000' }
+							isRangeUnit={ false }
+						/>
+						<ResponsiveToggleControl
+							label={ __(
+								'Marquee Pause on Hover',
+								'gslider-blocks'
+							) }
+							toggleValue={ marqueePauseOnHover }
+							setToggleValue={ ( value ) =>
+								setAttributes( { marqueePauseOnHover: value } )
+							}
+							deviceType={ deviceType }
+							setAttributes={ setAttributes }
+						/>
+					</>
+				) }
 			</PanelBody>
 			{ sliderType === 'carousel' && (
 				<PanelBody

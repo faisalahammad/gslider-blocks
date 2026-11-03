@@ -57,6 +57,30 @@ const attributes = {
 			Mobile: 1000,
 		},
 	},
+	enableAutoplayProgress: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	autoplayProgressPosition: {
+		type: 'string',
+		default: 'bottom',
+	},
+	autoplayProgressColor: {
+		type: 'string',
+		default: '#007cba',
+	},
+	autoplayProgressHeight: {
+		type: 'object',
+		default: {
+			Desktop: 3,
+			Tablet: 3,
+			Mobile: 3,
+		},
+	},
 	infiniteLoop: {
 		type: 'boolean',
 		default: true,
@@ -100,6 +124,30 @@ const attributes = {
 	dynamicBullets: {
 		type: 'boolean',
 		default: false,
+	},
+	enableContinuousMarquee: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	marqueeSpeed: {
+		type: 'object',
+		default: {
+			Desktop: 5000,
+			Tablet: 5000,
+			Mobile: 5000,
+		},
+	},
+	marqueePauseOnHover: {
+		type: 'object',
+		default: {
+			Desktop: true,
+			Tablet: true,
+			Mobile: true,
+		},
 	},
 	/** End Slider Settings */
 

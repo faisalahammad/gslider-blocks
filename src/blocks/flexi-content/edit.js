@@ -34,6 +34,8 @@ export default function Edit( {
 		speed,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
+		autoplayProgressPosition,
 		infiniteLoop,
 		allowTouchMove,
 		pauseOnHover,
@@ -46,6 +48,9 @@ export default function Edit( {
 		keyboardNavigation,
 		paginationType,
 		dynamicBullets,
+		enableContinuousMarquee,
+		marqueeSpeed,
+		marqueePauseOnHover,
 
 		showNavigation,
 		showPagination,
@@ -75,6 +80,15 @@ export default function Edit( {
 		bottomDividerShape,
 	} = attributes;
 
+	const marqueeEnabled = !! enableContinuousMarquee?.[ deviceType ];
+	const marqueePause =
+		marqueeEnabled && marqueePauseOnHover?.[ deviceType ] !== false;
+	// Effect and loop are shared by all devices on the frontend
+	const anyMarqueeEnabled =
+		!! enableContinuousMarquee?.Desktop ||
+		!! enableContinuousMarquee?.Tablet ||
+		!! enableContinuousMarquee?.Mobile;
+
 	/** Handle block ID generation (handles duplication and initial ID) */
 	useBlockIdGenerator( {
 		clientId,
@@ -102,12 +116,13 @@ export default function Edit( {
 			showPagination?.Mobile
 				? 'has-pagination'
 				: ''
-		}`,
+		}${ marqueeEnabled ? ' gslider-marquee-mode' : '' }`,
 	} );
 
 	// Local state management for swiper instance is replaced by useRef
 	const swiperContainerRef = useRef( null );
 	const swiperInstanceRef = useRef( null );
+	const autoplayProgressFillRef = useRef( null );
 
 	// Ref for panel settings focus management
 	const panelRef = useRef( null );
@@ -149,9 +164,21 @@ export default function Edit( {
 			paginationOutsideRef.current.innerHTML = '';
 		}
 
+		const sliderEffect =
+			sliderType === 'carousel' ? carouselEffect : slideEffect;
+
+		// Same as the frontend, the marquee does not move for users who ask for less motion
+		const reduceMotion =
+			marqueeEnabled &&
+			window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		const marqueeTransition = reduceMotion
+			? 0
+			: marqueeSpeed?.[ deviceType ] || 5000;
+
 		// Build Swiper settings
 		const swiperSettings = {
-			effect: sliderType === 'carousel' ? carouselEffect : slideEffect,
+			// Marquee needs the slide effect, other effects can not move in a line
+			effect: anyMarqueeEnabled ? 'slide' : sliderEffect,
 			...( sliderType === 'carousel' && {
 				breakpoints: {
 					0: {
@@ -176,7 +203,7 @@ export default function Edit( {
 				direction !== 'vertical' && {
 					autoHeight: true,
 				} ),
-			loop: infiniteLoop,
+			loop: anyMarqueeEnabled || infiniteLoop,
 			autoplay: autoplay
 				? {
 						delay: autoplayDelay?.[ deviceType ] || 1000,
@@ -186,7 +213,9 @@ export default function Edit( {
 						reverseDirection,
 				  }
 				: false,
-			speed: speed?.[ deviceType ] || 800,
+			speed: marqueeEnabled
+				? marqueeTransition
+				: speed?.[ deviceType ] || 800,
 			allowTouchMove,
 			mousewheel: mousewheelControl,
 			keyboard: keyboardNavigation
@@ -229,14 +258,182 @@ export default function Edit( {
 			} ),
 		};
 
+		if ( marqueeEnabled ) {
+			swiperSettings.autoplay = reduceMotion
+				? false
+				: {
+						delay: 0,
+						disableOnInteraction: false,
+						reverseDirection,
+				  };
+		}
+
 		// Initialize new Swiper instance
 		swiperInstanceRef.current = new window.Swiper(
 			swiperContainerRef.current,
 			swiperSettings
 		);
 
+		if ( autoplayProgressFillRef.current ) {
+			swiperInstanceRef.current.on(
+				'autoplayTimeLeft',
+				( swiper, timeLeft, progress ) => {
+					if ( autoplayProgressFillRef.current ) {
+						autoplayProgressFillRef.current.style.transform = `scaleX(${
+							1 - progress
+						})`;
+					}
+				}
+			);
+		}
+
+		let cleanupMarqueeHover = null;
+
+		if ( marqueeEnabled && marqueePause ) {
+			const swiper = swiperInstanceRef.current;
+			const sliderContainer =
+				swiperContainerRef.current?.parentElement ||
+				swiperContainerRef.current;
+			let frozen = null;
+			let onResumeEnd = null;
+
+			const getSign = () =>
+				swiper.isHorizontal() && swiper.rtlTranslate ? -1 : 1;
+
+			const getCurrentTranslate = () => {
+				const matrix = new ( window.DOMMatrix ||
+					window.WebKitCSSMatrix )(
+					window.getComputedStyle( swiper.wrapperEl ).transform
+				);
+				return (
+					( swiper.isHorizontal() ? matrix.m41 : matrix.m42 ) *
+					getSign()
+				);
+			};
+
+			const cancelResume = () => {
+				if ( ! onResumeEnd ) {
+					return;
+				}
+				swiper.wrapperEl.removeEventListener(
+					'transitionend',
+					onResumeEnd
+				);
+				onResumeEnd = null;
+				const current = getCurrentTranslate();
+				swiper.setTransition( 0 );
+				swiper.setTranslate( current );
+			};
+
+			const startAutoplay = () => {
+				if ( ! swiper.destroyed && swiper.params.autoplay ) {
+					swiper.autoplay.start();
+				}
+			};
+
+			const handlePointerEnter = ( event ) => {
+				if (
+					event.pointerType !== 'mouse' ||
+					! ( swiper.autoplay?.running || onResumeEnd )
+				) {
+					return;
+				}
+
+				const target = swiper.translate * getSign();
+				cancelResume();
+				const current = getCurrentTranslate();
+				const step =
+					Math.abs(
+						swiper.slidesGrid[ 1 ] - swiper.slidesGrid[ 0 ]
+					) || swiper.width;
+
+				swiper.autoplay?.stop();
+				swiper.setTransition( 0 );
+				swiper.setTranslate( current );
+				swiper.animating = false;
+				frozen = {
+					target,
+					remaining:
+						Math.min( 1, Math.abs( target - current ) / step ) *
+						swiper.params.speed,
+				};
+			};
+
+			const handleSlideChange = () => {
+				if ( frozen ) {
+					frozen = {
+						target: swiper.translate * getSign(),
+						remaining: 0,
+					};
+				}
+			};
+
+			const handlePointerLeave = () => {
+				if ( ! frozen ) {
+					return;
+				}
+
+				const { target, remaining } = frozen;
+				frozen = null;
+
+				if ( remaining < 1 ) {
+					swiper.setTranslate( target );
+					if ( ! swiper.animating ) {
+						startAutoplay();
+						return;
+					}
+				}
+
+				onResumeEnd = ( event ) => {
+					if ( event.target !== swiper.wrapperEl ) {
+						return;
+					}
+					swiper.wrapperEl.removeEventListener(
+						'transitionend',
+						onResumeEnd
+					);
+					onResumeEnd = null;
+					startAutoplay();
+				};
+				swiper.wrapperEl.addEventListener(
+					'transitionend',
+					onResumeEnd
+				);
+				if ( remaining >= 1 ) {
+					swiper.setTransition( remaining );
+					swiper.setTranslate( target );
+				}
+			};
+
+			sliderContainer.addEventListener(
+				'pointerenter',
+				handlePointerEnter
+			);
+			sliderContainer.addEventListener(
+				'pointerleave',
+				handlePointerLeave
+			);
+			swiper.on( 'slideChangeTransitionStart', handleSlideChange );
+
+			cleanupMarqueeHover = () => {
+				cancelResume();
+				sliderContainer.removeEventListener(
+					'pointerenter',
+					handlePointerEnter
+				);
+				sliderContainer.removeEventListener(
+					'pointerleave',
+					handlePointerLeave
+				);
+				swiper.off( 'slideChangeTransitionStart', handleSlideChange );
+			};
+		}
+
 		// Cleanup on unmount or before re-initialization
 		return () => {
+			if ( cleanupMarqueeHover ) {
+				cleanupMarqueeHover();
+			}
 			if ( swiperInstanceRef.current ) {
 				swiperInstanceRef.current.destroy( true, true );
 				swiperInstanceRef.current = null;
@@ -252,6 +449,7 @@ export default function Edit( {
 		infiniteLoop,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
 		pauseOnHover,
 		stopOnLastSlide,
 		reverseDirection,
@@ -271,6 +469,10 @@ export default function Edit( {
 		navigationArrowsIconLeft,
 		navigationArrowsIconRight,
 		layoutHeightSwitcher,
+		marqueeEnabled,
+		anyMarqueeEnabled,
+		marqueeSpeed,
+		marqueePause,
 		slideCount,
 	] );
 
@@ -309,6 +511,17 @@ export default function Edit( {
 				>
 					<div { ...innerBlocksProps } />
 
+					{ autoplay && enableAutoplayProgress?.[ deviceType ] && (
+						<div
+							className={ `gslider-autoplay-progress ${ autoplayProgressPosition }` }
+							aria-hidden="true"
+						>
+							<div
+								ref={ autoplayProgressFillRef }
+								className="gslider-autoplay-progress-fill"
+							></div>
+						</div>
+					) }
 					{ enableTopDivider?.[ deviceType ] &&
 						renderShapeDivider( 'top', topDividerShape ) }
 					{ enableBottomDivider?.[ deviceType ] &&
