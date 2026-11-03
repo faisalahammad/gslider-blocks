@@ -532,7 +532,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 								! hasVisibleVideo
 							) {
 								delete swiper.el.dataset.embedAutoplayStopped;
-								swiper.autoplay.start();
+								// Autoplay is false on breakpoints where it is turned off
+								if ( swiper.params.autoplay ) {
+									swiper.autoplay.start();
+								}
 							}
 						},
 					};
