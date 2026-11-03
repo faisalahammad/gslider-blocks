@@ -573,13 +573,27 @@ const Inspector = ( { attributes, setAttributes } ) => {
 				}
 			>
 				<SwitcherControl
-					label={ __( 'Layout Height Switcher', 'gslider-blocks' ) }
-					options={ LAYOUT_HEIGHT_SWITCHER }
-					value={ layoutHeightSwitcher }
+					label={ __( 'Slider Direction', 'gslider-blocks' ) }
+					options={ SLIDER_DIRECTION }
+					value={ direction }
 					onChange={ ( value ) =>
-						setAttributes( { layoutHeightSwitcher: value } )
+						setAttributes( { direction: value } )
 					}
 				/>
+
+				{ direction !== 'vertical' && (
+					<SwitcherControl
+						label={ __(
+							'Layout Height Switcher',
+							'gslider-blocks'
+						) }
+						options={ LAYOUT_HEIGHT_SWITCHER }
+						value={ layoutHeightSwitcher }
+						onChange={ ( value ) =>
+							setAttributes( { layoutHeightSwitcher: value } )
+						}
+					/>
+				) }
 
 				{ ( layoutHeightSwitcher === 'fixed' ||
 					direction === 'vertical' ) && (
@@ -707,14 +721,6 @@ const Inspector = ( { attributes, setAttributes } ) => {
 				opened={ openPanels.general === 'slider-settings' }
 				onToggle={ () => togglePanel( 'general', 'slider-settings' ) }
 			>
-				<SwitcherControl
-					label={ __( 'Slider Direction', 'gslider-blocks' ) }
-					options={ SLIDER_DIRECTION }
-					value={ direction }
-					onChange={ ( value ) =>
-						setAttributes( { direction: value } )
-					}
-				/>
 				<ToggleControl
 					label={ __( 'Infinite Loop', 'gslider-blocks' ) }
 					checked={ infiniteLoop }
