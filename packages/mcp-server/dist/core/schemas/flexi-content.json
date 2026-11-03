@@ -24,7 +24,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 287,
+  "totalAttributes": 290,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
