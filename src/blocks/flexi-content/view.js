@@ -74,6 +74,40 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return hasVisibleVideo;
 	};
 
+	/**
+	 * Stop autoplay of the slider and any parent slider, so none slides away from the playing video.
+	 *
+	 * @param {HTMLElement} element - Element inside the video box.
+	 */
+	const stopEmbedAutoplay = ( element ) => {
+		for (
+			let swiperElement = element.closest( '.swiper' );
+			swiperElement;
+			swiperElement = swiperElement.parentElement.closest( '.swiper' )
+		) {
+			if ( swiperElement.swiper?.autoplay?.running ) {
+				swiperElement.swiper.autoplay.stop();
+				swiperElement.dataset.embedAutoplayStopped = 'true';
+			}
+		}
+	};
+
+	// A paused player stays in its slide, a click on its own play control only moves focus into the iframe
+	window.addEventListener( 'blur', () => {
+		// Focus reaches the iframe after the blur event
+		setTimeout( () => {
+			const { activeElement } = document;
+			if (
+				activeElement?.tagName === 'IFRAME' &&
+				activeElement.closest(
+					'.gslider-flexi-content-wrapper .gslider-embed-video'
+				)
+			) {
+				stopEmbedAutoplay( activeElement );
+			}
+		} );
+	} );
+
 	// Delegated, so it also works for sliders added later
 	document.addEventListener( 'click', ( event ) => {
 		const button = event.target.closest(
@@ -99,17 +133,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		iframe.addEventListener( 'load', () => {
 			iframe.dataset.loaded = 'true';
 		} );
-		// Stop autoplay of this slider and any parent slider, so none slides away from the playing video
-		for (
-			let swiperElement = button.closest( '.swiper' );
-			swiperElement;
-			swiperElement = swiperElement.parentElement.closest( '.swiper' )
-		) {
-			if ( swiperElement.swiper?.autoplay?.running ) {
-				swiperElement.swiper.autoplay.stop();
-				swiperElement.dataset.embedAutoplayStopped = 'true';
-			}
-		}
+		stopEmbedAutoplay( button );
 		// Keep the button hidden, it comes back when loading is cancelled
 		button.hidden = true;
 		button.after( iframe );
