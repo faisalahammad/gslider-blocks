@@ -84,6 +84,9 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		keyboardNavigation,
 		paginationType,
 		dynamicBullets,
+		enableContinuousMarquee,
+		marqueeSpeed,
+		marqueePauseOnHover,
 
 		/** Start Show/Hide Elements */
 		showNavigation,
@@ -910,6 +913,47 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					resetFallbackValue={ '800' }
 					isRangeUnit={ false }
 				/>
+				<ResponsiveToggleControl
+					label={ __( 'Continuous Marquee Mode', 'gslider-blocks' ) }
+					toggleValue={ enableContinuousMarquee }
+					setToggleValue={ ( value ) =>
+						setAttributes( { enableContinuousMarquee: value } )
+					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
+				/>
+				{ enableContinuousMarquee?.[ deviceType ] && (
+					<>
+						<ResponsiveRangeControl
+							min={ 1000 }
+							max={ 15000 }
+							label={ __(
+								'Marquee Speed (ms)',
+								'gslider-blocks'
+							) }
+							rangeValue={ marqueeSpeed }
+							onChangeValue={ ( value ) =>
+								setAttributes( { marqueeSpeed: value } )
+							}
+							deviceType={ deviceType }
+							step={ 500 }
+							resetFallbackValue={ '5000' }
+							isRangeUnit={ false }
+						/>
+						<ResponsiveToggleControl
+							label={ __(
+								'Marquee Pause on Hover',
+								'gslider-blocks'
+							) }
+							toggleValue={ marqueePauseOnHover }
+							setToggleValue={ ( value ) =>
+								setAttributes( { marqueePauseOnHover: value } )
+							}
+							deviceType={ deviceType }
+							setAttributes={ setAttributes }
+						/>
+					</>
+				) }
 			</PanelBody>
 			{ sliderType === 'carousel' && (
 				<PanelBody

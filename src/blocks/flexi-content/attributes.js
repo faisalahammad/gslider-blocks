@@ -125,6 +125,30 @@ const attributes = {
 		type: 'boolean',
 		default: false,
 	},
+	enableContinuousMarquee: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	marqueeSpeed: {
+		type: 'object',
+		default: {
+			Desktop: 5000,
+			Tablet: 5000,
+			Mobile: 5000,
+		},
+	},
+	marqueePauseOnHover: {
+		type: 'object',
+		default: {
+			Desktop: true,
+			Tablet: true,
+			Mobile: true,
+		},
+	},
 	/** End Slider Settings */
 
 	/** Start Show/Hide Elements */

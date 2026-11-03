@@ -202,6 +202,30 @@ var attributes = {
     type: "boolean",
     default: false
   },
+  enableContinuousMarquee: {
+    type: "object",
+    default: {
+      Desktop: false,
+      Tablet: false,
+      Mobile: false
+    }
+  },
+  marqueeSpeed: {
+    type: "object",
+    default: {
+      Desktop: 5e3,
+      Tablet: 5e3,
+      Mobile: 5e3
+    }
+  },
+  marqueePauseOnHover: {
+    type: "object",
+    default: {
+      Desktop: true,
+      Tablet: true,
+      Mobile: true
+    }
+  },
   /** End Slider Settings */
   /** Start Show/Hide Elements */
   showNavigation: {
@@ -2092,6 +2116,9 @@ function Save({ attributes: attributes2 }) {
     keyboardNavigation,
     paginationType,
     dynamicBullets,
+    enableContinuousMarquee,
+    marqueeSpeed,
+    marqueePauseOnHover,
     showNavigation,
     showPagination,
     paginationPositionType,
@@ -2115,12 +2142,38 @@ function Save({ attributes: attributes2 }) {
     bottomDividerShape,
     enableSlideLightbox
   } = attributes2;
+  const marqueeEnabled = {
+    Mobile: !!enableContinuousMarquee?.Mobile,
+    Tablet: !!enableContinuousMarquee?.Tablet,
+    Desktop: !!enableContinuousMarquee?.Desktop
+  };
+  const anyMarqueeEnabled = marqueeEnabled.Mobile || marqueeEnabled.Tablet || marqueeEnabled.Desktop;
+  const marqueeClasses = ["Desktop", "Tablet", "Mobile"].filter((device) => marqueeEnabled[device]).flatMap((device) => {
+    const slug = device.toLowerCase();
+    return marqueePauseOnHover?.[device] === false ? [`gslider-marquee-${slug}`] : [
+      `gslider-marquee-${slug}`,
+      `gslider-marquee-pause-${slug}`
+    ];
+  }).join(" ");
   const blockProps = import_block_editor.useBlockProps.save({
-    className: `gslider-flexi-content-wrapper ${blockId} ${navigationArrowPositionType} ${navigationArrowPosition} ${showPagination?.Desktop || showPagination?.Tablet || showPagination?.Mobile ? "has-pagination" : ""}`
+    className: `gslider-flexi-content-wrapper ${blockId} ${navigationArrowPositionType} ${navigationArrowPosition} ${showPagination?.Desktop || showPagination?.Tablet || showPagination?.Mobile ? "has-pagination" : ""}${marqueeClasses ? ` ${marqueeClasses}` : ""}`
   });
   const innerBlocksProps = import_block_editor.useInnerBlocksProps.save({
     className: "swiper-wrapper gslider-swiper-wrapper"
   });
+  const getBreakpointAutoplay = (device) => {
+    if (marqueeEnabled[device]) {
+      return {
+        delay: 0,
+        waitForTransition: true,
+        pauseOnMouseEnter: false,
+        disableOnInteraction: false,
+        reverseDirection
+      };
+    }
+    return autoplay ? { delay: autoplayDelay?.[device] || 1e3 } : false;
+  };
+  const sliderEffect = sliderType === "carousel" ? carouselEffect : slideEffect;
   const navigationEnabled = {
     Mobile: !!showNavigation?.Mobile,
     Tablet: !!showNavigation?.Tablet,
@@ -2138,7 +2191,8 @@ function Save({ attributes: attributes2 }) {
   const anyBottomDivider = enableBottomDivider?.Desktop || enableBottomDivider?.Tablet || enableBottomDivider?.Mobile;
   const lightboxDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableSlideLightbox?.[device] === true).join(" ");
   const swiperSettings = JSON.stringify({
-    effect: sliderType === "carousel" ? carouselEffect : slideEffect,
+    // Marquee needs the slide effect, other effects can not move in a line
+    effect: anyMarqueeEnabled ? "slide" : sliderEffect,
     // Responsive breakpoints for Desktop, Tablet, and Mobile
     breakpoints: {
       0: {
@@ -2146,10 +2200,8 @@ function Save({ attributes: attributes2 }) {
           slidesPerView: carouselPerColumn?.Mobile || 1,
           spaceBetween: carouselPerColumnGap?.Mobile || 0
         },
-        speed: speed?.Mobile || 800,
-        autoplay: autoplay ? {
-          delay: autoplayDelay?.Mobile || 1e3
-        } : false,
+        speed: marqueeEnabled.Mobile ? marqueeSpeed?.Mobile || 5e3 : speed?.Mobile || 800,
+        autoplay: getBreakpointAutoplay("Mobile"),
         navigation: { enabled: navigationEnabled.Mobile },
         pagination: { enabled: paginationEnabled.Mobile }
       },
@@ -2158,10 +2210,8 @@ function Save({ attributes: attributes2 }) {
           slidesPerView: carouselPerColumn?.Tablet || 2,
           spaceBetween: carouselPerColumnGap?.Tablet ?? 20
         },
-        speed: speed?.Tablet || 800,
-        autoplay: autoplay ? {
-          delay: autoplayDelay?.Tablet || 1e3
-        } : false,
+        speed: marqueeEnabled.Tablet ? marqueeSpeed?.Tablet || 5e3 : speed?.Tablet || 800,
+        autoplay: getBreakpointAutoplay("Tablet"),
         navigation: { enabled: navigationEnabled.Tablet },
         pagination: { enabled: paginationEnabled.Tablet }
       },
@@ -2170,10 +2220,8 @@ function Save({ attributes: attributes2 }) {
           slidesPerView: carouselPerColumn?.Desktop || 2,
           spaceBetween: carouselPerColumnGap?.Desktop ?? 20
         },
-        speed: speed?.Desktop || 800,
-        autoplay: autoplay ? {
-          delay: autoplayDelay?.Desktop || 1e3
-        } : false,
+        speed: marqueeEnabled.Desktop ? marqueeSpeed?.Desktop || 5e3 : speed?.Desktop || 800,
+        autoplay: getBreakpointAutoplay("Desktop"),
         navigation: { enabled: navigationEnabled.Desktop },
         pagination: { enabled: paginationEnabled.Desktop }
       }
@@ -2184,9 +2232,9 @@ function Save({ attributes: attributes2 }) {
       autoHeight: true
     },
     // Common settings
-    loop: infiniteLoop,
-    autoplay: autoplay ? {
-      pauseOnMouseEnter: pauseOnHover,
+    loop: anyMarqueeEnabled || infiniteLoop,
+    autoplay: autoplay || anyMarqueeEnabled ? {
+      pauseOnMouseEnter: anyMarqueeEnabled ? false : pauseOnHover,
       disableOnInteraction: false,
       stopOnLastSlide,
       reverseDirection
