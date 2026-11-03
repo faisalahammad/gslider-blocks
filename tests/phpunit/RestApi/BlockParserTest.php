@@ -111,6 +111,7 @@ class BlockParserTest {
 		$this->test_css_sanitization();
 		$this->test_flexi_slide_css_in_rest_output();
 		$this->test_flexi_vertical_direction();
+		$this->test_flexi_hash_navigation();
 
 		fwrite( STDOUT, "\nAll BlockParser tests passed successfully!\n" );
 	}
