@@ -601,6 +601,70 @@ return [
 		'Tablet' => 'px',
 		'Mobile' => 'px',
 	],
+	'enableTopDivider' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'topDividerShape' => 'wave-1',
+	'topDividerColor' => '#ffffff',
+	'topDividerHeight' => [
+		'Desktop' => '50',
+		'Tablet' => '50',
+		'Mobile' => '50',
+	],
+	'topDividerHeightUnits' => [
+		'Desktop' => 'px',
+		'Tablet' => 'px',
+		'Mobile' => 'px',
+	],
+	'topDividerOpacity' => [
+		'Desktop' => 1,
+		'Tablet' => 1,
+		'Mobile' => 1,
+	],
+	'topDividerFlip' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'topDividerInvert' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'enableBottomDivider' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'bottomDividerShape' => 'wave-1',
+	'bottomDividerColor' => '#ffffff',
+	'bottomDividerHeight' => [
+		'Desktop' => '50',
+		'Tablet' => '50',
+		'Mobile' => '50',
+	],
+	'bottomDividerHeightUnits' => [
+		'Desktop' => 'px',
+		'Tablet' => 'px',
+		'Mobile' => 'px',
+	],
+	'bottomDividerOpacity' => [
+		'Desktop' => 1,
+		'Tablet' => 1,
+		'Mobile' => 1,
+	],
+	'bottomDividerFlip' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
+	'bottomDividerInvert' => [
+		'Desktop' => false,
+		'Tablet' => false,
+		'Mobile' => false,
+	],
 	'globalMarginUnits' => [
 		'Desktop' => 'px',
 		'Tablet' => 'px',
