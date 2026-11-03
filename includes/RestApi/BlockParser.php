@@ -737,6 +737,7 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				$slides[] = [
 					'id'          => $slide_id,
 					'blockName'   => $inner_name,
+					'slideHash'   => isset( $inner_attrs['slideHash'] ) ? sanitize_key( $inner_attrs['slideHash'] ) : '',
 					'innerHtml'   => $inner_html,
 					'css'         => self::collect_inner_block_styles( $inner_block ),
 					'innerBlocks' => $inner_block['innerBlocks'] ?? [],
