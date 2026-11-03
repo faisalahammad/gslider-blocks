@@ -152,6 +152,13 @@ export default function Edit( {
 			paginationOutsideRef.current.innerHTML = '';
 		}
 
+		// Swiper keeps effect shadows after destroy, so clear them before switching effects
+		swiperContainerRef.current
+			.querySelectorAll(
+				':scope > .swiper-wrapper > .swiper-slide > .swiper-slide-shadow'
+			)
+			.forEach( ( shadow ) => shadow.remove() );
+
 		// Build Swiper settings
 		const swiperSettings = {
 			effect: sliderType === 'carousel' ? carouselEffect : slideEffect,

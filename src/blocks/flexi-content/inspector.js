@@ -941,7 +941,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 								min={ 2 }
 								max={ 30 }
 								label={ __(
-									'Per Slide Offset (px)',
+									'Per Slide Offset (%)',
 									'gslider-blocks'
 								) }
 								rangeValue={ cardsPerSlideOffset }
