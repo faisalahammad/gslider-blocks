@@ -428,6 +428,25 @@ class BlockParserTest {
 		$this->assert_true( 'vertical' === $vertical['swiperConfig']['direction'], 'vertical flexi config sets direction' );
 		$this->assert_true( ! isset( $vertical['swiperConfig']['autoHeight'] ), 'vertical flexi config skips autoHeight' );
 	}
+
+	/**
+	 * Test 8: Flexi Content Hash Navigation.
+	 *
+	 * @return void
+	 */
+	public function test_flexi_hash_navigation(): void {
+		$off = $this->normalize( [], 'gslider-blocks/flexi-content' );
+		$this->assert_true( ! isset( $off['swiperConfig']['hashNavigation'] ), 'default flexi config has no hashNavigation key' );
+
+		$on = $this->normalize( [ 'enableHashNavigation' => true ], 'gslider-blocks/flexi-content' );
+		$this->assert_true(
+			[
+				'watchState'   => true,
+				'replaceState' => true,
+			] === $on['swiperConfig']['hashNavigation'],
+			'enabled flexi config matches save.js hashNavigation'
+		);
+	}
 }
 
 // Standalone execution entrypoint

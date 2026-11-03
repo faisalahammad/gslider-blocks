@@ -54,6 +54,7 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			'allowTouchMove',
 			'mousewheelControl',
 			'keyboardNavigation',
+			'enableHashNavigation',
 			'pauseOnHover',
 			'stopOnLastSlide',
 			'reverseDirection',
@@ -451,6 +452,14 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 					'clickable'      => true,
 				],
 			];
+
+			// Same as save.js, only added when on so other blocks keep the same config
+			if ( ! empty( $attrs['enableHashNavigation'] ) ) {
+				$config['hashNavigation'] = [
+					'watchState'   => true,
+					'replaceState' => true,
+				];
+			}
 
 			if ( $autoplay ) {
 				$config['autoplay'] = [
