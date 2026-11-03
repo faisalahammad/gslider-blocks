@@ -40,9 +40,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				return;
 			}
 
+			const swiper = sliderContainer.querySelector( '.swiper' )?.swiper;
 			event.stopImmediatePropagation();
 			// The link points to the image file, so do not open it either
 			event.preventDefault();
+			if ( swiper && ! swiper.allowClick ) {
+				return;
+			}
 
 			const { imageLink, imageLinkTarget, imageLinkRel } = link.dataset;
 			if ( ! imageLink ) {
