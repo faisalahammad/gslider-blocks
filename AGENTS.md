@@ -72,6 +72,7 @@ When developing or modifying code in this repository, reference the dedicated wo
 - `npm run mcp:build` : Build local MCP TypeScript server and schemas
 - `npm run mcp:test` : Run MCP schema drift test
 - `npm run defaults:generate` : Regenerate REST PHP defaults from block schemas
+- `npm run makepot` : Regenerate `languages/gslider-blocks.pot` (requires WP-CLI 2.5+)
 
 ---
 

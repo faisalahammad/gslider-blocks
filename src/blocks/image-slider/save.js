@@ -91,6 +91,17 @@ export default function Save( { attributes } ) {
 		paginationEnabled.Tablet ||
 		paginationEnabled.Desktop;
 
+	// Only output the attribute when enabled, so markup of existing blocks stays the same
+	const lightboxDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
+		.filter( ( device ) => enableLightbox?.[ device ] === true )
+		.join( ' ' );
+
+	// Save custom links only when some devices have the lightbox off, so view.js can open them there
+	const linkOnLightboxOff =
+		enableimageLinks &&
+		lightboxDevices &&
+		lightboxDevices !== 'Desktop Tablet Mobile';
+
 	// Configure Swiper settings for frontend rendering
 	const swiperSettings = JSON.stringify( {
 		effect: carouselEffect,
@@ -176,7 +187,13 @@ export default function Save( { attributes } ) {
 	} );
 
 	return (
-		<div { ...blockProps } data-swiper-settings={ swiperSettings }>
+		<div
+			{ ...blockProps }
+			data-swiper-settings={ swiperSettings }
+			{ ...( lightboxDevices && {
+				'data-slide-lightbox': lightboxDevices,
+			} ) }
+		>
 			<div className="swiper" role="region" aria-label="Image Slider">
 				<div className="swiper-wrapper">
 					{ images.map( ( item ) => (
@@ -189,12 +206,21 @@ export default function Save( { attributes } ) {
 									className="gslider-image-item"
 									data-hover-effect={ imageLinkHoverEffect }
 								>
-									{ enableLightbox ? (
+									{ lightboxDevices ? (
 										<a
 											href={ item.url }
 											data-fslightbox={ blockId }
 											data-caption={ item.caption }
 											className="gslider-image-link"
+											{ ...( linkOnLightboxOff &&
+												item.link && {
+													'data-image-link':
+														item.link,
+													'data-image-link-target':
+														imageLinkTarget,
+													'data-image-link-rel':
+														imageLinkRel,
+												} ) }
 										>
 											<img
 												src={ item.url }

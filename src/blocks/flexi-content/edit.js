@@ -15,6 +15,7 @@ import Inspector from './inspector';
 import { getCreativePreset } from '@Constants/creativePresets';
 import useBlockIdGenerator from '@Utils/useBlockIdGenerator';
 import generateFlexiContentStyle from './styling';
+import { renderShapeDivider } from '@Constants/shapeDividers';
 
 const ALLOWED_BLOCKS = [ 'gslider-blocks/flexi-content-item' ];
 
@@ -39,6 +40,7 @@ export default function Edit( {
 		pauseOnHover,
 		stopOnLastSlide,
 		reverseDirection,
+		direction,
 		carouselEffect,
 		slideEffect,
 		creativePreset,
@@ -68,6 +70,11 @@ export default function Edit( {
 		navigationArrowsIconRightImageAlt,
 
 		layoutHeightSwitcher,
+
+		enableTopDivider,
+		topDividerShape,
+		enableBottomDivider,
+		bottomDividerShape,
 	} = attributes;
 
 	/** Handle block ID generation (handles duplication and initial ID) */
@@ -173,9 +180,12 @@ export default function Edit( {
 					},
 				},
 			} ),
-			...( layoutHeightSwitcher === 'adapt' && {
-				autoHeight: true,
-			} ),
+			...( direction === 'vertical' && { direction: 'vertical' } ),
+			// Vertical slides use the fixed height, autoHeight does not work with it
+			...( layoutHeightSwitcher === 'adapt' &&
+				direction !== 'vertical' && {
+					autoHeight: true,
+				} ),
 			loop: infiniteLoop,
 			autoplay: autoplay
 				? {
@@ -217,7 +227,7 @@ export default function Edit( {
 				  }
 				: false,
 			...( slideEffect === 'creative' && {
-				creativeEffect: getCreativePreset( creativePreset ),
+				creativeEffect: getCreativePreset( creativePreset, direction ),
 			} ),
 		};
 
@@ -248,6 +258,7 @@ export default function Edit( {
 		pauseOnHover,
 		stopOnLastSlide,
 		reverseDirection,
+		direction,
 		speed,
 		allowTouchMove,
 		mousewheelControl,
@@ -300,6 +311,11 @@ export default function Edit( {
 					{ ...( globalID && { id: globalID } ) }
 				>
 					<div { ...innerBlocksProps } />
+
+					{ enableTopDivider?.[ deviceType ] &&
+						renderShapeDivider( 'top', topDividerShape ) }
+					{ enableBottomDivider?.[ deviceType ] &&
+						renderShapeDivider( 'bottom', bottomDividerShape ) }
 
 					{ showNavigation?.[ deviceType ] &&
 						! navigationArrowsIconSwitcher &&

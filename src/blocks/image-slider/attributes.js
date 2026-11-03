@@ -148,8 +148,12 @@ const attributes = {
 		default: false,
 	},
 	enableLightbox: {
-		type: 'boolean',
-		default: false,
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
 	},
 	showTooltip: {
 		type: 'boolean',

@@ -58,6 +58,7 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			'pauseOnHover',
 			'stopOnLastSlide',
 			'reverseDirection',
+			'direction',
 			'layoutHeightSwitcher',
 		];
 
@@ -526,12 +527,28 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				$config['autoplay'] = false;
 			}
 
+			$is_vertical = 'vertical' === ( $attrs['direction'] ?? 'horizontal' );
+
 			if ( $uses_slider_type && 'creative' === $slide_effect ) {
 				$preset                   = isset( $attrs['creativePreset'] ) && is_string( $attrs['creativePreset'] ) ? $attrs['creativePreset'] : 'classic';
 				$config['creativeEffect'] = self::CREATIVE_PRESETS[ $preset ] ?? self::CREATIVE_PRESETS['classic'];
+
+				// Vertical sliders move on Y, so swap the X and Y translate values.
+				if ( $is_vertical ) {
+					foreach ( $config['creativeEffect'] as $side => $values ) {
+						$translate = $values['translate'];
+
+						$config['creativeEffect'][ $side ]['translate'] = [ $translate[1], $translate[0], $translate[2] ];
+					}
+				}
 			}
 
-			if ( isset( $attrs['layoutHeightSwitcher'] ) && 'adapt' === $attrs['layoutHeightSwitcher'] ) {
+			if ( $is_vertical ) {
+				$config['direction'] = 'vertical';
+			}
+
+			// Vertical slides use the fixed height, autoHeight does not work with it.
+			if ( ! $is_vertical && isset( $attrs['layoutHeightSwitcher'] ) && 'adapt' === $attrs['layoutHeightSwitcher'] ) {
 				$config['autoHeight'] = true;
 			}
 

@@ -49,7 +49,27 @@ export const CREATIVE_PRESETS = {
 };
 
 // Own-property check so values like "toString" fall back to classic.
-export const getCreativePreset = ( preset ) =>
-	Object.prototype.hasOwnProperty.call( CREATIVE_PRESETS, preset )
+// Vertical sliders move on Y, so swap the X and Y translate values.
+export const getCreativePreset = ( preset, direction ) => {
+	const config = Object.prototype.hasOwnProperty.call(
+		CREATIVE_PRESETS,
+		preset
+	)
 		? CREATIVE_PRESETS[ preset ]
 		: CREATIVE_PRESETS.classic;
+
+	if ( direction !== 'vertical' ) {
+		return config;
+	}
+
+	const toVertical = ( side ) => ( {
+		...side,
+		translate: [
+			side.translate[ 1 ],
+			side.translate[ 0 ],
+			side.translate[ 2 ],
+		],
+	} );
+
+	return { prev: toVertical( config.prev ), next: toVertical( config.next ) };
+};
