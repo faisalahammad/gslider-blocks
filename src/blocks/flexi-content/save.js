@@ -108,8 +108,7 @@ export default function Save( { attributes } ) {
 			return {
 				delay: 0,
 				waitForTransition: true,
-				// Swiper adds hover listeners only at init, so keep them for normal devices. view.js stops the marquee itself
-				pauseOnMouseEnter: pauseOnHover,
+				pauseOnMouseEnter: false,
 				disableOnInteraction: false,
 				reverseDirection,
 			};
@@ -218,7 +217,9 @@ export default function Save( { attributes } ) {
 		autoplay:
 			autoplay || anyMarqueeEnabled
 				? {
-						pauseOnMouseEnter: pauseOnHover,
+						pauseOnMouseEnter: anyMarqueeEnabled
+							? false
+							: pauseOnHover,
 						disableOnInteraction: false,
 						stopOnLastSlide,
 						reverseDirection,
