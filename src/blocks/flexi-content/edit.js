@@ -161,6 +161,14 @@ export default function Edit( {
 		const sliderEffect =
 			sliderType === 'carousel' ? carouselEffect : slideEffect;
 
+		// Same as the frontend, the marquee does not move for users who ask for less motion
+		const reduceMotion =
+			marqueeEnabled &&
+			window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		const marqueeTransition = reduceMotion
+			? 0
+			: marqueeSpeed?.[ deviceType ] || 5000;
+
 		// Build Swiper settings
 		const swiperSettings = {
 			// Marquee needs the slide effect, other effects can not move in a line
@@ -200,7 +208,7 @@ export default function Edit( {
 				  }
 				: false,
 			speed: marqueeEnabled
-				? marqueeSpeed?.[ deviceType ] || 5000
+				? marqueeTransition
 				: speed?.[ deviceType ] || 800,
 			allowTouchMove,
 			mousewheel: mousewheelControl,
@@ -245,10 +253,7 @@ export default function Edit( {
 		};
 
 		if ( marqueeEnabled ) {
-			// Same as the frontend, the marquee does not move for users who ask for less motion
-			swiperSettings.autoplay = window.matchMedia(
-				'(prefers-reduced-motion: reduce)'
-			).matches
+			swiperSettings.autoplay = reduceMotion
 				? false
 				: {
 						delay: 0,

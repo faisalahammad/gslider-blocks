@@ -172,11 +172,14 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 			if ( remaining < 1 ) {
 				swiper.setTranslate( target );
-				startAutoplay();
-				return;
+				// Loop mode does not slide during a navigation transition, so wait for it
+				if ( ! swiper.animating ) {
+					startAutoplay();
+					return;
+				}
 			}
 
-			// Finish the stopped slide at the same speed, then autoplay goes on
+			// Finish the stopped slide or the navigation, then autoplay goes on
 			onResumeEnd = ( event ) => {
 				if ( event.target !== swiper.wrapperEl ) {
 					return;
@@ -189,8 +192,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				startAutoplay();
 			};
 			swiper.wrapperEl.addEventListener( 'transitionend', onResumeEnd );
-			swiper.setTransition( remaining );
-			swiper.setTranslate( target );
+			if ( remaining >= 1 ) {
+				swiper.setTransition( remaining );
+				swiper.setTranslate( target );
+			}
 		} );
 	};
 
@@ -383,7 +388,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 										BREAKPOINT_DEVICES[ width ] || ''
 									)
 								) {
+									// No autoplay and no long animation on navigation
 									params.autoplay = false;
+									params.speed = 0;
 								}
 							}
 						);
