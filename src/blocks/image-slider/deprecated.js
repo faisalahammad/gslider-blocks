@@ -3,8 +3,37 @@ import renderSVG from '@Components/icon-picker/components/icon-picker/controls/r
 import { useBlockProps } from '@wordpress/block-editor';
 import attributes from './attributes';
 
+// Before 1.2.2 enableLightbox was one boolean for all devices
+const legacyAttributes = {
+	...attributes,
+	enableLightbox: {
+		type: 'boolean',
+		default: false,
+	},
+};
+
+/**
+ * Turn the old boolean lightbox setting into the responsive object.
+ *
+ * @param {Object} attributes - Attributes parsed with the old schema.
+ * @return {Object} Attributes for the current schema.
+ */
+const migrateLightbox = ( attributes ) => {
+	const enabled = attributes.enableLightbox === true;
+
+	return {
+		...attributes,
+		enableLightbox: {
+			Desktop: enabled,
+			Tablet: enabled,
+			Mobile: enabled,
+		},
+	};
+};
+
 const v1_1_5 = {
-	attributes,
+	attributes: legacyAttributes,
+	migrate: migrateLightbox,
 	supports: {
 		html: false,
 		className: false,
@@ -322,7 +351,8 @@ const v1_1_5 = {
 };
 
 const v1_1_6 = {
-	attributes,
+	attributes: legacyAttributes,
+	migrate: migrateLightbox,
 	supports: {
 		html: false,
 		className: false,
@@ -806,7 +836,8 @@ const v1_1_6 = {
 };
 
 const v1_1_7 = {
-	attributes,
+	attributes: legacyAttributes,
+	migrate: migrateLightbox,
 	supports: {
 		html: false,
 		className: false,
@@ -1290,7 +1321,8 @@ const v1_1_7 = {
 };
 
 const v1_2_0 = {
-	attributes,
+	attributes: legacyAttributes,
+	migrate: migrateLightbox,
 	supports: {
 		html: false,
 		className: false,
@@ -1778,7 +1810,11 @@ const v1_2_0 = {
 };
 
 const v1_2_1 = {
-	attributes,
+	attributes: legacyAttributes,
+	migrate: migrateLightbox,
+	// A slider with no images saves the same markup, so it stays valid and would lose the old value
+	isEligible: ( attributes, innerBlocks, { blockNode } ) =>
+		typeof blockNode?.attrs?.enableLightbox === 'boolean',
 	supports: {
 		html: false,
 		anchor: false,
