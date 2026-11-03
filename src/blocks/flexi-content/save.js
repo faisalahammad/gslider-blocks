@@ -234,7 +234,8 @@ export default function Save( { attributes } ) {
 			} ),
 
 		// Common settings
-		loop: anyMarqueeEnabled || infiniteLoop,
+		loop: hasCardsEffect ? false : anyMarqueeEnabled || infiniteLoop,
+		...( hasCardsEffect && { rewind: infiniteLoop } ),
 		autoplay:
 			autoplay || anyMarqueeEnabled
 				? {

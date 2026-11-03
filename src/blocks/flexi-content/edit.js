@@ -170,12 +170,14 @@ export default function Edit( {
 		// Swiper keeps effect shadows after destroy, so clear them before switching effects
 		swiperContainerRef.current
 			.querySelectorAll(
-				':scope > .swiper-wrapper > .swiper-slide > .swiper-slide-shadow'
+				':scope > .swiper-wrapper > .swiper-slide .swiper-slide-shadow'
 			)
 			.forEach( ( shadow ) => shadow.remove() );
 
 		const sliderEffect =
 			sliderType === 'carousel' ? carouselEffect : slideEffect;
+		const isCardsEffect =
+			sliderType === 'slider' && slideEffect === 'cards';
 
 		// Same as the frontend, the marquee does not move for users who ask for less motion
 		const reduceMotion =
@@ -213,7 +215,8 @@ export default function Edit( {
 				direction !== 'vertical' && {
 					autoHeight: true,
 				} ),
-			loop: anyMarqueeEnabled || infiniteLoop,
+			loop: isCardsEffect ? false : anyMarqueeEnabled || infiniteLoop,
+			...( isCardsEffect && { rewind: infiniteLoop } ),
 			autoplay: autoplay
 				? {
 						delay: autoplayDelay?.[ deviceType ] || 1000,

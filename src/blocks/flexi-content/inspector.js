@@ -760,6 +760,13 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					onChange={ ( value ) =>
 						setAttributes( { infiniteLoop: value } )
 					}
+					{ ...( sliderType === 'slider' &&
+						slideEffect === 'cards' && {
+							help: __(
+								'In Cards effect, infinite loop smoothly rewinds when reaching the end.',
+								'gslider-blocks'
+							),
+						} ) }
 				/>
 				<ToggleControl
 					label={ __( 'Touch Swipe Control', 'gslider-blocks' ) }
