@@ -2273,7 +2273,8 @@ function Save({ attributes: attributes2 }) {
       autoHeight: true
     },
     // Common settings
-    loop: anyMarqueeEnabled || infiniteLoop,
+    loop: hasCardsEffect ? false : anyMarqueeEnabled || infiniteLoop,
+    ...hasCardsEffect && { rewind: infiniteLoop },
     autoplay: autoplay || anyMarqueeEnabled ? {
       pauseOnMouseEnter: anyMarqueeEnabled ? false : pauseOnHover,
       disableOnInteraction: false,
