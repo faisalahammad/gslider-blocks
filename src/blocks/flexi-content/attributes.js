@@ -17,6 +17,10 @@ const attributes = {
 		type: 'string',
 		default: 'slider',
 	},
+	direction: {
+		type: 'string',
+		default: 'horizontal',
+	},
 	carouselPerColumn: {
 		type: 'object',
 		default: {
@@ -168,6 +172,22 @@ const attributes = {
 		},
 	},
 	layoutHeightUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	verticalHeight: {
+		type: 'object',
+		default: {
+			Desktop: '500',
+			Tablet: '420',
+			Mobile: '350',
+		},
+	},
+	verticalHeightUnits: {
 		type: 'object',
 		default: {
 			Desktop: 'px',
@@ -1272,6 +1292,121 @@ const attributes = {
 		},
 	},
 	/** End Progressbar */
+
+	/** Start Shape Dividers */
+	enableTopDivider: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	topDividerShape: {
+		type: 'string',
+		default: 'wave-1',
+	},
+	topDividerColor: {
+		type: 'string',
+		default: '#ffffff',
+	},
+	topDividerHeight: {
+		type: 'object',
+		default: {
+			Desktop: '50',
+			Tablet: '50',
+			Mobile: '50',
+		},
+	},
+	topDividerHeightUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	topDividerOpacity: {
+		type: 'object',
+		default: {
+			Desktop: 1,
+			Tablet: 1,
+			Mobile: 1,
+		},
+	},
+	topDividerFlip: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	topDividerInvert: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	enableBottomDivider: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	bottomDividerShape: {
+		type: 'string',
+		default: 'wave-1',
+	},
+	bottomDividerColor: {
+		type: 'string',
+		default: '#ffffff',
+	},
+	bottomDividerHeight: {
+		type: 'object',
+		default: {
+			Desktop: '50',
+			Tablet: '50',
+			Mobile: '50',
+		},
+	},
+	bottomDividerHeightUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	bottomDividerOpacity: {
+		type: 'object',
+		default: {
+			Desktop: 1,
+			Tablet: 1,
+			Mobile: 1,
+		},
+	},
+	bottomDividerFlip: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	bottomDividerInvert: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	/** End Shape Dividers */
 
 	/** Start Global Setting */
 
