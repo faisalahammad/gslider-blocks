@@ -50,6 +50,7 @@ export default function Edit( {
 		dynamicBullets,
 		enableContinuousMarquee,
 		marqueeSpeed,
+		marqueePauseOnHover,
 
 		showNavigation,
 		showPagination,
@@ -80,6 +81,8 @@ export default function Edit( {
 	} = attributes;
 
 	const marqueeEnabled = !! enableContinuousMarquee?.[ deviceType ];
+	const marqueePause =
+		marqueeEnabled && marqueePauseOnHover?.[ deviceType ] !== false;
 	// Effect and loop are shared by all devices on the frontend
 	const anyMarqueeEnabled =
 		!! enableContinuousMarquee?.Desktop ||
@@ -284,8 +287,153 @@ export default function Edit( {
 			);
 		}
 
+		let cleanupMarqueeHover = null;
+
+		if ( marqueeEnabled && marqueePause ) {
+			const swiper = swiperInstanceRef.current;
+			const sliderContainer =
+				swiperContainerRef.current?.parentElement ||
+				swiperContainerRef.current;
+			let frozen = null;
+			let onResumeEnd = null;
+
+			const getSign = () =>
+				swiper.isHorizontal() && swiper.rtlTranslate ? -1 : 1;
+
+			const getCurrentTranslate = () => {
+				const matrix = new ( window.DOMMatrix ||
+					window.WebKitCSSMatrix )(
+					window.getComputedStyle( swiper.wrapperEl ).transform
+				);
+				return (
+					( swiper.isHorizontal() ? matrix.m41 : matrix.m42 ) *
+					getSign()
+				);
+			};
+
+			const cancelResume = () => {
+				if ( ! onResumeEnd ) {
+					return;
+				}
+				swiper.wrapperEl.removeEventListener(
+					'transitionend',
+					onResumeEnd
+				);
+				onResumeEnd = null;
+				const current = getCurrentTranslate();
+				swiper.setTransition( 0 );
+				swiper.setTranslate( current );
+			};
+
+			const startAutoplay = () => {
+				if ( ! swiper.destroyed && swiper.params.autoplay ) {
+					swiper.autoplay.start();
+				}
+			};
+
+			const handlePointerEnter = ( event ) => {
+				if (
+					event.pointerType !== 'mouse' ||
+					! ( swiper.autoplay?.running || onResumeEnd )
+				) {
+					return;
+				}
+
+				const target = swiper.translate * getSign();
+				cancelResume();
+				const current = getCurrentTranslate();
+				const step =
+					Math.abs(
+						swiper.slidesGrid[ 1 ] - swiper.slidesGrid[ 0 ]
+					) || swiper.width;
+
+				swiper.autoplay?.stop();
+				swiper.setTransition( 0 );
+				swiper.setTranslate( current );
+				swiper.animating = false;
+				frozen = {
+					target,
+					remaining:
+						Math.min( 1, Math.abs( target - current ) / step ) *
+						swiper.params.speed,
+				};
+			};
+
+			const handleSlideChange = () => {
+				if ( frozen ) {
+					frozen = {
+						target: swiper.translate * getSign(),
+						remaining: 0,
+					};
+				}
+			};
+
+			const handlePointerLeave = () => {
+				if ( ! frozen ) {
+					return;
+				}
+
+				const { target, remaining } = frozen;
+				frozen = null;
+
+				if ( remaining < 1 ) {
+					swiper.setTranslate( target );
+					if ( ! swiper.animating ) {
+						startAutoplay();
+						return;
+					}
+				}
+
+				onResumeEnd = ( event ) => {
+					if ( event.target !== swiper.wrapperEl ) {
+						return;
+					}
+					swiper.wrapperEl.removeEventListener(
+						'transitionend',
+						onResumeEnd
+					);
+					onResumeEnd = null;
+					startAutoplay();
+				};
+				swiper.wrapperEl.addEventListener(
+					'transitionend',
+					onResumeEnd
+				);
+				if ( remaining >= 1 ) {
+					swiper.setTransition( remaining );
+					swiper.setTranslate( target );
+				}
+			};
+
+			sliderContainer.addEventListener(
+				'pointerenter',
+				handlePointerEnter
+			);
+			sliderContainer.addEventListener(
+				'pointerleave',
+				handlePointerLeave
+			);
+			swiper.on( 'slideChangeTransitionStart', handleSlideChange );
+
+			cleanupMarqueeHover = () => {
+				cancelResume();
+				sliderContainer.removeEventListener(
+					'pointerenter',
+					handlePointerEnter
+				);
+				sliderContainer.removeEventListener(
+					'pointerleave',
+					handlePointerLeave
+				);
+				swiper.off( 'slideChangeTransitionStart', handleSlideChange );
+			};
+		}
+
 		// Cleanup on unmount or before re-initialization
 		return () => {
+			if ( cleanupMarqueeHover ) {
+				cleanupMarqueeHover();
+			}
 			if ( swiperInstanceRef.current ) {
 				swiperInstanceRef.current.destroy( true, true );
 				swiperInstanceRef.current = null;
@@ -324,6 +472,7 @@ export default function Edit( {
 		marqueeEnabled,
 		anyMarqueeEnabled,
 		marqueeSpeed,
+		marqueePause,
 		slideCount,
 	] );
 
