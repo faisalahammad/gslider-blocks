@@ -134,10 +134,17 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				index >= swiper.activeIndex &&
 				index < swiper.activeIndex + perView
 			) {
-				// Browsers block autoplay of unmuted videos, poster stays visible then
-				video.play().catch( () => {} );
+				// A finished video without loop stays stopped while in view
+				if ( ! video.ended ) {
+					// Browsers block autoplay of unmuted videos, poster stays visible then
+					video.play().catch( () => {} );
+				}
 			} else {
 				video.pause();
+				// Start over the next time the slide comes into view
+				if ( video.ended ) {
+					video.currentTime = 0;
+				}
 			}
 		} );
 	};
