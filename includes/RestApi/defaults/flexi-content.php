@@ -91,8 +91,8 @@ return [
 		'Mobile' => 'px',
 	],
 	'verticalHeight' => [
-		'Desktop' => '350',
-		'Tablet' => '350',
+		'Desktop' => '500',
+		'Tablet' => '420',
 		'Mobile' => '350',
 	],
 	'verticalHeightUnits' => [

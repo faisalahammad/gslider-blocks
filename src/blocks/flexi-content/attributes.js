@@ -158,8 +158,8 @@ const attributes = {
 	verticalHeight: {
 		type: 'object',
 		default: {
-			Desktop: '350',
-			Tablet: '350',
+			Desktop: '500',
+			Tablet: '420',
 			Mobile: '350',
 		},
 	},

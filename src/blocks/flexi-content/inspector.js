@@ -597,10 +597,10 @@ const Inspector = ( { attributes, setAttributes } ) => {
 							deviceType={ deviceType }
 							units={ verticalHeightUnits }
 							resetFallbackValue={ {
-								px: '350',
-								vh: '50',
-								em: '20',
-								rem: '20',
+								px: '500',
+								vh: '60',
+								em: '25',
+								rem: '25',
 							} }
 						/>
 

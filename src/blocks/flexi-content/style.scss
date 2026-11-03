@@ -52,9 +52,9 @@
 		backface-visibility: visible !important;
 	}
 
-	// Vertical slider needs a height, 350px matches the layoutHeight default.
+	// Vertical slider needs a height, 500px matches the verticalHeight default.
 	> .swiper-vertical {
-		height: 350px;
+		height: 500px;
 	}
 
 	// Vertical slider: centered arrows move to top and bottom.
