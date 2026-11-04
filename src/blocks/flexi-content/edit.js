@@ -499,72 +499,39 @@ export default function Edit( {
 			return;
 		}
 
-		let pointer = null;
-		let frame = 0;
+		const onPointerMove = ( event ) => {
+			if ( event.pointerType && event.pointerType !== 'mouse' ) {
+				return;
+			}
 
-		const interactiveSelector =
-			'a, button, input, select, textarea, label, summary, iframe, video, [role="button"], [role="link"], [role="tab"], [role="checkbox"], [role="switch"], [role="menuitem"], [role="option"], [role="slider"], [contenteditable]:not([contenteditable="false"]), .swiper-pagination, .swiper-button-prev, .swiper-button-next, .block-editor-block-toolbar, .block-editor-block-popover';
+			const interactive = event.target.closest(
+				'.swiper-button-prev, .swiper-button-next, .swiper-pagination, .block-editor-block-toolbar'
+			);
 
-		const isFreeArea = ( target ) =>
-			!! target &&
-			target.closest( '.swiper' ) === swiperEl &&
-			! target.closest( interactiveSelector );
-
-		const isLeftHalf = ( clientX ) => {
-			const rect = swiperEl.getBoundingClientRect();
-			return clientX - rect.left < rect.width / 2;
-		};
-
-		const render = () => {
-			frame = 0;
-			const active =
-				pointer &&
-				isFreeArea(
-					document.elementFromPoint(
-						pointer.clientX,
-						pointer.clientY
-					)
-				);
-
-			swiperEl.classList.toggle( 'gslider-cursor-active', !! active );
-			if ( ! active ) {
+			if ( interactive ) {
+				swiperEl.classList.remove( 'gslider-cursor-active' );
 				return;
 			}
 
 			const rect = swiperEl.getBoundingClientRect();
-			const x = pointer.clientX - rect.left;
-			const y = pointer.clientY - rect.top;
-			const isRTL = swiperInstanceRef.current?.rtlTranslate || false;
-			followerEl.classList.toggle(
-				'is-left',
-				isLeftHalf( pointer.clientX ) !== Boolean( isRTL )
-			);
+			const x = event.clientX - rect.left;
+			const y = event.clientY - rect.top;
+			const isLeft = x < rect.width / 2;
+			const isRTL = Boolean( swiperInstanceRef.current?.rtlTranslate );
+
+			followerEl.classList.toggle( 'is-left', isLeft !== isRTL );
 			followerEl.style.transform = `translate3d(${ x }px, ${ y }px, 0) translate(-50%, -50%)`;
-		};
-
-		const scheduleRender = () => {
-			if ( ! frame ) {
-				frame = window.requestAnimationFrame( render );
-			}
-		};
-
-		const onPointerMove = ( event ) => {
-			pointer = event.pointerType === 'mouse' ? event : null;
-			scheduleRender();
+			swiperEl.classList.add( 'gslider-cursor-active' );
 		};
 
 		const onPointerLeave = () => {
-			pointer = null;
-			scheduleRender();
+			swiperEl.classList.remove( 'gslider-cursor-active' );
 		};
 
 		swiperEl.addEventListener( 'pointermove', onPointerMove );
 		swiperEl.addEventListener( 'pointerleave', onPointerLeave );
 
 		return () => {
-			if ( frame ) {
-				window.cancelAnimationFrame( frame );
-			}
 			swiperEl.removeEventListener( 'pointermove', onPointerMove );
 			swiperEl.removeEventListener( 'pointerleave', onPointerLeave );
 			swiperEl.classList.remove( 'gslider-cursor-active' );
