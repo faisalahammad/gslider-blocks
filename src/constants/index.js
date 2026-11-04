@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { Dashicon } from '@wordpress/components';
 
+export { SHAPE_DIVIDER_OPTIONS } from './shapeDividers';
+
 export const STORE_NAME = 'gslider-blocks';
 
 export const UNIT_TYPES = [
@@ -186,6 +188,10 @@ export const SLIDER_TYPE = [
 	{ label: __( 'Slider', 'gslider-blocks' ), value: 'slider' },
 	{ label: __( 'Carousel', 'gslider-blocks' ), value: 'carousel' },
 ];
+export const SLIDER_DIRECTION = [
+	{ label: __( 'Horizontal', 'gslider-blocks' ), value: 'horizontal' },
+	{ label: __( 'Vertical', 'gslider-blocks' ), value: 'vertical' },
+];
 
 export const PAGINATION_TYPE = [
 	{ label: __( 'Bullets', 'gslider-blocks' ), value: 'bullets' },
@@ -265,6 +271,11 @@ export const TEXT_DECORATION = [
 export const LAYOUT_HEIGHT_SWITCHER = [
 	{ label: __( 'Fixed', 'gslider-blocks' ), value: 'fixed' },
 	{ label: __( 'Adapt', 'gslider-blocks' ), value: 'adapt' },
+];
+
+export const AUTOPLAY_PROGRESS_POSITION = [
+	{ label: __( 'Top', 'gslider-blocks' ), value: 'top' },
+	{ label: __( 'Bottom', 'gslider-blocks' ), value: 'bottom' },
 ];
 
 export const OBJECT_FIT_OPTIONS = [

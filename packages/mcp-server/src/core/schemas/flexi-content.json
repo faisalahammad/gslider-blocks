@@ -23,7 +23,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 261,
+  "totalAttributes": 308,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -33,6 +33,22 @@
     "content": "nested blocks"
   },
   "allowedValues": {
+    "autoplayProgressPosition": [
+      "top",
+      "bottom"
+    ],
+    "bottomDividerShape": [
+      "wave-1",
+      "wave-2",
+      "curve",
+      "curve-asymmetric",
+      "tilt",
+      "triangle",
+      "arrow",
+      "mountains",
+      "zigzag",
+      "scallops"
+    ],
     "carouselEffect": [
       "slide",
       "coverflow"
@@ -51,6 +67,34 @@
       "flex-start",
       "center",
       "flex-end"
+    ],
+    "cursorFollowerFontWeight": [
+      "inherit",
+      "100",
+      "200",
+      "300",
+      "400",
+      "500",
+      "600",
+      "700",
+      "800",
+      "900"
+    ],
+    "cursorFollowerTextTransform": [
+      "inherit",
+      "none",
+      "capitalize",
+      "uppercase",
+      "lowercase"
+    ],
+    "cursorFollowerType": [
+      "icon",
+      "image",
+      "text"
+    ],
+    "direction": [
+      "horizontal",
+      "vertical"
     ],
     "globalBorder": [
       "none",
@@ -182,6 +226,18 @@
     "sliderType": [
       "slider",
       "carousel"
+    ],
+    "topDividerShape": [
+      "wave-1",
+      "wave-2",
+      "curve",
+      "curve-asymmetric",
+      "tilt",
+      "triangle",
+      "arrow",
+      "mountains",
+      "zigzag",
+      "scallops"
     ]
   },
   "attributes": {
@@ -200,6 +256,10 @@
     "sliderType": {
       "type": "string",
       "default": "slider"
+    },
+    "direction": {
+      "type": "string",
+      "default": "horizontal"
     },
     "carouselPerColumn": {
       "type": "object",
@@ -235,6 +295,30 @@
         "Desktop": 1000,
         "Tablet": 1000,
         "Mobile": 1000
+      }
+    },
+    "enableAutoplayProgress": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
+    },
+    "autoplayProgressPosition": {
+      "type": "string",
+      "default": "bottom"
+    },
+    "autoplayProgressColor": {
+      "type": "string",
+      "default": "#007cba"
+    },
+    "autoplayProgressHeight": {
+      "type": "object",
+      "default": {
+        "Desktop": 3,
+        "Tablet": 3,
+        "Mobile": 3
       }
     },
     "infiniteLoop": {
@@ -273,6 +357,10 @@
       "type": "boolean",
       "default": false
     },
+    "enableHashNavigation": {
+      "type": "boolean",
+      "default": false
+    },
     "paginationType": {
       "type": "string",
       "default": "bullets"
@@ -280,6 +368,30 @@
     "dynamicBullets": {
       "type": "boolean",
       "default": false
+    },
+    "enableContinuousMarquee": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
+    },
+    "marqueeSpeed": {
+      "type": "object",
+      "default": {
+        "Desktop": 5000,
+        "Tablet": 5000,
+        "Mobile": 5000
+      }
+    },
+    "marqueePauseOnHover": {
+      "type": "object",
+      "default": {
+        "Desktop": true,
+        "Tablet": true,
+        "Mobile": true
+      }
     },
     "showNavigation": {
       "type": "object",
@@ -305,6 +417,98 @@
         "Mobile": false
       }
     },
+    "enableCursorFollower": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
+    },
+    "cursorFollowerType": {
+      "type": "string",
+      "default": "icon"
+    },
+    "cursorFollowerLeftIcon": {
+      "type": "string",
+      "default": "arrow-left"
+    },
+    "cursorFollowerRightIcon": {
+      "type": "string",
+      "default": "arrow-right"
+    },
+    "cursorFollowerLeftImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "cursorFollowerLeftImageAlt": {
+      "type": "string",
+      "default": "Previous"
+    },
+    "cursorFollowerLeftImageID": {
+      "type": "string",
+      "default": ""
+    },
+    "cursorFollowerRightImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "cursorFollowerRightImageAlt": {
+      "type": "string",
+      "default": "Next"
+    },
+    "cursorFollowerRightImageID": {
+      "type": "string",
+      "default": ""
+    },
+    "cursorFollowerDirectionalText": {
+      "type": "boolean",
+      "default": false
+    },
+    "cursorFollowerText": {
+      "type": "string",
+      "default": "DRAG"
+    },
+    "cursorFollowerLeftText": {
+      "type": "string",
+      "default": "PREV"
+    },
+    "cursorFollowerRightText": {
+      "type": "string",
+      "default": "NEXT"
+    },
+    "cursorFollowerFontWeight": {
+      "type": "string",
+      "default": "700"
+    },
+    "cursorFollowerTextTransform": {
+      "type": "string",
+      "default": "uppercase"
+    },
+    "cursorFollowerBg": {
+      "type": "string",
+      "default": "rgba(0, 0, 0, 0.75)"
+    },
+    "cursorFollowerColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "cursorFollowerSize": {
+      "type": "object",
+      "default": {
+        "Desktop": "48",
+        "Tablet": "48",
+        "Mobile": "40"
+      }
+    },
+    "cursorFollowerInnerSize": {
+      "type": "object",
+      "default": {
+        "Desktop": "18",
+        "Tablet": "16",
+        "Mobile": "14"
+      }
+    },
     "paginationPositionType": {
       "type": "string",
       "default": "inside"
@@ -322,6 +526,22 @@
       }
     },
     "layoutHeightUnits": {
+      "type": "object",
+      "default": {
+        "Desktop": "px",
+        "Tablet": "px",
+        "Mobile": "px"
+      }
+    },
+    "verticalHeight": {
+      "type": "object",
+      "default": {
+        "Desktop": "500",
+        "Tablet": "420",
+        "Mobile": "350"
+      }
+    },
+    "verticalHeightUnits": {
       "type": "object",
       "default": {
         "Desktop": "px",
@@ -1348,6 +1568,118 @@
         "Desktop": "px",
         "Tablet": "px",
         "Mobile": "px"
+      }
+    },
+    "enableTopDivider": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
+    },
+    "topDividerShape": {
+      "type": "string",
+      "default": "wave-1"
+    },
+    "topDividerColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "topDividerHeight": {
+      "type": "object",
+      "default": {
+        "Desktop": "50",
+        "Tablet": "50",
+        "Mobile": "50"
+      }
+    },
+    "topDividerHeightUnits": {
+      "type": "object",
+      "default": {
+        "Desktop": "px",
+        "Tablet": "px",
+        "Mobile": "px"
+      }
+    },
+    "topDividerOpacity": {
+      "type": "object",
+      "default": {
+        "Desktop": 1,
+        "Tablet": 1,
+        "Mobile": 1
+      }
+    },
+    "topDividerFlip": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
+    },
+    "topDividerInvert": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
+    },
+    "enableBottomDivider": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
+    },
+    "bottomDividerShape": {
+      "type": "string",
+      "default": "wave-1"
+    },
+    "bottomDividerColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "bottomDividerHeight": {
+      "type": "object",
+      "default": {
+        "Desktop": "50",
+        "Tablet": "50",
+        "Mobile": "50"
+      }
+    },
+    "bottomDividerHeightUnits": {
+      "type": "object",
+      "default": {
+        "Desktop": "px",
+        "Tablet": "px",
+        "Mobile": "px"
+      }
+    },
+    "bottomDividerOpacity": {
+      "type": "object",
+      "default": {
+        "Desktop": 1,
+        "Tablet": 1,
+        "Mobile": 1
+      }
+    },
+    "bottomDividerFlip": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
+      }
+    },
+    "bottomDividerInvert": {
+      "type": "object",
+      "default": {
+        "Desktop": false,
+        "Tablet": false,
+        "Mobile": false
       }
     },
     "globalMarginUnits": {

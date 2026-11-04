@@ -22,6 +22,7 @@ import {
 	SLIDER_EFFECT_OPTIONS,
 	CAROUSEL_EFFECT_OPTIONS,
 	SLIDER_TYPE,
+	SLIDER_DIRECTION,
 	PAGINATION_TYPE,
 	NORMAL_ACTIVE,
 	NAVIGATION_ARROW_POSITION_TYPE,
@@ -29,6 +30,10 @@ import {
 	NAVIGATION_ARROW_DIRECTION,
 	LAYOUT_HEIGHT_SWITCHER,
 	PAGINATION_POSITION_TYPE,
+	AUTOPLAY_PROGRESS_POSITION,
+	SHAPE_DIVIDER_OPTIONS,
+	FONT_WEIGHT,
+	TEXT_TRANSFORM,
 } from '@Constants';
 
 import './editor.scss';
@@ -48,6 +53,11 @@ import InputControls from '@Components/input-control';
 import SelectControls from '@Components/select-controls';
 import IconPicker from '@Components/icon-picker';
 import ResponsiveToggleControl from '@Components/responsive-toggle-control';
+import {
+	SHAPE_DIVIDER_POSITION,
+	SHAPE_DIVIDER_HEIGHT_BOUNDS,
+	SHAPE_DIVIDER_HEIGHT_FALLBACK,
+} from '@Constants/shapeDividers';
 
 const Inspector = ( { attributes, setAttributes } ) => {
 	const {
@@ -60,22 +70,51 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		speed,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
+		autoplayProgressPosition,
+		autoplayProgressColor,
+		autoplayProgressHeight,
 		infiniteLoop,
 		allowTouchMove,
 		pauseOnHover,
 		stopOnLastSlide,
 		reverseDirection,
+		direction,
 		slideEffect,
 		carouselEffect,
 		mousewheelControl,
 		keyboardNavigation,
+		enableHashNavigation,
 		paginationType,
 		dynamicBullets,
+		enableContinuousMarquee,
+		marqueeSpeed,
+		marqueePauseOnHover,
 
 		/** Start Show/Hide Elements */
 		showNavigation,
 		showPagination,
 		enableSlideLightbox,
+		enableCursorFollower,
+		cursorFollowerType,
+		cursorFollowerLeftIcon,
+		cursorFollowerRightIcon,
+		cursorFollowerLeftImageUrl,
+		cursorFollowerLeftImageAlt,
+		cursorFollowerLeftImageID,
+		cursorFollowerRightImageUrl,
+		cursorFollowerRightImageAlt,
+		cursorFollowerRightImageID,
+		cursorFollowerDirectionalText,
+		cursorFollowerText,
+		cursorFollowerLeftText,
+		cursorFollowerRightText,
+		cursorFollowerFontWeight,
+		cursorFollowerTextTransform,
+		cursorFollowerBg,
+		cursorFollowerColor,
+		cursorFollowerSize,
+		cursorFollowerInnerSize,
 		paginationPositionType,
 		/** End Show/Hide Elements */
 
@@ -83,6 +122,8 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		layoutHeightSwitcher,
 		layoutHeight,
 		layoutHeightUnits,
+		verticalHeight,
+		verticalHeightUnits,
 		contentWidth,
 		contentWidthUnits,
 		contentAlignment,
@@ -412,6 +453,25 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		globalBoxShadowHoverValues,
 		globalBoxShadowHoverCssValue,
 		/** End Global Box Shadow */
+
+		/** Start Shape Dividers */
+		enableTopDivider,
+		topDividerShape,
+		topDividerColor,
+		topDividerHeight,
+		topDividerHeightUnits,
+		topDividerOpacity,
+		topDividerFlip,
+		topDividerInvert,
+		enableBottomDivider,
+		bottomDividerShape,
+		bottomDividerColor,
+		bottomDividerHeight,
+		bottomDividerHeightUnits,
+		bottomDividerOpacity,
+		bottomDividerFlip,
+		bottomDividerInvert,
+		/** End Shape Dividers */
 	} = attributes;
 
 	/** Get Current Device Type */
@@ -429,6 +489,9 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	};
 
 	const [ openPanels, setOpenPanels ] = useState( defaultOpenPanels );
+
+	// UI only: which divider the Shape Dividers panel shows, not saved.
+	const [ shapeDividerPosition, setShapeDividerPosition ] = useState( 'top' );
 
 	const togglePanel = useCallback( ( tabName, panelKey ) => {
 		setOpenPanels( ( prev ) => ( {
@@ -495,6 +558,15 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	};
 	/** End Navigation Custom Arrows */
 
+	/** Cursor Follower Icons */
+	const cursorFollowerLeftIconHandler = ( IconName ) => {
+		setAttributes( { cursorFollowerLeftIcon: IconName } );
+	};
+	const cursorFollowerRightIconHandler = ( IconName ) => {
+		setAttributes( { cursorFollowerRightIcon: IconName } );
+	};
+	/** End Cursor Follower Icons */
+
 	/**
 	 * Inspector General Controls
 	 */
@@ -534,6 +606,28 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					deviceType={ deviceType }
 					setAttributes={ setAttributes }
 				/>
+				<ResponsiveToggleControl
+					label={ __( 'Cursor Follower', 'gslider-blocks' ) }
+					toggleValue={ enableCursorFollower }
+					setToggleValue={ ( value ) =>
+						setAttributes( { enableCursorFollower: value } )
+					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
+				/>
+				{ Object.values( enableCursorFollower || {} ).some(
+					Boolean
+				) && (
+					<p
+						className="components-base-control__help"
+						style={ { marginTop: '-8px', marginBottom: '12px' } }
+					>
+						{ __(
+							'Active on the frontend for site visitors.',
+							'gslider-blocks'
+						) }
+					</p>
+				) }
 			</PanelBody>
 			<PanelBody
 				title={ __( 'Layout & Content Setting', 'gslider-blocks' ) }
@@ -543,39 +637,93 @@ const Inspector = ( { attributes, setAttributes } ) => {
 				}
 			>
 				<SwitcherControl
-					label={ __( 'Layout Height Switcher', 'gslider-blocks' ) }
-					options={ LAYOUT_HEIGHT_SWITCHER }
-					value={ layoutHeightSwitcher }
+					label={ __( 'Slider Direction', 'gslider-blocks' ) }
+					options={ SLIDER_DIRECTION }
+					value={ direction }
 					onChange={ ( value ) =>
-						setAttributes( { layoutHeightSwitcher: value } )
+						setAttributes( { direction: value } )
 					}
 				/>
 
-				{ layoutHeightSwitcher === 'fixed' && (
-					<ResponsiveRangeControl
-						label={ __( 'Minimum Height', 'gslider-blocks' ) }
-						rangeValue={ layoutHeight }
-						onChangeValue={ ( value ) =>
-							setAttributes( { layoutHeight: value } )
-						}
-						onUnitChange={ ( value ) =>
-							setAttributes( { layoutHeightUnits: value } )
-						}
-						deviceType={ deviceType }
-						units={ layoutHeightUnits }
-						resetFallbackValue={ {
-							px: '350',
-							'%': '50',
-							vh: '50',
-							vw: '50',
-							em: '20',
-							rem: '20',
-						} }
-					/>
-				) }
+				{ direction === 'vertical' ? (
+					<>
+						<ResponsiveRangeControl
+							label={ __( 'Slider Height', 'gslider-blocks' ) }
+							rangeValue={ verticalHeight }
+							onChangeValue={ ( value ) =>
+								setAttributes( { verticalHeight: value } )
+							}
+							onUnitChange={ ( value ) =>
+								setAttributes( { verticalHeightUnits: value } )
+							}
+							deviceType={ deviceType }
+							units={ verticalHeightUnits }
+							resetFallbackValue={ {
+								px: '500',
+								vh: '60',
+								em: '25',
+								rem: '25',
+							} }
+						/>
 
-				{ layoutHeightSwitcher === 'adapt' && (
-					<p>Slides adapt their height to the inside content.</p>
+						<p>
+							{ __(
+								'Vertical sliders always use this fixed height. Use px or vh, a percent height is ignored.',
+								'gslider-blocks'
+							) }
+						</p>
+					</>
+				) : (
+					<>
+						<SwitcherControl
+							label={ __(
+								'Layout Height Switcher',
+								'gslider-blocks'
+							) }
+							options={ LAYOUT_HEIGHT_SWITCHER }
+							value={ layoutHeightSwitcher }
+							onChange={ ( value ) =>
+								setAttributes( { layoutHeightSwitcher: value } )
+							}
+						/>
+
+						{ layoutHeightSwitcher === 'fixed' && (
+							<ResponsiveRangeControl
+								label={ __(
+									'Minimum Height',
+									'gslider-blocks'
+								) }
+								rangeValue={ layoutHeight }
+								onChangeValue={ ( value ) =>
+									setAttributes( { layoutHeight: value } )
+								}
+								onUnitChange={ ( value ) =>
+									setAttributes( {
+										layoutHeightUnits: value,
+									} )
+								}
+								deviceType={ deviceType }
+								units={ layoutHeightUnits }
+								resetFallbackValue={ {
+									px: '350',
+									'%': '50',
+									vh: '50',
+									vw: '50',
+									em: '20',
+									rem: '20',
+								} }
+							/>
+						) }
+
+						{ layoutHeightSwitcher === 'adapt' && (
+							<p>
+								{ __(
+									'Slides adapt their height to the inside content.',
+									'gslider-blocks'
+								) }
+							</p>
+						) }
+					</>
 				) }
 
 				<ResponsiveRangeControl
@@ -601,7 +749,8 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					} }
 				/>
 
-				{ layoutHeightSwitcher !== 'adapt' && (
+				{ ( layoutHeightSwitcher !== 'adapt' ||
+					direction === 'vertical' ) && (
 					<ResponsiveAlignmentControl
 						label={ __( 'Vertical Alignment', 'gslider-blocks' ) }
 						options={ VERTICAL_ALIGN }
@@ -719,6 +868,17 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					}
 				/>
 				<ToggleControl
+					label={ __( 'URL Hash Navigation', 'gslider-blocks' ) }
+					help={ __(
+						'Slides get a numbered hash. Set a slug on a slide for a fixed link, e.g. #pricing. Turn it on for one slider per page.',
+						'gslider-blocks'
+					) }
+					checked={ enableHashNavigation }
+					onChange={ ( value ) =>
+						setAttributes( { enableHashNavigation: value } )
+					}
+				/>
+				<ToggleControl
 					label={ __( 'Autoplay', 'gslider-blocks' ) }
 					checked={ autoplay }
 					onChange={ ( value ) =>
@@ -740,6 +900,70 @@ const Inspector = ( { attributes, setAttributes } ) => {
 						isRangeUnit={ false }
 					/>
 				) }
+				{ autoplay && (
+					<ResponsiveToggleControl
+						label={ __(
+							'Autoplay Progress Bar',
+							'gslider-blocks'
+						) }
+						toggleValue={ enableAutoplayProgress }
+						setToggleValue={ ( value ) =>
+							setAttributes( { enableAutoplayProgress: value } )
+						}
+						deviceType={ deviceType }
+						setAttributes={ setAttributes }
+					/>
+				) }
+				{ autoplay &&
+					Object.values( enableAutoplayProgress || {} ).some(
+						Boolean
+					) && (
+						<>
+							<SwitcherControl
+								label={ __(
+									'Progress Position',
+									'gslider-blocks'
+								) }
+								options={ AUTOPLAY_PROGRESS_POSITION }
+								value={ autoplayProgressPosition }
+								onChange={ ( value ) =>
+									setAttributes( {
+										autoplayProgressPosition: value,
+									} )
+								}
+							/>
+							<ColorControl
+								label={ __(
+									'Progress Color',
+									'gslider-blocks'
+								) }
+								color={ autoplayProgressColor }
+								onChangeColor={ ( value ) =>
+									setAttributes( {
+										autoplayProgressColor: value,
+									} )
+								}
+								defaultColor="#007cba"
+							/>
+							<ResponsiveRangeControl
+								min={ 1 }
+								max={ 20 }
+								label={ __(
+									'Progress Height (px)',
+									'gslider-blocks'
+								) }
+								rangeValue={ autoplayProgressHeight }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										autoplayProgressHeight: value,
+									} )
+								}
+								deviceType={ deviceType }
+								resetFallbackValue={ '3' }
+								isRangeUnit={ false }
+							/>
+						</>
+					) }
 
 				<ResponsiveRangeControl
 					min={ 100 }
@@ -754,6 +978,47 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					resetFallbackValue={ '800' }
 					isRangeUnit={ false }
 				/>
+				<ResponsiveToggleControl
+					label={ __( 'Continuous Marquee Mode', 'gslider-blocks' ) }
+					toggleValue={ enableContinuousMarquee }
+					setToggleValue={ ( value ) =>
+						setAttributes( { enableContinuousMarquee: value } )
+					}
+					deviceType={ deviceType }
+					setAttributes={ setAttributes }
+				/>
+				{ enableContinuousMarquee?.[ deviceType ] && (
+					<>
+						<ResponsiveRangeControl
+							min={ 1000 }
+							max={ 15000 }
+							label={ __(
+								'Marquee Speed (ms)',
+								'gslider-blocks'
+							) }
+							rangeValue={ marqueeSpeed }
+							onChangeValue={ ( value ) =>
+								setAttributes( { marqueeSpeed: value } )
+							}
+							deviceType={ deviceType }
+							step={ 500 }
+							resetFallbackValue={ '5000' }
+							isRangeUnit={ false }
+						/>
+						<ResponsiveToggleControl
+							label={ __(
+								'Marquee Pause on Hover',
+								'gslider-blocks'
+							) }
+							toggleValue={ marqueePauseOnHover }
+							setToggleValue={ ( value ) =>
+								setAttributes( { marqueePauseOnHover: value } )
+							}
+							deviceType={ deviceType }
+							setAttributes={ setAttributes }
+						/>
+					</>
+				) }
 			</PanelBody>
 			{ sliderType === 'carousel' && (
 				<PanelBody
@@ -2870,6 +3135,530 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					) }
 				</PanelBody>
 			) }
+
+			{ Object.values( enableCursorFollower || {} ).some( Boolean ) && (
+				<PanelBody
+					title={ __( 'Cursor Follower', 'gslider-blocks' ) }
+					opened={ openPanels.styles === 'cursor-follower' }
+					onToggle={ () =>
+						togglePanel( 'styles', 'cursor-follower' )
+					}
+				>
+					<p
+						className="components-base-control__help"
+						style={ { marginTop: 0, marginBottom: '16px' } }
+					>
+						{ __(
+							'Visible on the frontend to keep the editor smooth for content editing.',
+							'gslider-blocks'
+						) }
+					</p>
+					<SwitcherControl
+						label={ __( 'Type', 'gslider-blocks' ) }
+						options={ [
+							{
+								label: __( 'Icon', 'gslider-blocks' ),
+								value: 'icon',
+							},
+							{
+								label: __( 'Image', 'gslider-blocks' ),
+								value: 'image',
+							},
+							{
+								label: __( 'Text', 'gslider-blocks' ),
+								value: 'text',
+							},
+						] }
+						value={ cursorFollowerType || 'icon' }
+						onChange={ ( value ) =>
+							setAttributes( { cursorFollowerType: value } )
+						}
+					/>
+
+					{ ( ! cursorFollowerType ||
+						cursorFollowerType === 'icon' ) && (
+						<>
+							<BaseControl>
+								<p className="components-base-control__label">
+									{ __( 'Left Icon', 'gslider-blocks' ) }
+								</p>
+								<IconPicker
+									value={ cursorFollowerLeftIcon }
+									setIconHandler={
+										cursorFollowerLeftIconHandler
+									}
+								/>
+							</BaseControl>
+							<BaseControl>
+								<p className="components-base-control__label">
+									{ __( 'Right Icon', 'gslider-blocks' ) }
+								</p>
+								<IconPicker
+									value={ cursorFollowerRightIcon }
+									setIconHandler={
+										cursorFollowerRightIconHandler
+									}
+								/>
+							</BaseControl>
+							<ResponsiveRangeControl
+								min={ 12 }
+								max={ 48 }
+								label={ __( 'Icon Size', 'gslider-blocks' ) }
+								rangeValue={ cursorFollowerInnerSize }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										cursorFollowerInnerSize: value,
+									} )
+								}
+								deviceType={ deviceType }
+								step={ 1 }
+								resetFallbackValue="18"
+								isRangeUnit={ false }
+							/>
+						</>
+					) }
+
+					{ cursorFollowerType === 'image' && (
+						<>
+							<BaseControl>
+								<p className="components-base-control__label">
+									{ __( 'Left Image', 'gslider-blocks' ) }
+								</p>
+								<ImageControl
+									imageUrl={ cursorFollowerLeftImageUrl }
+									setImageUrl={ ( value ) =>
+										setAttributes( {
+											cursorFollowerLeftImageUrl: value,
+										} )
+									}
+									imageAlt={ cursorFollowerLeftImageAlt }
+									setImageAlt={ ( value ) =>
+										setAttributes( {
+											cursorFollowerLeftImageAlt: value,
+										} )
+									}
+									imageID={ cursorFollowerLeftImageID }
+									setImageID={ ( value ) =>
+										setAttributes( {
+											cursorFollowerLeftImageID: value,
+										} )
+									}
+									isImageSize={ false }
+								/>
+							</BaseControl>
+							<BaseControl>
+								<p className="components-base-control__label">
+									{ __( 'Right Image', 'gslider-blocks' ) }
+								</p>
+								<ImageControl
+									imageUrl={ cursorFollowerRightImageUrl }
+									setImageUrl={ ( value ) =>
+										setAttributes( {
+											cursorFollowerRightImageUrl: value,
+										} )
+									}
+									imageAlt={ cursorFollowerRightImageAlt }
+									setImageAlt={ ( value ) =>
+										setAttributes( {
+											cursorFollowerRightImageAlt: value,
+										} )
+									}
+									imageID={ cursorFollowerRightImageID }
+									setImageID={ ( value ) =>
+										setAttributes( {
+											cursorFollowerRightImageID: value,
+										} )
+									}
+									isImageSize={ false }
+								/>
+							</BaseControl>
+							<ResponsiveRangeControl
+								min={ 12 }
+								max={ 50 }
+								label={ __( 'Image Size', 'gslider-blocks' ) }
+								rangeValue={ cursorFollowerInnerSize }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										cursorFollowerInnerSize: value,
+									} )
+								}
+								deviceType={ deviceType }
+								step={ 1 }
+								resetFallbackValue="24"
+								isRangeUnit={ false }
+							/>
+						</>
+					) }
+
+					{ cursorFollowerType === 'text' && (
+						<>
+							<ToggleControl
+								label={ __(
+									'Directional Text',
+									'gslider-blocks'
+								) }
+								help={
+									cursorFollowerDirectionalText
+										? __(
+												'Shows separate text for left and right halves.',
+												'gslider-blocks'
+										  )
+										: __(
+												'Shows static text across the whole slider.',
+												'gslider-blocks'
+										  )
+								}
+								checked={ cursorFollowerDirectionalText }
+								onChange={ ( value ) =>
+									setAttributes( {
+										cursorFollowerDirectionalText: value,
+									} )
+								}
+							/>
+							{ cursorFollowerDirectionalText ? (
+								<>
+									<InputControls
+										label={ __(
+											'Left Text',
+											'gslider-blocks'
+										) }
+										value={ cursorFollowerLeftText }
+										onChangeValue={ ( value ) =>
+											setAttributes( {
+												cursorFollowerLeftText: value,
+											} )
+										}
+									/>
+									<InputControls
+										label={ __(
+											'Right Text',
+											'gslider-blocks'
+										) }
+										value={ cursorFollowerRightText }
+										onChangeValue={ ( value ) =>
+											setAttributes( {
+												cursorFollowerRightText: value,
+											} )
+										}
+									/>
+								</>
+							) : (
+								<InputControls
+									label={ __( 'Text', 'gslider-blocks' ) }
+									value={ cursorFollowerText }
+									onChangeValue={ ( value ) =>
+										setAttributes( {
+											cursorFollowerText: value,
+										} )
+									}
+								/>
+							) }
+							<ResponsiveRangeControl
+								min={ 10 }
+								max={ 28 }
+								label={ __( 'Font Size', 'gslider-blocks' ) }
+								rangeValue={ cursorFollowerInnerSize }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										cursorFollowerInnerSize: value,
+									} )
+								}
+								deviceType={ deviceType }
+								step={ 1 }
+								resetFallbackValue="13"
+								isRangeUnit={ false }
+							/>
+							<SelectControls
+								label={ __( 'Font Weight', 'gslider-blocks' ) }
+								options={ FONT_WEIGHT }
+								value={ cursorFollowerFontWeight }
+								onChange={ ( value ) =>
+									setAttributes( {
+										cursorFollowerFontWeight: value,
+									} )
+								}
+							/>
+							<SelectControls
+								label={ __( 'Transform', 'gslider-blocks' ) }
+								options={ TEXT_TRANSFORM }
+								value={ cursorFollowerTextTransform }
+								onChange={ ( value ) =>
+									setAttributes( {
+										cursorFollowerTextTransform: value,
+									} )
+								}
+							/>
+						</>
+					) }
+
+					<ResponsiveRangeControl
+						min={ 32 }
+						max={ 100 }
+						label={ __( 'Follower Size', 'gslider-blocks' ) }
+						rangeValue={ cursorFollowerSize }
+						onChangeValue={ ( value ) =>
+							setAttributes( { cursorFollowerSize: value } )
+						}
+						deviceType={ deviceType }
+						step={ 1 }
+						resetFallbackValue="48"
+						isRangeUnit={ false }
+					/>
+
+					<ColorControl
+						label={ __( 'Background', 'gslider-blocks' ) }
+						color={ cursorFollowerBg }
+						onChangeColor={ ( value ) =>
+							setAttributes( { cursorFollowerBg: value } )
+						}
+						defaultColor="rgba(0, 0, 0, 0.75)"
+					/>
+					<ColorControl
+						label={ __( 'Color', 'gslider-blocks' ) }
+						color={ cursorFollowerColor }
+						onChangeColor={ ( value ) =>
+							setAttributes( { cursorFollowerColor: value } )
+						}
+						defaultColor="#ffffff"
+					/>
+				</PanelBody>
+			) }
+
+			<PanelBody
+				title={ __( 'Shape Dividers', 'gslider-blocks' ) }
+				opened={ openPanels.styles === 'shape-dividers' }
+				onToggle={ () => togglePanel( 'styles', 'shape-dividers' ) }
+			>
+				<SwitcherControl
+					options={ SHAPE_DIVIDER_POSITION }
+					value={ shapeDividerPosition }
+					onChange={ setShapeDividerPosition }
+				/>
+				{ shapeDividerPosition === 'top' && (
+					<>
+						<ResponsiveToggleControl
+							label={ __(
+								'Top Shape Divider',
+								'gslider-blocks'
+							) }
+							toggleValue={ enableTopDivider }
+							setToggleValue={ ( value ) =>
+								setAttributes( { enableTopDivider: value } )
+							}
+							deviceType={ deviceType }
+							setAttributes={ setAttributes }
+						/>
+						{ enableTopDivider?.[ deviceType ] && (
+							<>
+								<SelectControls
+									label={ __(
+										'Divider Shape',
+										'gslider-blocks'
+									) }
+									options={ SHAPE_DIVIDER_OPTIONS }
+									value={ topDividerShape }
+									onChange={ ( value ) =>
+										setAttributes( {
+											topDividerShape: value,
+										} )
+									}
+								/>
+								<ColorControl
+									label={ __(
+										'Divider Color',
+										'gslider-blocks'
+									) }
+									color={ topDividerColor }
+									onChangeColor={ ( value ) =>
+										setAttributes( {
+											topDividerColor: value,
+										} )
+									}
+									defaultColor="#ffffff"
+								/>
+								<ResponsiveRangeControl
+									label={ __(
+										'Divider Height',
+										'gslider-blocks'
+									) }
+									rangeValue={ topDividerHeight }
+									onChangeValue={ ( value ) =>
+										setAttributes( {
+											topDividerHeight: value,
+										} )
+									}
+									onUnitChange={ ( value ) =>
+										setAttributes( {
+											topDividerHeightUnits: value,
+										} )
+									}
+									deviceType={ deviceType }
+									units={ topDividerHeightUnits }
+									unitBounds={ SHAPE_DIVIDER_HEIGHT_BOUNDS }
+									resetFallbackValue={
+										SHAPE_DIVIDER_HEIGHT_FALLBACK
+									}
+								/>
+								<ResponsiveRangeControl
+									min={ 0 }
+									max={ 1 }
+									step={ 0.05 }
+									label={ __( 'Opacity', 'gslider-blocks' ) }
+									rangeValue={ topDividerOpacity }
+									onChangeValue={ ( value ) =>
+										setAttributes( {
+											topDividerOpacity: value,
+										} )
+									}
+									deviceType={ deviceType }
+									resetFallbackValue={ '1' }
+									isRangeUnit={ false }
+								/>
+								<ResponsiveToggleControl
+									label={ __(
+										'Flip Horizontally',
+										'gslider-blocks'
+									) }
+									toggleValue={ topDividerFlip }
+									setToggleValue={ ( value ) =>
+										setAttributes( {
+											topDividerFlip: value,
+										} )
+									}
+									deviceType={ deviceType }
+									setAttributes={ setAttributes }
+								/>
+								<ResponsiveToggleControl
+									label={ __(
+										'Invert Vertically',
+										'gslider-blocks'
+									) }
+									toggleValue={ topDividerInvert }
+									setToggleValue={ ( value ) =>
+										setAttributes( {
+											topDividerInvert: value,
+										} )
+									}
+									deviceType={ deviceType }
+									setAttributes={ setAttributes }
+								/>
+							</>
+						) }
+					</>
+				) }
+				{ shapeDividerPosition === 'bottom' && (
+					<>
+						<ResponsiveToggleControl
+							label={ __(
+								'Bottom Shape Divider',
+								'gslider-blocks'
+							) }
+							toggleValue={ enableBottomDivider }
+							setToggleValue={ ( value ) =>
+								setAttributes( { enableBottomDivider: value } )
+							}
+							deviceType={ deviceType }
+							setAttributes={ setAttributes }
+						/>
+						{ enableBottomDivider?.[ deviceType ] && (
+							<>
+								<SelectControls
+									label={ __(
+										'Divider Shape',
+										'gslider-blocks'
+									) }
+									options={ SHAPE_DIVIDER_OPTIONS }
+									value={ bottomDividerShape }
+									onChange={ ( value ) =>
+										setAttributes( {
+											bottomDividerShape: value,
+										} )
+									}
+								/>
+								<ColorControl
+									label={ __(
+										'Divider Color',
+										'gslider-blocks'
+									) }
+									color={ bottomDividerColor }
+									onChangeColor={ ( value ) =>
+										setAttributes( {
+											bottomDividerColor: value,
+										} )
+									}
+									defaultColor="#ffffff"
+								/>
+								<ResponsiveRangeControl
+									label={ __(
+										'Divider Height',
+										'gslider-blocks'
+									) }
+									rangeValue={ bottomDividerHeight }
+									onChangeValue={ ( value ) =>
+										setAttributes( {
+											bottomDividerHeight: value,
+										} )
+									}
+									onUnitChange={ ( value ) =>
+										setAttributes( {
+											bottomDividerHeightUnits: value,
+										} )
+									}
+									deviceType={ deviceType }
+									units={ bottomDividerHeightUnits }
+									unitBounds={ SHAPE_DIVIDER_HEIGHT_BOUNDS }
+									resetFallbackValue={
+										SHAPE_DIVIDER_HEIGHT_FALLBACK
+									}
+								/>
+								<ResponsiveRangeControl
+									min={ 0 }
+									max={ 1 }
+									step={ 0.05 }
+									label={ __( 'Opacity', 'gslider-blocks' ) }
+									rangeValue={ bottomDividerOpacity }
+									onChangeValue={ ( value ) =>
+										setAttributes( {
+											bottomDividerOpacity: value,
+										} )
+									}
+									deviceType={ deviceType }
+									resetFallbackValue={ '1' }
+									isRangeUnit={ false }
+								/>
+								<ResponsiveToggleControl
+									label={ __(
+										'Flip Horizontally',
+										'gslider-blocks'
+									) }
+									toggleValue={ bottomDividerFlip }
+									setToggleValue={ ( value ) =>
+										setAttributes( {
+											bottomDividerFlip: value,
+										} )
+									}
+									deviceType={ deviceType }
+									setAttributes={ setAttributes }
+								/>
+								<ResponsiveToggleControl
+									label={ __(
+										'Invert Vertically',
+										'gslider-blocks'
+									) }
+									toggleValue={ bottomDividerInvert }
+									setToggleValue={ ( value ) =>
+										setAttributes( {
+											bottomDividerInvert: value,
+										} )
+									}
+									deviceType={ deviceType }
+									setAttributes={ setAttributes }
+								/>
+							</>
+						) }
+					</>
+				) }
+			</PanelBody>
 		</>
 	);
 

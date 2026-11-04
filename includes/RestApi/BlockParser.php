@@ -54,9 +54,11 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			'allowTouchMove',
 			'mousewheelControl',
 			'keyboardNavigation',
+			'enableHashNavigation',
 			'pauseOnHover',
 			'stopOnLastSlide',
 			'reverseDirection',
+			'direction',
 			'layoutHeightSwitcher',
 		];
 
@@ -451,6 +453,14 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				],
 			];
 
+			// Same as save.js, only added when on so other blocks keep the same config
+			if ( ! empty( $attrs['enableHashNavigation'] ) ) {
+				$config['hashNavigation'] = [
+					'watchState'   => true,
+					'replaceState' => true,
+				];
+			}
+
 			if ( $autoplay ) {
 				$config['autoplay'] = [
 					'pauseOnMouseEnter'    => ! empty( $attrs['pauseOnHover'] ),
@@ -462,6 +472,8 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				$config['autoplay'] = false;
 			}
 
+			$is_vertical = 'vertical' === ( $attrs['direction'] ?? 'horizontal' );
+
 			if ( $uses_slider_type && 'creative' === $slide_effect ) {
 				$config['creativeEffect'] = [
 					'prev' => [
@@ -469,12 +481,17 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 						'translate' => [ 0, 0, -400 ],
 					],
 					'next' => [
-						'translate' => [ '100%', 0, 0 ],
+						'translate' => $is_vertical ? [ 0, '100%', 0 ] : [ '100%', 0, 0 ],
 					],
 				];
 			}
 
-			if ( isset( $attrs['layoutHeightSwitcher'] ) && 'adapt' === $attrs['layoutHeightSwitcher'] ) {
+			if ( $is_vertical ) {
+				$config['direction'] = 'vertical';
+			}
+
+			// Vertical slides use the fixed height, autoHeight does not work with it.
+			if ( ! $is_vertical && isset( $attrs['layoutHeightSwitcher'] ) && 'adapt' === $attrs['layoutHeightSwitcher'] ) {
 				$config['autoHeight'] = true;
 			}
 
@@ -720,6 +737,7 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				$slides[] = [
 					'id'          => $slide_id,
 					'blockName'   => $inner_name,
+					'slideHash'   => isset( $inner_attrs['slideHash'] ) ? sanitize_key( $inner_attrs['slideHash'] ) : '',
 					'innerHtml'   => $inner_html,
 					'css'         => self::collect_inner_block_styles( $inner_block ),
 					'innerBlocks' => $inner_block['innerBlocks'] ?? [],

@@ -41,6 +41,55 @@ const getResponsiveOutsideOffset = ( offsetObj, unitObj, devices ) => {
 	return '30px';
 };
 
+const getShapeDividerCss = ( blockId, position, divider, device ) => {
+	const { enable, color, height, heightUnits, opacity, flip, invert } =
+		divider;
+	const selector = `.${ blockId } > .swiper > .gslider-shape-divider-${ position }`;
+
+	// No markup is saved when every device is off, so skip the CSS too.
+	if ( ! enable?.Desktop && ! enable?.Tablet && ! enable?.Mobile ) {
+		return '';
+	}
+
+	if ( ! enable?.[ device ] ) {
+		return `${ selector } { display: none; }`;
+	}
+
+	const scaleX = flip?.[ device ] ? -1 : 1;
+	const isInverted = !! invert?.[ device ];
+	// Bottom divider is the top shape flipped vertically only, so Flip means the same on both edges.
+	const scaleY = ( isInverted ? -1 : 1 ) * ( position === 'bottom' ? -1 : 1 );
+	const opacityValue = opacity?.[ device ];
+
+	return `
+		${ selector } {
+			display: block;
+			transform: scale(${ scaleX }, ${ scaleY });
+			${
+				height?.[ device ]
+					? `height: ${ height[ device ] }${
+							heightUnits?.[ device ] || 'px'
+					  };`
+					: ''
+			}
+			${
+				opacityValue !== undefined && opacityValue !== ''
+					? `opacity: ${ opacityValue };`
+					: ''
+			}
+		}
+		${ selector } path {
+			fill: ${ color || '#ffffff' };
+		}
+		${ selector } .gslider-shape-divider-fill {
+			display: ${ isInverted ? 'none' : 'inline' };
+		}
+		${ selector } .gslider-shape-divider-fill-invert {
+			display: ${ isInverted ? 'inline' : 'none' };
+		}
+	`;
+};
+
 const getHasPaginationCss = (
 	blockId,
 	showPagination,
@@ -60,6 +109,74 @@ const getHasPaginationCss = (
 	return '';
 };
 
+const getCursorFollowerSizeCss = ( blockId, enabled, size, innerSize ) => {
+	if ( ! enabled ) {
+		return '';
+	}
+	let css = '';
+	if ( size ) {
+		css += `.${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${ size }px; height: ${ size }px; }`;
+	}
+	if ( innerSize ) {
+		css += `
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-icon svg { width: ${ innerSize }px; height: ${ innerSize }px; }
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-image { width: ${ innerSize }px; height: ${ innerSize }px; }
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-text { font-size: ${ innerSize }px; }
+        `;
+	}
+	return css;
+};
+
+/**
+ * Autoplay progress bar color, height and per device visibility.
+ */
+const getAutoplayProgressCss = ( blockId, enabled, color, height ) => {
+	const deviceRule = ( device ) => `
+        .${ blockId } > .swiper > .gslider-autoplay-progress {
+            ${
+				enabled?.[ device ]
+					? `display: block; height: ${ height?.[ device ] ?? 3 }px;`
+					: 'display: none;'
+			}
+        }
+    `;
+
+	return `
+        .${ blockId } > .swiper > .gslider-autoplay-progress {
+            position: absolute;
+            left: 0;
+            z-index: 10;
+            width: 100%;
+            pointer-events: none;
+        }
+        .${ blockId } > .swiper > .gslider-autoplay-progress.top {
+            top: 0;
+        }
+        .${ blockId } > .swiper > .gslider-autoplay-progress.bottom {
+            bottom: 0;
+        }
+        .${ blockId } > .swiper > .gslider-autoplay-progress > .gslider-autoplay-progress-fill {
+            width: 100%;
+            height: 100%;
+            transform: scaleX(0);
+            transform-origin: left;
+            ${ color ? `background-color: ${ color };` : '' }
+        }
+        ${ deviceRule( 'Desktop' ) }
+        @media only screen and (max-width: 1024px) {
+            ${ deviceRule( 'Tablet' ) }
+        }
+        @media only screen and (max-width: 767px) {
+            ${ deviceRule( 'Mobile' ) }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .${ blockId } > .swiper > .gslider-autoplay-progress {
+                display: none;
+            }
+        }
+    `;
+};
+
 /**
  * Generate block styles from attributes
  * @param {Object} attributes - Block attributes
@@ -76,6 +193,9 @@ const generateFlexiContentStyle = ( attributes ) => {
 		speed,
 		autoplay,
 		autoplayDelay,
+		enableAutoplayProgress,
+		autoplayProgressColor,
+		autoplayProgressHeight,
 		infiniteLoop,
 		allowTouchMove,
 		pauseOnHover,
@@ -98,6 +218,9 @@ const generateFlexiContentStyle = ( attributes ) => {
 		layoutHeightSwitcher,
 		layoutHeight,
 		layoutHeightUnits,
+		verticalHeight,
+		verticalHeightUnits,
+		direction,
 		contentWidth,
 		contentWidthUnits,
 		contentAlignment,
@@ -427,7 +550,55 @@ const generateFlexiContentStyle = ( attributes ) => {
 		globalBoxShadowHoverValues,
 		globalBoxShadowHoverCssValue,
 		/** End Global Box Shadow */
+
+		enableCursorFollower,
+		cursorFollowerBg,
+		cursorFollowerColor,
+		cursorFollowerSize,
+		cursorFollowerInnerSize,
+		cursorFollowerFontWeight,
+		cursorFollowerTextTransform,
+		/** Start Shape Dividers */
+		enableTopDivider,
+		topDividerColor,
+		topDividerHeight,
+		topDividerHeightUnits,
+		topDividerOpacity,
+		topDividerFlip,
+		topDividerInvert,
+		enableBottomDivider,
+		bottomDividerColor,
+		bottomDividerHeight,
+		bottomDividerHeightUnits,
+		bottomDividerOpacity,
+		bottomDividerFlip,
+		bottomDividerInvert,
+		/** End Shape Dividers */
 	} = attributes;
+
+	const topDivider = {
+		enable: enableTopDivider,
+		color: topDividerColor,
+		height: topDividerHeight,
+		heightUnits: topDividerHeightUnits,
+		opacity: topDividerOpacity,
+		flip: topDividerFlip,
+		invert: topDividerInvert,
+	};
+	const bottomDivider = {
+		enable: enableBottomDivider,
+		color: bottomDividerColor,
+		height: bottomDividerHeight,
+		heightUnits: bottomDividerHeightUnits,
+		opacity: bottomDividerOpacity,
+		flip: bottomDividerFlip,
+		invert: bottomDividerInvert,
+	};
+
+	// Skip the follower rules on blocks that do not use it
+	const hasCursorFollower = Object.values( enableCursorFollower || {} ).some(
+		Boolean
+	);
 
 	/**
 	 * Get global background normal styles
@@ -624,14 +795,31 @@ const generateFlexiContentStyle = ( attributes ) => {
 			}
         }
 
+        ${
+			direction === 'vertical' &&
+			Number( verticalHeight?.Desktop || layoutHeight.Desktop ) > 0 &&
+			( verticalHeightUnits?.Desktop || layoutHeightUnits.Desktop ) !==
+				'%'
+				? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
+            height: ${ verticalHeight?.Desktop || layoutHeight.Desktop }${
+				verticalHeightUnits?.Desktop ||
+				layoutHeightUnits.Desktop ||
+				'px'
+			};
+        }`
+				: ''
+		}
+
         .${ blockId } .swiper-slide{
             ${
-				layoutHeightSwitcher !== 'adapt'
+				layoutHeightSwitcher !== 'adapt' && direction !== 'vertical'
 					? `height: auto !important;`
 					: ''
 			}
             ${
-				layoutHeight.Desktop && layoutHeightSwitcher === 'fixed'
+				layoutHeight.Desktop &&
+				layoutHeightSwitcher === 'fixed' &&
+				direction !== 'vertical'
 					? `min-height: ${ layoutHeight.Desktop }${ layoutHeightUnits.Desktop };`
 					: 'auto'
 			}
@@ -639,7 +827,7 @@ const generateFlexiContentStyle = ( attributes ) => {
         
         .${ blockId }.gslider-flexi-content-wrapper .gslider-content-wrapper {
             ${
-				layoutHeightSwitcher !== 'adapt'
+				layoutHeightSwitcher !== 'adapt' || direction === 'vertical'
 					? `height: 100% !important;`
 					: ''
 			}
@@ -1241,7 +1429,44 @@ const generateFlexiContentStyle = ( attributes ) => {
 		}
 
 
+        ${
+			hasCursorFollower
+				? `.${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower {
+            ${ cursorFollowerBg ? `background: ${ cursorFollowerBg };` : '' }
+            ${ cursorFollowerColor ? `color: ${ cursorFollowerColor };` : '' }
+        }
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-text {
+            ${
+				cursorFollowerFontWeight
+					? `font-weight: ${ cursorFollowerFontWeight };`
+					: ''
+			}
+            ${
+				cursorFollowerTextTransform &&
+				cursorFollowerTextTransform !== 'inherit'
+					? `text-transform: ${ cursorFollowerTextTransform };`
+					: ''
+			}
+        }`
+				: ''
+		}
+        ${ getCursorFollowerSizeCss(
+			blockId,
+			hasCursorFollower,
+			cursorFollowerSize?.Desktop,
+			cursorFollowerInnerSize?.Desktop
+		) }
+        ${ getShapeDividerCss( blockId, 'top', topDivider, 'Desktop' ) }
+        ${ getShapeDividerCss( blockId, 'bottom', bottomDivider, 'Desktop' ) }
+
         @media only screen and (max-width: 1024px) {
+
+            ${ getCursorFollowerSizeCss(
+				blockId,
+				hasCursorFollower,
+				cursorFollowerSize?.Tablet,
+				cursorFollowerInnerSize?.Tablet
+			) }
 
             .${ blockId }.gslider-flexi-content-wrapper {
                 ${ globalTabletBackgroundNormalStyles }
@@ -1284,14 +1509,31 @@ const generateFlexiContentStyle = ( attributes ) => {
 				}
             }
 
+            ${
+				direction === 'vertical' &&
+				Number( verticalHeight?.Tablet || layoutHeight.Tablet ) > 0 &&
+				( verticalHeightUnits?.Tablet || layoutHeightUnits.Tablet ) !==
+					'%'
+					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
+                height: ${ verticalHeight?.Tablet || layoutHeight.Tablet }${
+					verticalHeightUnits?.Tablet ||
+					layoutHeightUnits.Tablet ||
+					'px'
+				};
+            }`
+					: ''
+			}
+
             .${ blockId } .swiper-slide{
                 ${
-					layoutHeightSwitcher !== 'adapt'
+					layoutHeightSwitcher !== 'adapt' && direction !== 'vertical'
 						? `height: auto !important;`
 						: ''
 				}
                 ${
-					layoutHeight.Tablet && layoutHeightSwitcher === 'fixed'
+					layoutHeight.Tablet &&
+					layoutHeightSwitcher === 'fixed' &&
+					direction !== 'vertical'
 						? `min-height: ${ layoutHeight.Tablet }${ layoutHeightUnits.Tablet };`
 						: 'auto'
 				}
@@ -1299,7 +1541,7 @@ const generateFlexiContentStyle = ( attributes ) => {
             
             .${ blockId }.gslider-flexi-content-wrapper .gslider-content-wrapper {
                 ${
-					layoutHeightSwitcher !== 'adapt'
+					layoutHeightSwitcher !== 'adapt' || direction === 'vertical'
 						? `height: 100% !important;`
 						: ''
 				}
@@ -1687,9 +1929,23 @@ const generateFlexiContentStyle = ( attributes ) => {
             `
 					: ''
 			}
+            ${ getShapeDividerCss( blockId, 'top', topDivider, 'Tablet' ) }
+            ${ getShapeDividerCss(
+				blockId,
+				'bottom',
+				bottomDivider,
+				'Tablet'
+			) }
         }
         
         @media only screen and (max-width: 767px) {
+
+            ${ getCursorFollowerSizeCss(
+				blockId,
+				hasCursorFollower,
+				cursorFollowerSize?.Mobile,
+				cursorFollowerInnerSize?.Mobile
+			) }
 
             .${ blockId }.gslider-flexi-content-wrapper {
                 ${ globalMobileBackgroundNormalStyles }
@@ -1732,14 +1988,31 @@ const generateFlexiContentStyle = ( attributes ) => {
 				}
             }
 
+            ${
+				direction === 'vertical' &&
+				Number( verticalHeight?.Mobile || layoutHeight.Mobile ) > 0 &&
+				( verticalHeightUnits?.Mobile || layoutHeightUnits.Mobile ) !==
+					'%'
+					? `.${ blockId }.gslider-flexi-content-wrapper > .swiper {
+                height: ${ verticalHeight?.Mobile || layoutHeight.Mobile }${
+					verticalHeightUnits?.Mobile ||
+					layoutHeightUnits.Mobile ||
+					'px'
+				};
+            }`
+					: ''
+			}
+
             .${ blockId } .swiper-slide{
                 ${
-					layoutHeightSwitcher !== 'adapt'
+					layoutHeightSwitcher !== 'adapt' && direction !== 'vertical'
 						? `height: auto !important;`
 						: ''
 				}
                 ${
-					layoutHeight.Mobile && layoutHeightSwitcher === 'fixed'
+					layoutHeight.Mobile &&
+					layoutHeightSwitcher === 'fixed' &&
+					direction !== 'vertical'
 						? `min-height: ${ layoutHeight.Mobile }${ layoutHeightUnits.Mobile };`
 						: 'auto'
 				}
@@ -1747,7 +2020,7 @@ const generateFlexiContentStyle = ( attributes ) => {
             
             .${ blockId }.gslider-flexi-content-wrapper .gslider-content-wrapper {
                 ${
-					layoutHeightSwitcher !== 'adapt'
+					layoutHeightSwitcher !== 'adapt' || direction === 'vertical'
 						? `height: 100% !important;`
 						: ''
 				}
@@ -2135,11 +2408,33 @@ const generateFlexiContentStyle = ( attributes ) => {
             `
 					: ''
 			}
+            ${ getShapeDividerCss( blockId, 'top', topDivider, 'Mobile' ) }
+            ${ getShapeDividerCss(
+				blockId,
+				'bottom',
+				bottomDivider,
+				'Mobile'
+			) }
         }
     `;
 	/** End All Block Style */
 
-	return `${ flexiContentCSS }`.replace( /\s+/g, ' ' ).trim();
+	const autoplayProgressCSS =
+		autoplay &&
+		( enableAutoplayProgress?.Desktop ||
+			enableAutoplayProgress?.Tablet ||
+			enableAutoplayProgress?.Mobile )
+			? getAutoplayProgressCss(
+					blockId,
+					enableAutoplayProgress,
+					autoplayProgressColor,
+					autoplayProgressHeight
+			  )
+			: '';
+
+	return `${ flexiContentCSS }${ autoplayProgressCSS }`
+		.replace( /\s+/g, ' ' )
+		.trim();
 };
 
 export default generateFlexiContentStyle;

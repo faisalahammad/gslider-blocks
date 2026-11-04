@@ -109,6 +109,14 @@ npm run lint:js     # Lint JavaScript and React JSX
 npm run lint:css    # Lint SCSS stylesheets
 ```
 
+### 4. Translation Template
+
+Run this after adding or changing translatable strings in PHP, JS, or `block.json`. It needs [WP-CLI](https://wp-cli.org/) 2.5 or newer on your `PATH`, because older versions skip the strings in `block.json`.
+
+```bash
+npm run makepot     # Regenerate languages/gslider-blocks.pot
+```
+
 ---
 
 ## 📦 Production Release Packaging
