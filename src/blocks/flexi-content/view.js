@@ -399,7 +399,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			}
 
 			// In RTL the previous slide is on the right side
-			if ( isLeftHalf( event.clientX ) !== swiper.rtlTranslate ) {
+			if (
+				isLeftHalf( event.clientX ) !== Boolean( swiper.rtlTranslate )
+			) {
 				swiper.slidePrev();
 			} else {
 				swiper.slideNext();
