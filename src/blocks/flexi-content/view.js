@@ -3,6 +3,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const IMAGE_URL_PATTERN = /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
 	// Counter keeps gallery names unique when sliders are added later
 	let lightboxCount = 0;
+	// Same for default slide hashes, so sliders added later never reuse a hash
+	let hashSliderCount = 0;
 
 	// Privacy friendly players, the ID pattern blocks unsafe values in the iframe src
 	const EMBED_VIDEOS = {
@@ -419,6 +421,132 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			} );
 	};
 
+	/**
+	 * Add a bubble that follows the mouse over the slider.
+	 * Click on the left half goes to the previous slide, right half to the next one.
+	 *
+	 * @param {HTMLElement} sliderContainer - Slider wrapper element.
+	 * @param {HTMLElement} swiperElement   - Swiper element of this slider.
+	 * @param {Object}      swiper          - Swiper instance of this slider.
+	 */
+	const initializeCursorFollower = (
+		sliderContainer,
+		swiperElement,
+		swiper
+	) => {
+		// Touch screens have no mouse to follow, keep the normal swipe there
+		if ( window.matchMedia( '(pointer: coarse)' ).matches ) {
+			return;
+		}
+
+		const devices = sliderContainer.dataset.cursorFollower.split( ' ' );
+		// Clicks on these keep their own action, the follower hides over them
+		const interactiveSelector =
+			'a, button, input, select, textarea, label, summary, iframe, video, [role="button"], [role="link"], [role="tab"], [role="checkbox"], [role="switch"], [role="menuitem"], [role="option"], [role="slider"], [contenteditable]:not([contenteditable="false"]), .swiper-pagination';
+
+		let follower = swiperElement.querySelector(
+			':scope > .gslider-cursor-follower'
+		);
+		if ( ! follower ) {
+			follower = document.createElement( 'div' );
+			follower.className = 'gslider-cursor-follower';
+			follower.setAttribute( 'aria-hidden', 'true' );
+			swiperElement.appendChild( follower );
+		}
+
+		let pointer = null;
+		let pointerType = '';
+		let frame = 0;
+
+		// Nested sliders and buttons inside slides handle the pointer themselves
+		const isFreeArea = ( target ) =>
+			!! target &&
+			target.closest( '.swiper' ) === swiperElement &&
+			! target.closest( interactiveSelector );
+
+		const isLeftHalf = ( clientX ) => {
+			const rect = swiperElement.getBoundingClientRect();
+			return clientX - rect.left < rect.width / 2;
+		};
+
+		const render = () => {
+			frame = 0;
+			// Look up the element again, the slide under a still mouse can change
+			const active =
+				pointer &&
+				devices.includes( getCurrentDevice() ) &&
+				isFreeArea(
+					document.elementFromPoint(
+						pointer.clientX,
+						pointer.clientY
+					)
+				);
+
+			swiperElement.classList.toggle( 'gslider-cursor-active', active );
+			if ( ! active ) {
+				return;
+			}
+
+			const rect = swiperElement.getBoundingClientRect();
+			const x = pointer.clientX - rect.left;
+			follower.classList.toggle(
+				'is-left',
+				isLeftHalf( pointer.clientX ) !== Boolean( swiper.rtlTranslate )
+			);
+			follower.style.transform = `translate3d(${ x }px, ${
+				pointer.clientY - rect.top
+			}px, 0) translate(-50%, -50%)`;
+		};
+
+		const scheduleRender = () => {
+			if ( ! frame ) {
+				frame = requestAnimationFrame( render );
+			}
+		};
+
+		// Touch laptops have a fine primary pointer, so check each finger or pen too
+		swiperElement.addEventListener(
+			'pointerdown',
+			( event ) => {
+				pointerType = event.pointerType;
+			},
+			true
+		);
+
+		swiperElement.addEventListener( 'pointermove', ( event ) => {
+			pointer = event.pointerType === 'mouse' ? event : null;
+			scheduleRender();
+		} );
+
+		swiperElement.addEventListener( 'pointerleave', () => {
+			pointer = null;
+			scheduleRender();
+		} );
+
+		swiper.on( 'slideChangeTransitionEnd', scheduleRender );
+
+		swiperElement.addEventListener( 'click', ( event ) => {
+			// allowClick is false right after a drag, the drag already moved the slide
+			if (
+				pointerType !== 'mouse' ||
+				! swiper.allowClick ||
+				! devices.includes( getCurrentDevice() ) ||
+				! isFreeArea( event.target )
+			) {
+				return;
+			}
+
+			// In RTL the previous slide is on the right side
+			if (
+				isLeftHalf( event.clientX ) !== Boolean( swiper.rtlTranslate )
+			) {
+				swiper.slidePrev();
+			} else {
+				swiper.slideNext();
+			}
+		} );
+	};
+
 	const initializeSliders = () => {
 		// Select all slider containers
 		const sliders = document.querySelectorAll(
@@ -464,6 +592,23 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 				if ( swiperSettings ) {
 					const settings = JSON.parse( swiperSettings );
+
+					// Swiper writes "#null" for slides without a hash, so give them a default one
+					// The slider number keeps it unique when the page has more than one slider
+					if ( settings.hashNavigation ) {
+						const sliderNumber = ++hashSliderCount;
+						swiperElement
+							.querySelectorAll(
+								':scope > .swiper-wrapper > .swiper-slide'
+							)
+							.forEach( ( slide, index ) => {
+								if ( ! slide.dataset.hash ) {
+									slide.dataset.hash = `slider-${ sliderNumber }-slide-${
+										index + 1
+									}`;
+								}
+							} );
+					}
 
 					// Fix for fade effect: disable initial transition to prevent right-to-left glitch on page load
 					if ( settings.effect === 'fade' ) {
@@ -568,6 +713,14 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 					// Initialize Swiper with parsed settings
 					const swiper = new Swiper( swiperElement, settings );
+
+					if ( sliderContainer.dataset.cursorFollower ) {
+						initializeCursorFollower(
+							sliderContainer,
+							swiperElement,
+							swiper
+						);
+					}
 
 					const progressFill = swiperElement.querySelector(
 						':scope > .gslider-autoplay-progress > .gslider-autoplay-progress-fill'

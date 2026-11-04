@@ -263,6 +263,7 @@ Thank you to all the amazing people who contribute to GSlider Blocks!
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://pralav-singh-portfolio.vercel.app/"><img src="https://avatars.githubusercontent.com/u/174412353?v=4" width="100px;" alt="Pralav Singh"/><br /><sub><b>Pralav Singh</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/shamiulbishal"><img src="https://avatars.githubusercontent.com/u/66864143?v=4" width="100px;" alt="Shamiul Bishal"/><br /><sub><b>Shamiul Bishal</b></sub></a></td>
     </tr>
   </tbody>
 </table>
