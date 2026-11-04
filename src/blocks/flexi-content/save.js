@@ -295,10 +295,7 @@ export default function Save( { attributes } ) {
 				<div { ...innerBlocksProps } />
 
 				{ cursorFollowerDevices && (
-					<div
-						className="gslider-cursor-follower"
-						aria-hidden="true"
-					>
+					<div className="gslider-cursor-follower" aria-hidden="true">
 						{ ( ! cursorFollowerType ||
 							cursorFollowerType === 'icon' ) && (
 							<>
