@@ -109,6 +109,24 @@ const getHasPaginationCss = (
 	return '';
 };
 
+const getCursorFollowerSizeCss = ( blockId, enabled, size, innerSize ) => {
+	if ( ! enabled ) {
+		return '';
+	}
+	let css = '';
+	if ( size ) {
+		css += `.${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${ size }px; height: ${ size }px; }`;
+	}
+	if ( innerSize ) {
+		css += `
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-icon svg { width: ${ innerSize }px; height: ${ innerSize }px; }
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-image { width: ${ innerSize }px; height: ${ innerSize }px; }
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-text { font-size: ${ innerSize }px; }
+        `;
+	}
+	return css;
+};
+
 /**
  * Autoplay progress bar color, height and per device visibility.
  */
@@ -534,6 +552,13 @@ const generateFlexiContentStyle = ( attributes ) => {
 		globalBoxShadowHoverCssValue,
 		/** End Global Box Shadow */
 
+		enableCursorFollower,
+		cursorFollowerBg,
+		cursorFollowerColor,
+		cursorFollowerSize,
+		cursorFollowerInnerSize,
+		cursorFollowerFontWeight,
+		cursorFollowerTextTransform,
 		/** Start Shape Dividers */
 		enableTopDivider,
 		topDividerColor,
@@ -570,6 +595,11 @@ const generateFlexiContentStyle = ( attributes ) => {
 		flip: bottomDividerFlip,
 		invert: bottomDividerInvert,
 	};
+
+	// Skip the follower rules on blocks that do not use it
+	const hasCursorFollower = Object.values( enableCursorFollower || {} ).some(
+		Boolean
+	);
 
 	/**
 	 * Get global background normal styles
@@ -1409,10 +1439,44 @@ const generateFlexiContentStyle = ( attributes ) => {
 
 
         ${ getCardsShadowCss( 'Desktop' ) }
+        ${
+			hasCursorFollower
+				? `.${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower {
+            ${ cursorFollowerBg ? `background: ${ cursorFollowerBg };` : '' }
+            ${ cursorFollowerColor ? `color: ${ cursorFollowerColor };` : '' }
+        }
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-text {
+            ${
+				cursorFollowerFontWeight
+					? `font-weight: ${ cursorFollowerFontWeight };`
+					: ''
+			}
+            ${
+				cursorFollowerTextTransform &&
+				cursorFollowerTextTransform !== 'inherit'
+					? `text-transform: ${ cursorFollowerTextTransform };`
+					: ''
+			}
+        }`
+				: ''
+		}
+        ${ getCursorFollowerSizeCss(
+			blockId,
+			hasCursorFollower,
+			cursorFollowerSize?.Desktop,
+			cursorFollowerInnerSize?.Desktop
+		) }
         ${ getShapeDividerCss( blockId, 'top', topDivider, 'Desktop' ) }
         ${ getShapeDividerCss( blockId, 'bottom', bottomDivider, 'Desktop' ) }
 
         @media only screen and (max-width: 1024px) {
+
+            ${ getCursorFollowerSizeCss(
+				blockId,
+				hasCursorFollower,
+				cursorFollowerSize?.Tablet,
+				cursorFollowerInnerSize?.Tablet
+			) }
 
             .${ blockId }.gslider-flexi-content-wrapper {
                 ${ globalTabletBackgroundNormalStyles }
@@ -1886,6 +1950,13 @@ const generateFlexiContentStyle = ( attributes ) => {
         }
         
         @media only screen and (max-width: 767px) {
+
+            ${ getCursorFollowerSizeCss(
+				blockId,
+				hasCursorFollower,
+				cursorFollowerSize?.Mobile,
+				cursorFollowerInnerSize?.Mobile
+			) }
 
             .${ blockId }.gslider-flexi-content-wrapper {
                 ${ globalMobileBackgroundNormalStyles }
