@@ -14,7 +14,7 @@ import './editor.scss';
 /** The provider host must start the URL, so a provider name inside another URL does not match */
 const VIDEO_ID_PATTERNS = {
 	youtube:
-		/^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([\w-]{11})(?![\w-])/i,
+		/^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([\w-]{11})(?![\w-])/i,
 	/** A showcase, album, channel, group, On Demand or event ID and the private link hash are not the video ID */
 	vimeo: /^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*vimeo\.com\/(?:(?:showcase|album|channels|groups|ondemand|event)\/[^/?#]+\/|(?!(?:showcase|album|channels|groups|ondemand|event)\/|\d+\/)[^/?#]+\/)*(\d+)(?:[/?#]|$)/i,
 };
