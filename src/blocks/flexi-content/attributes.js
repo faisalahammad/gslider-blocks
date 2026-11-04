@@ -141,10 +141,6 @@ const attributes = {
 		type: 'boolean',
 		default: false,
 	},
-	enableHashNavigation: {
-		type: 'boolean',
-		default: false,
-	},
 	paginationType: {
 		type: 'string',
 		default: 'bullets',

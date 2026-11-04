@@ -26,7 +26,6 @@ export default function Save( { attributes } ) {
 		cardsSlideShadows,
 		mousewheelControl,
 		keyboardNavigation,
-		enableHashNavigation,
 		paginationType,
 		dynamicBullets,
 		enableContinuousMarquee,
@@ -273,11 +272,6 @@ export default function Save( { attributes } ) {
 					pageUpDown: false,
 			  }
 			: false,
-
-		// replaceState keeps autoplay from filling the browser history
-		...( enableHashNavigation && {
-			hashNavigation: { watchState: true, replaceState: true },
-		} ),
 
 		navigation: {
 			enabled: anyNavigationEnabled,

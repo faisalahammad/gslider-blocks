@@ -218,10 +218,6 @@ var attributes = {
     type: "boolean",
     default: false
   },
-  enableHashNavigation: {
-    type: "boolean",
-    default: false
-  },
   paginationType: {
     type: "string",
     default: "bullets"
@@ -2237,7 +2233,6 @@ function Save({ attributes: attributes2 }) {
     cardsSlideShadows,
     mousewheelControl,
     keyboardNavigation,
-    enableHashNavigation,
     paginationType,
     dynamicBullets,
     enableContinuousMarquee,
@@ -2398,10 +2393,6 @@ function Save({ attributes: attributes2 }) {
       onlyInViewport: true,
       pageUpDown: false
     } : false,
-    // replaceState keeps autoplay from filling the browser history
-    ...enableHashNavigation && {
-      hashNavigation: { watchState: true, replaceState: true }
-    },
     navigation: {
       enabled: anyNavigationEnabled,
       nextEl: ".swiper-button-next",
