@@ -64,7 +64,10 @@ export default function Save( { attributes } ) {
 		cursorFollowerLeftImageAlt,
 		cursorFollowerRightImageUrl,
 		cursorFollowerRightImageAlt,
+		cursorFollowerDirectionalText,
 		cursorFollowerText,
+		cursorFollowerLeftText,
+		cursorFollowerRightText,
 	} = attributes;
 
 	const marqueeEnabled = {
@@ -337,11 +340,21 @@ export default function Save( { attributes } ) {
 								) }
 							</>
 						) }
-						{ cursorFollowerType === 'text' && (
-							<span className="gslider-cursor-text">
-								{ cursorFollowerText || 'DRAG' }
-							</span>
-						) }
+						{ cursorFollowerType === 'text' &&
+							( cursorFollowerDirectionalText ? (
+								<>
+									<span className="gslider-cursor-text gslider-cursor-left">
+										{ cursorFollowerLeftText || 'PREV' }
+									</span>
+									<span className="gslider-cursor-text gslider-cursor-right">
+										{ cursorFollowerRightText || 'NEXT' }
+									</span>
+								</>
+							) : (
+								<span className="gslider-cursor-text">
+									{ cursorFollowerText || 'DRAG' }
+								</span>
+							) ) }
 					</div>
 				) }
 

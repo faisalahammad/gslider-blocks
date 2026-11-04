@@ -23,7 +23,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 302,
+  "totalAttributes": 307,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -67,6 +67,25 @@
       "flex-start",
       "center",
       "flex-end"
+    ],
+    "cursorFollowerFontWeight": [
+      "inherit",
+      "100",
+      "200",
+      "300",
+      "400",
+      "500",
+      "600",
+      "700",
+      "800",
+      "900"
+    ],
+    "cursorFollowerTextTransform": [
+      "inherit",
+      "none",
+      "capitalize",
+      "uppercase",
+      "lowercase"
     ],
     "cursorFollowerType": [
       "icon",
@@ -438,9 +457,29 @@
       "type": "string",
       "default": ""
     },
+    "cursorFollowerDirectionalText": {
+      "type": "boolean",
+      "default": false
+    },
     "cursorFollowerText": {
       "type": "string",
       "default": "DRAG"
+    },
+    "cursorFollowerLeftText": {
+      "type": "string",
+      "default": "PREV"
+    },
+    "cursorFollowerRightText": {
+      "type": "string",
+      "default": "NEXT"
+    },
+    "cursorFollowerFontWeight": {
+      "type": "string",
+      "default": "700"
+    },
+    "cursorFollowerTextTransform": {
+      "type": "string",
+      "default": "uppercase"
     },
     "cursorFollowerBg": {
       "type": "string",

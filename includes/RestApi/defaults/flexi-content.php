@@ -119,7 +119,12 @@ return [
 	'cursorFollowerRightImageUrl' => '',
 	'cursorFollowerRightImageAlt' => 'Next',
 	'cursorFollowerRightImageID' => '',
+	'cursorFollowerDirectionalText' => false,
 	'cursorFollowerText' => 'DRAG',
+	'cursorFollowerLeftText' => 'PREV',
+	'cursorFollowerRightText' => 'NEXT',
+	'cursorFollowerFontWeight' => '700',
+	'cursorFollowerTextTransform' => 'uppercase',
 	'cursorFollowerBg' => 'rgba(0, 0, 0, 0.75)',
 	'cursorFollowerColor' => '#ffffff',
 	'cursorFollowerSize' => [

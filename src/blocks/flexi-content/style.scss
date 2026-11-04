@@ -123,12 +123,11 @@
 		}
 
 		.gslider-cursor-text {
-			display: block;
-			font-size: 13px;
-			font-weight: 700;
-			letter-spacing: 0.08em;
-			text-transform: uppercase;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			line-height: 1;
+			white-space: nowrap;
 		}
 
 		.gslider-cursor-left {

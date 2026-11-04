@@ -32,6 +32,8 @@ import {
 	PAGINATION_POSITION_TYPE,
 	AUTOPLAY_PROGRESS_POSITION,
 	SHAPE_DIVIDER_OPTIONS,
+	FONT_WEIGHT,
+	TEXT_TRANSFORM,
 } from '@Constants';
 
 import './editor.scss';
@@ -102,7 +104,12 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		cursorFollowerRightImageUrl,
 		cursorFollowerRightImageAlt,
 		cursorFollowerRightImageID,
+		cursorFollowerDirectionalText,
 		cursorFollowerText,
+		cursorFollowerLeftText,
+		cursorFollowerRightText,
+		cursorFollowerFontWeight,
+		cursorFollowerTextTransform,
 		cursorFollowerBg,
 		cursorFollowerColor,
 		cursorFollowerSize,
@@ -3251,18 +3258,70 @@ const Inspector = ( { attributes, setAttributes } ) => {
 
 					{ cursorFollowerType === 'text' && (
 						<>
-							<InputControls
-								label={ __( 'Text', 'gslider-blocks' ) }
-								value={ cursorFollowerText }
-								onChangeValue={ ( value ) =>
+							<ToggleControl
+								label={ __(
+									'Directional Text',
+									'gslider-blocks'
+								) }
+								help={
+									cursorFollowerDirectionalText
+										? __(
+												'Shows separate text for left and right halves.',
+												'gslider-blocks'
+										  )
+										: __(
+												'Shows static text across the whole slider.',
+												'gslider-blocks'
+										  )
+								}
+								checked={ cursorFollowerDirectionalText }
+								onChange={ ( value ) =>
 									setAttributes( {
-										cursorFollowerText: value,
+										cursorFollowerDirectionalText: value,
 									} )
 								}
 							/>
+							{ cursorFollowerDirectionalText ? (
+								<>
+									<InputControls
+										label={ __(
+											'Left Text',
+											'gslider-blocks'
+										) }
+										value={ cursorFollowerLeftText }
+										onChangeValue={ ( value ) =>
+											setAttributes( {
+												cursorFollowerLeftText: value,
+											} )
+										}
+									/>
+									<InputControls
+										label={ __(
+											'Right Text',
+											'gslider-blocks'
+										) }
+										value={ cursorFollowerRightText }
+										onChangeValue={ ( value ) =>
+											setAttributes( {
+												cursorFollowerRightText: value,
+											} )
+										}
+									/>
+								</>
+							) : (
+								<InputControls
+									label={ __( 'Text', 'gslider-blocks' ) }
+									value={ cursorFollowerText }
+									onChangeValue={ ( value ) =>
+										setAttributes( {
+											cursorFollowerText: value,
+										} )
+									}
+								/>
+							) }
 							<ResponsiveRangeControl
 								min={ 10 }
-								max={ 24 }
+								max={ 28 }
 								label={ __( 'Font Size', 'gslider-blocks' ) }
 								rangeValue={ cursorFollowerInnerSize }
 								onChangeValue={ ( value ) =>
@@ -3274,6 +3333,26 @@ const Inspector = ( { attributes, setAttributes } ) => {
 								step={ 1 }
 								resetFallbackValue="13"
 								isRangeUnit={ false }
+							/>
+							<SelectControls
+								label={ __( 'Font Weight', 'gslider-blocks' ) }
+								options={ FONT_WEIGHT }
+								value={ cursorFollowerFontWeight }
+								onChange={ ( value ) =>
+									setAttributes( {
+										cursorFollowerFontWeight: value,
+									} )
+								}
+							/>
+							<SelectControls
+								label={ __( 'Transform', 'gslider-blocks' ) }
+								options={ TEXT_TRANSFORM }
+								value={ cursorFollowerTextTransform }
+								onChange={ ( value ) =>
+									setAttributes( {
+										cursorFollowerTextTransform: value,
+									} )
+								}
 							/>
 						</>
 					) }

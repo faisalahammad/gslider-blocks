@@ -556,6 +556,8 @@ const generateFlexiContentStyle = ( attributes ) => {
 		cursorFollowerColor,
 		cursorFollowerSize,
 		cursorFollowerInnerSize,
+		cursorFollowerFontWeight,
+		cursorFollowerTextTransform,
 		/** Start Shape Dividers */
 		enableTopDivider,
 		topDividerColor,
@@ -1432,6 +1434,19 @@ const generateFlexiContentStyle = ( attributes ) => {
 				? `.${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower {
             ${ cursorFollowerBg ? `background: ${ cursorFollowerBg };` : '' }
             ${ cursorFollowerColor ? `color: ${ cursorFollowerColor };` : '' }
+        }
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-text {
+            ${
+				cursorFollowerFontWeight
+					? `font-weight: ${ cursorFollowerFontWeight };`
+					: ''
+			}
+            ${
+				cursorFollowerTextTransform &&
+				cursorFollowerTextTransform !== 'inherit'
+					? `text-transform: ${ cursorFollowerTextTransform };`
+					: ''
+			}
         }`
 				: ''
 		}

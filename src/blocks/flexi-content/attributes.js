@@ -220,9 +220,29 @@ const attributes = {
 		type: 'string',
 		default: '',
 	},
+	cursorFollowerDirectionalText: {
+		type: 'boolean',
+		default: false,
+	},
 	cursorFollowerText: {
 		type: 'string',
 		default: 'DRAG',
+	},
+	cursorFollowerLeftText: {
+		type: 'string',
+		default: 'PREV',
+	},
+	cursorFollowerRightText: {
+		type: 'string',
+		default: 'NEXT',
+	},
+	cursorFollowerFontWeight: {
+		type: 'string',
+		default: '700',
+	},
+	cursorFollowerTextTransform: {
+		type: 'string',
+		default: 'uppercase',
 	},
 	cursorFollowerBg: {
 		type: 'string',
