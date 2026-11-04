@@ -2369,40 +2369,33 @@ function Save({ attributes: attributes2 }) {
             ...globalID && { id: globalID },
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { ...innerBlocksProps }),
-              cursorFollowerDevices && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
-                "div",
-                {
-                  className: "gslider-cursor-follower",
-                  "aria-hidden": "true",
-                  children: [
-                    (!cursorFollowerType || cursorFollowerType === "icon") && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-left", children: renderIcon_default(
-                        cursorFollowerLeftIcon || "arrow-left"
-                      ) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-right", children: renderIcon_default(
-                        cursorFollowerRightIcon || "arrow-right"
-                      ) })
-                    ] }),
-                    cursorFollowerType === "image" && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-                      cursorFollowerLeftImageUrl && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-image gslider-cursor-left", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
-                        "img",
-                        {
-                          src: cursorFollowerLeftImageUrl,
-                          alt: cursorFollowerLeftImageAlt || "Previous"
-                        }
-                      ) }),
-                      cursorFollowerRightImageUrl && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-image gslider-cursor-right", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
-                        "img",
-                        {
-                          src: cursorFollowerRightImageUrl,
-                          alt: cursorFollowerRightImageAlt || "Next"
-                        }
-                      ) })
-                    ] }),
-                    cursorFollowerType === "text" && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "gslider-cursor-text", children: cursorFollowerText || "DRAG" })
-                  ]
-                }
-              ),
+              cursorFollowerDevices && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "gslider-cursor-follower", "aria-hidden": "true", children: [
+                (!cursorFollowerType || cursorFollowerType === "icon") && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-left", children: renderIcon_default(
+                    cursorFollowerLeftIcon || "arrow-left"
+                  ) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-right", children: renderIcon_default(
+                    cursorFollowerRightIcon || "arrow-right"
+                  ) })
+                ] }),
+                cursorFollowerType === "image" && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                  cursorFollowerLeftImageUrl && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-image gslider-cursor-left", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+                    "img",
+                    {
+                      src: cursorFollowerLeftImageUrl,
+                      alt: cursorFollowerLeftImageAlt || "Previous"
+                    }
+                  ) }),
+                  cursorFollowerRightImageUrl && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-image gslider-cursor-right", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+                    "img",
+                    {
+                      src: cursorFollowerRightImageUrl,
+                      alt: cursorFollowerRightImageAlt || "Next"
+                    }
+                  ) })
+                ] }),
+                cursorFollowerType === "text" && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "gslider-cursor-text", children: cursorFollowerText || "DRAG" })
+              ] }),
               showAutoplayProgress && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
                 "div",
                 {
