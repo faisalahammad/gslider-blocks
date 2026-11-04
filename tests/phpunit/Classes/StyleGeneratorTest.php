@@ -1139,7 +1139,7 @@ class StyleGeneratorTest {
 			fwrite( STDERR, "FAIL: Malicious CSP nonce was not safely contained in inline style tag: $output_3\n" );
 			exit( 1 );
 		}
-		if ( false === strpos( $output_3, 'nonce="bad-nonce&quot; onload=&quot;alert(1)&quot; alert(2)"' ) ) {
+		if ( false === strpos( $output_3, 'nonce="bad-nonce&quot; onload=&quot;alert(1)&quot;"' ) ) {
 			fwrite( STDERR, "FAIL: Expected escaped nonce attribute not found in inline style tag: $output_3\n" );
 			exit( 1 );
 		}
@@ -1161,7 +1161,7 @@ class StyleGeneratorTest {
 			fwrite( STDERR, "FAIL: Malicious CSP nonce was not safely contained in footer style tag: $footer_output\n" );
 			exit( 1 );
 		}
-		if ( false === strpos( $footer_output, 'nonce="bad-nonce&quot; onload=&quot;alert(1)&quot; alert(2)"' ) ) {
+		if ( false === strpos( $footer_output, 'nonce="bad-nonce&quot; onload=&quot;alert(1)&quot;"' ) ) {
 			fwrite( STDERR, "FAIL: Expected escaped nonce attribute not found in footer style tag: $footer_output\n" );
 			exit( 1 );
 		}

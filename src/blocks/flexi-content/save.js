@@ -23,8 +23,12 @@ export default function Save( { attributes } ) {
 		slideEffect,
 		mousewheelControl,
 		keyboardNavigation,
+		enableHashNavigation,
 		paginationType,
 		dynamicBullets,
+		enableContinuousMarquee,
+		marqueeSpeed,
+		marqueePauseOnHover,
 
 		showNavigation,
 		showPagination,
@@ -53,7 +57,43 @@ export default function Save( { attributes } ) {
 		enableBottomDivider,
 		bottomDividerShape,
 		enableSlideLightbox,
+		enableCursorFollower,
+		cursorFollowerType,
+		cursorFollowerLeftIcon,
+		cursorFollowerRightIcon,
+		cursorFollowerLeftImageUrl,
+		cursorFollowerLeftImageAlt,
+		cursorFollowerRightImageUrl,
+		cursorFollowerRightImageAlt,
+		cursorFollowerDirectionalText,
+		cursorFollowerText,
+		cursorFollowerLeftText,
+		cursorFollowerRightText,
 	} = attributes;
+
+	const marqueeEnabled = {
+		Mobile: !! enableContinuousMarquee?.Mobile,
+		Tablet: !! enableContinuousMarquee?.Tablet,
+		Desktop: !! enableContinuousMarquee?.Desktop,
+	};
+	const anyMarqueeEnabled =
+		marqueeEnabled.Mobile ||
+		marqueeEnabled.Tablet ||
+		marqueeEnabled.Desktop;
+
+	// Only output marquee classes when enabled, so markup of existing blocks stays the same
+	const marqueeClasses = [ 'Desktop', 'Tablet', 'Mobile' ]
+		.filter( ( device ) => marqueeEnabled[ device ] )
+		.flatMap( ( device ) => {
+			const slug = device.toLowerCase();
+			return marqueePauseOnHover?.[ device ] === false
+				? [ `gslider-marquee-${ slug }` ]
+				: [
+						`gslider-marquee-${ slug }`,
+						`gslider-marquee-pause-${ slug }`,
+				  ];
+		} )
+		.join( ' ' );
 
 	const blockProps = useBlockProps.save( {
 		className: `gslider-flexi-content-wrapper ${ blockId } ${ navigationArrowPositionType } ${ navigationArrowPosition } ${
@@ -62,12 +102,35 @@ export default function Save( { attributes } ) {
 			showPagination?.Mobile
 				? 'has-pagination'
 				: ''
-		}`,
+		}${ marqueeClasses ? ` ${ marqueeClasses }` : '' }`,
 	} );
 
 	const innerBlocksProps = useInnerBlocksProps.save( {
 		className: 'swiper-wrapper gslider-swiper-wrapper',
 	} );
+
+	/**
+	 * Get the autoplay settings of a breakpoint.
+	 * Marquee lists all options, Swiper drops the defaults when it switches from autoplay false.
+	 *
+	 * @param {string} device - Desktop, Tablet or Mobile.
+	 * @return {Object|boolean} Autoplay settings.
+	 */
+	const getBreakpointAutoplay = ( device ) => {
+		if ( marqueeEnabled[ device ] ) {
+			return {
+				delay: 0,
+				waitForTransition: true,
+				pauseOnMouseEnter: false,
+				disableOnInteraction: false,
+				reverseDirection,
+			};
+		}
+		return autoplay ? { delay: autoplayDelay?.[ device ] || 1000 } : false;
+	};
+
+	const sliderEffect =
+		sliderType === 'carousel' ? carouselEffect : slideEffect;
 
 	const navigationEnabled = {
 		Mobile: !! showNavigation?.Mobile,
@@ -109,10 +172,14 @@ export default function Save( { attributes } ) {
 	const lightboxDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
 		.filter( ( device ) => enableSlideLightbox?.[ device ] === true )
 		.join( ' ' );
+	const cursorFollowerDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
+		.filter( ( device ) => enableCursorFollower?.[ device ] === true )
+		.join( ' ' );
 
 	// Configure Swiper settings for frontend rendering
 	const swiperSettings = JSON.stringify( {
-		effect: sliderType === 'carousel' ? carouselEffect : slideEffect,
+		// Marquee needs the slide effect, other effects can not move in a line
+		effect: anyMarqueeEnabled ? 'slide' : sliderEffect,
 
 		// Responsive breakpoints for Desktop, Tablet, and Mobile
 		breakpoints: {
@@ -121,12 +188,10 @@ export default function Save( { attributes } ) {
 					slidesPerView: carouselPerColumn?.Mobile || 1,
 					spaceBetween: carouselPerColumnGap?.Mobile || 0,
 				} ),
-				speed: speed?.Mobile || 800,
-				autoplay: autoplay
-					? {
-							delay: autoplayDelay?.Mobile || 1000,
-					  }
-					: false,
+				speed: marqueeEnabled.Mobile
+					? marqueeSpeed?.Mobile || 5000
+					: speed?.Mobile || 800,
+				autoplay: getBreakpointAutoplay( 'Mobile' ),
 				navigation: { enabled: navigationEnabled.Mobile },
 				pagination: { enabled: paginationEnabled.Mobile },
 			},
@@ -135,12 +200,10 @@ export default function Save( { attributes } ) {
 					slidesPerView: carouselPerColumn?.Tablet || 2,
 					spaceBetween: carouselPerColumnGap?.Tablet ?? 20,
 				} ),
-				speed: speed?.Tablet || 800,
-				autoplay: autoplay
-					? {
-							delay: autoplayDelay?.Tablet || 1000,
-					  }
-					: false,
+				speed: marqueeEnabled.Tablet
+					? marqueeSpeed?.Tablet || 5000
+					: speed?.Tablet || 800,
+				autoplay: getBreakpointAutoplay( 'Tablet' ),
 				navigation: { enabled: navigationEnabled.Tablet },
 				pagination: { enabled: paginationEnabled.Tablet },
 			},
@@ -149,12 +212,10 @@ export default function Save( { attributes } ) {
 					slidesPerView: carouselPerColumn?.Desktop || 2,
 					spaceBetween: carouselPerColumnGap?.Desktop ?? 20,
 				} ),
-				speed: speed?.Desktop || 800,
-				autoplay: autoplay
-					? {
-							delay: autoplayDelay?.Desktop || 1000,
-					  }
-					: false,
+				speed: marqueeEnabled.Desktop
+					? marqueeSpeed?.Desktop || 5000
+					: speed?.Desktop || 800,
+				autoplay: getBreakpointAutoplay( 'Desktop' ),
 				navigation: { enabled: navigationEnabled.Desktop },
 				pagination: { enabled: paginationEnabled.Desktop },
 			},
@@ -168,15 +229,18 @@ export default function Save( { attributes } ) {
 			} ),
 
 		// Common settings
-		loop: infiniteLoop,
-		autoplay: autoplay
-			? {
-					pauseOnMouseEnter: pauseOnHover,
-					disableOnInteraction: false,
-					stopOnLastSlide,
-					reverseDirection,
-			  }
-			: false,
+		loop: anyMarqueeEnabled || infiniteLoop,
+		autoplay:
+			autoplay || anyMarqueeEnabled
+				? {
+						pauseOnMouseEnter: anyMarqueeEnabled
+							? false
+							: pauseOnHover,
+						disableOnInteraction: false,
+						stopOnLastSlide,
+						reverseDirection,
+				  }
+				: false,
 		allowTouchMove,
 		mousewheel: mousewheelControl,
 
@@ -187,6 +251,11 @@ export default function Save( { attributes } ) {
 					pageUpDown: false,
 			  }
 			: false,
+
+		// replaceState keeps autoplay from filling the browser history
+		...( enableHashNavigation && {
+			hashNavigation: { watchState: true, replaceState: true },
+		} ),
 
 		navigation: {
 			enabled: anyNavigationEnabled,
@@ -224,12 +293,76 @@ export default function Save( { attributes } ) {
 			{ ...( lightboxDevices && {
 				'data-slide-lightbox': lightboxDevices,
 			} ) }
+			{ ...( cursorFollowerDevices && {
+				'data-cursor-follower': cursorFollowerDevices,
+			} ) }
 		>
 			<div
 				className={ `swiper ${ globalClass }` }
 				{ ...( globalID && { id: globalID } ) }
 			>
 				<div { ...innerBlocksProps } />
+
+				{ cursorFollowerDevices && (
+					<div className="gslider-cursor-follower" aria-hidden="true">
+						{ ( ! cursorFollowerType ||
+							cursorFollowerType === 'icon' ) && (
+							<>
+								<div className="gslider-cursor-icon gslider-cursor-left">
+									{ renderSVG(
+										cursorFollowerLeftIcon || 'arrow-left'
+									) }
+								</div>
+								<div className="gslider-cursor-icon gslider-cursor-right">
+									{ renderSVG(
+										cursorFollowerRightIcon || 'arrow-right'
+									) }
+								</div>
+							</>
+						) }
+						{ cursorFollowerType === 'image' && (
+							<>
+								{ cursorFollowerLeftImageUrl && (
+									<div className="gslider-cursor-image gslider-cursor-left">
+										<img
+											src={ cursorFollowerLeftImageUrl }
+											alt={
+												cursorFollowerLeftImageAlt ||
+												'Previous'
+											}
+										/>
+									</div>
+								) }
+								{ cursorFollowerRightImageUrl && (
+									<div className="gslider-cursor-image gslider-cursor-right">
+										<img
+											src={ cursorFollowerRightImageUrl }
+											alt={
+												cursorFollowerRightImageAlt ||
+												'Next'
+											}
+										/>
+									</div>
+								) }
+							</>
+						) }
+						{ cursorFollowerType === 'text' &&
+							( cursorFollowerDirectionalText ? (
+								<>
+									<span className="gslider-cursor-text gslider-cursor-left">
+										{ cursorFollowerLeftText || 'PREV' }
+									</span>
+									<span className="gslider-cursor-text gslider-cursor-right">
+										{ cursorFollowerRightText || 'NEXT' }
+									</span>
+								</>
+							) : (
+								<span className="gslider-cursor-text">
+									{ cursorFollowerText || 'DRAG' }
+								</span>
+							) ) }
+					</div>
+				) }
 
 				{ showAutoplayProgress && (
 					<div

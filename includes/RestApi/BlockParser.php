@@ -54,6 +54,7 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			'allowTouchMove',
 			'mousewheelControl',
 			'keyboardNavigation',
+			'enableHashNavigation',
 			'pauseOnHover',
 			'stopOnLastSlide',
 			'reverseDirection',
@@ -452,6 +453,14 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				],
 			];
 
+			// Same as save.js, only added when on so other blocks keep the same config
+			if ( ! empty( $attrs['enableHashNavigation'] ) ) {
+				$config['hashNavigation'] = [
+					'watchState'   => true,
+					'replaceState' => true,
+				];
+			}
+
 			if ( $autoplay ) {
 				$config['autoplay'] = [
 					'pauseOnMouseEnter'    => ! empty( $attrs['pauseOnHover'] ),
@@ -728,6 +737,7 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				$slides[] = [
 					'id'          => $slide_id,
 					'blockName'   => $inner_name,
+					'slideHash'   => isset( $inner_attrs['slideHash'] ) ? sanitize_key( $inner_attrs['slideHash'] ) : '',
 					'innerHtml'   => $inner_html,
 					'css'         => self::collect_inner_block_styles( $inner_block ),
 					'innerBlocks' => $inner_block['innerBlocks'] ?? [],

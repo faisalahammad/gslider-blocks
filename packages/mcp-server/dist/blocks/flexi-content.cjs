@@ -194,6 +194,10 @@ var attributes = {
     type: "boolean",
     default: false
   },
+  enableHashNavigation: {
+    type: "boolean",
+    default: false
+  },
   paginationType: {
     type: "string",
     default: "bullets"
@@ -201,6 +205,30 @@ var attributes = {
   dynamicBullets: {
     type: "boolean",
     default: false
+  },
+  enableContinuousMarquee: {
+    type: "object",
+    default: {
+      Desktop: false,
+      Tablet: false,
+      Mobile: false
+    }
+  },
+  marqueeSpeed: {
+    type: "object",
+    default: {
+      Desktop: 5e3,
+      Tablet: 5e3,
+      Mobile: 5e3
+    }
+  },
+  marqueePauseOnHover: {
+    type: "object",
+    default: {
+      Desktop: true,
+      Tablet: true,
+      Mobile: true
+    }
   },
   /** End Slider Settings */
   /** Start Show/Hide Elements */
@@ -226,6 +254,98 @@ var attributes = {
       Desktop: false,
       Tablet: false,
       Mobile: false
+    }
+  },
+  enableCursorFollower: {
+    type: "object",
+    default: {
+      Desktop: false,
+      Tablet: false,
+      Mobile: false
+    }
+  },
+  cursorFollowerType: {
+    type: "string",
+    default: "icon"
+  },
+  cursorFollowerLeftIcon: {
+    type: "string",
+    default: "arrow-left"
+  },
+  cursorFollowerRightIcon: {
+    type: "string",
+    default: "arrow-right"
+  },
+  cursorFollowerLeftImageUrl: {
+    type: "string",
+    default: ""
+  },
+  cursorFollowerLeftImageAlt: {
+    type: "string",
+    default: "Previous"
+  },
+  cursorFollowerLeftImageID: {
+    type: "string",
+    default: ""
+  },
+  cursorFollowerRightImageUrl: {
+    type: "string",
+    default: ""
+  },
+  cursorFollowerRightImageAlt: {
+    type: "string",
+    default: "Next"
+  },
+  cursorFollowerRightImageID: {
+    type: "string",
+    default: ""
+  },
+  cursorFollowerDirectionalText: {
+    type: "boolean",
+    default: false
+  },
+  cursorFollowerText: {
+    type: "string",
+    default: "DRAG"
+  },
+  cursorFollowerLeftText: {
+    type: "string",
+    default: "PREV"
+  },
+  cursorFollowerRightText: {
+    type: "string",
+    default: "NEXT"
+  },
+  cursorFollowerFontWeight: {
+    type: "string",
+    default: "700"
+  },
+  cursorFollowerTextTransform: {
+    type: "string",
+    default: "uppercase"
+  },
+  cursorFollowerBg: {
+    type: "string",
+    default: "rgba(0, 0, 0, 0.75)"
+  },
+  cursorFollowerColor: {
+    type: "string",
+    default: "#ffffff"
+  },
+  cursorFollowerSize: {
+    type: "object",
+    default: {
+      Desktop: "48",
+      Tablet: "48",
+      Mobile: "40"
+    }
+  },
+  cursorFollowerInnerSize: {
+    type: "object",
+    default: {
+      Desktop: "18",
+      Tablet: "16",
+      Mobile: "14"
     }
   },
   paginationPositionType: {
@@ -2090,8 +2210,12 @@ function Save({ attributes: attributes2 }) {
     slideEffect,
     mousewheelControl,
     keyboardNavigation,
+    enableHashNavigation,
     paginationType,
     dynamicBullets,
+    enableContinuousMarquee,
+    marqueeSpeed,
+    marqueePauseOnHover,
     showNavigation,
     showPagination,
     paginationPositionType,
@@ -2113,14 +2237,52 @@ function Save({ attributes: attributes2 }) {
     topDividerShape,
     enableBottomDivider,
     bottomDividerShape,
-    enableSlideLightbox
+    enableSlideLightbox,
+    enableCursorFollower,
+    cursorFollowerType,
+    cursorFollowerLeftIcon,
+    cursorFollowerRightIcon,
+    cursorFollowerLeftImageUrl,
+    cursorFollowerLeftImageAlt,
+    cursorFollowerRightImageUrl,
+    cursorFollowerRightImageAlt,
+    cursorFollowerDirectionalText,
+    cursorFollowerText,
+    cursorFollowerLeftText,
+    cursorFollowerRightText
   } = attributes2;
+  const marqueeEnabled = {
+    Mobile: !!enableContinuousMarquee?.Mobile,
+    Tablet: !!enableContinuousMarquee?.Tablet,
+    Desktop: !!enableContinuousMarquee?.Desktop
+  };
+  const anyMarqueeEnabled = marqueeEnabled.Mobile || marqueeEnabled.Tablet || marqueeEnabled.Desktop;
+  const marqueeClasses = ["Desktop", "Tablet", "Mobile"].filter((device) => marqueeEnabled[device]).flatMap((device) => {
+    const slug = device.toLowerCase();
+    return marqueePauseOnHover?.[device] === false ? [`gslider-marquee-${slug}`] : [
+      `gslider-marquee-${slug}`,
+      `gslider-marquee-pause-${slug}`
+    ];
+  }).join(" ");
   const blockProps = import_block_editor.useBlockProps.save({
-    className: `gslider-flexi-content-wrapper ${blockId} ${navigationArrowPositionType} ${navigationArrowPosition} ${showPagination?.Desktop || showPagination?.Tablet || showPagination?.Mobile ? "has-pagination" : ""}`
+    className: `gslider-flexi-content-wrapper ${blockId} ${navigationArrowPositionType} ${navigationArrowPosition} ${showPagination?.Desktop || showPagination?.Tablet || showPagination?.Mobile ? "has-pagination" : ""}${marqueeClasses ? ` ${marqueeClasses}` : ""}`
   });
   const innerBlocksProps = import_block_editor.useInnerBlocksProps.save({
     className: "swiper-wrapper gslider-swiper-wrapper"
   });
+  const getBreakpointAutoplay = (device) => {
+    if (marqueeEnabled[device]) {
+      return {
+        delay: 0,
+        waitForTransition: true,
+        pauseOnMouseEnter: false,
+        disableOnInteraction: false,
+        reverseDirection
+      };
+    }
+    return autoplay ? { delay: autoplayDelay?.[device] || 1e3 } : false;
+  };
+  const sliderEffect = sliderType === "carousel" ? carouselEffect : slideEffect;
   const navigationEnabled = {
     Mobile: !!showNavigation?.Mobile,
     Tablet: !!showNavigation?.Tablet,
@@ -2137,8 +2299,10 @@ function Save({ attributes: attributes2 }) {
   const anyTopDivider = enableTopDivider?.Desktop || enableTopDivider?.Tablet || enableTopDivider?.Mobile;
   const anyBottomDivider = enableBottomDivider?.Desktop || enableBottomDivider?.Tablet || enableBottomDivider?.Mobile;
   const lightboxDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableSlideLightbox?.[device] === true).join(" ");
+  const cursorFollowerDevices = ["Desktop", "Tablet", "Mobile"].filter((device) => enableCursorFollower?.[device] === true).join(" ");
   const swiperSettings = JSON.stringify({
-    effect: sliderType === "carousel" ? carouselEffect : slideEffect,
+    // Marquee needs the slide effect, other effects can not move in a line
+    effect: anyMarqueeEnabled ? "slide" : sliderEffect,
     // Responsive breakpoints for Desktop, Tablet, and Mobile
     breakpoints: {
       0: {
@@ -2146,10 +2310,8 @@ function Save({ attributes: attributes2 }) {
           slidesPerView: carouselPerColumn?.Mobile || 1,
           spaceBetween: carouselPerColumnGap?.Mobile || 0
         },
-        speed: speed?.Mobile || 800,
-        autoplay: autoplay ? {
-          delay: autoplayDelay?.Mobile || 1e3
-        } : false,
+        speed: marqueeEnabled.Mobile ? marqueeSpeed?.Mobile || 5e3 : speed?.Mobile || 800,
+        autoplay: getBreakpointAutoplay("Mobile"),
         navigation: { enabled: navigationEnabled.Mobile },
         pagination: { enabled: paginationEnabled.Mobile }
       },
@@ -2158,10 +2320,8 @@ function Save({ attributes: attributes2 }) {
           slidesPerView: carouselPerColumn?.Tablet || 2,
           spaceBetween: carouselPerColumnGap?.Tablet ?? 20
         },
-        speed: speed?.Tablet || 800,
-        autoplay: autoplay ? {
-          delay: autoplayDelay?.Tablet || 1e3
-        } : false,
+        speed: marqueeEnabled.Tablet ? marqueeSpeed?.Tablet || 5e3 : speed?.Tablet || 800,
+        autoplay: getBreakpointAutoplay("Tablet"),
         navigation: { enabled: navigationEnabled.Tablet },
         pagination: { enabled: paginationEnabled.Tablet }
       },
@@ -2170,10 +2330,8 @@ function Save({ attributes: attributes2 }) {
           slidesPerView: carouselPerColumn?.Desktop || 2,
           spaceBetween: carouselPerColumnGap?.Desktop ?? 20
         },
-        speed: speed?.Desktop || 800,
-        autoplay: autoplay ? {
-          delay: autoplayDelay?.Desktop || 1e3
-        } : false,
+        speed: marqueeEnabled.Desktop ? marqueeSpeed?.Desktop || 5e3 : speed?.Desktop || 800,
+        autoplay: getBreakpointAutoplay("Desktop"),
         navigation: { enabled: navigationEnabled.Desktop },
         pagination: { enabled: paginationEnabled.Desktop }
       }
@@ -2184,9 +2342,9 @@ function Save({ attributes: attributes2 }) {
       autoHeight: true
     },
     // Common settings
-    loop: infiniteLoop,
-    autoplay: autoplay ? {
-      pauseOnMouseEnter: pauseOnHover,
+    loop: anyMarqueeEnabled || infiniteLoop,
+    autoplay: autoplay || anyMarqueeEnabled ? {
+      pauseOnMouseEnter: anyMarqueeEnabled ? false : pauseOnHover,
       disableOnInteraction: false,
       stopOnLastSlide,
       reverseDirection
@@ -2198,6 +2356,10 @@ function Save({ attributes: attributes2 }) {
       onlyInViewport: true,
       pageUpDown: false
     } : false,
+    // replaceState keeps autoplay from filling the browser history
+    ...enableHashNavigation && {
+      hashNavigation: { watchState: true, replaceState: true }
+    },
     navigation: {
       enabled: anyNavigationEnabled,
       nextEl: ".swiper-button-next",
@@ -2228,6 +2390,9 @@ function Save({ attributes: attributes2 }) {
       ...lightboxDevices && {
         "data-slide-lightbox": lightboxDevices
       },
+      ...cursorFollowerDevices && {
+        "data-cursor-follower": cursorFollowerDevices
+      },
       children: [
         /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
           "div",
@@ -2236,6 +2401,36 @@ function Save({ attributes: attributes2 }) {
             ...globalID && { id: globalID },
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { ...innerBlocksProps }),
+              cursorFollowerDevices && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "gslider-cursor-follower", "aria-hidden": "true", children: [
+                (!cursorFollowerType || cursorFollowerType === "icon") && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-left", children: renderIcon_default(
+                    cursorFollowerLeftIcon || "arrow-left"
+                  ) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-right", children: renderIcon_default(
+                    cursorFollowerRightIcon || "arrow-right"
+                  ) })
+                ] }),
+                cursorFollowerType === "image" && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                  cursorFollowerLeftImageUrl && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-image gslider-cursor-left", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+                    "img",
+                    {
+                      src: cursorFollowerLeftImageUrl,
+                      alt: cursorFollowerLeftImageAlt || "Previous"
+                    }
+                  ) }),
+                  cursorFollowerRightImageUrl && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-image gslider-cursor-right", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+                    "img",
+                    {
+                      src: cursorFollowerRightImageUrl,
+                      alt: cursorFollowerRightImageAlt || "Next"
+                    }
+                  ) })
+                ] }),
+                cursorFollowerType === "text" && (cursorFollowerDirectionalText ? /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "gslider-cursor-text gslider-cursor-left", children: cursorFollowerLeftText || "PREV" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "gslider-cursor-text gslider-cursor-right", children: cursorFollowerRightText || "NEXT" })
+                ] }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "gslider-cursor-text", children: cursorFollowerText || "DRAG" }))
+              ] }),
               showAutoplayProgress && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
                 "div",
                 {
@@ -2464,6 +2659,23 @@ var getHasPaginationCss = (blockId, showPagination, device, fallbackDevices, off
     return rule("0");
   }
   return "";
+};
+var getCursorFollowerSizeCss = (blockId, enabled, size, innerSize) => {
+  if (!enabled) {
+    return "";
+  }
+  let css = "";
+  if (size) {
+    css += `.${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${size}px; height: ${size}px; }`;
+  }
+  if (innerSize) {
+    css += `
+        .${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-icon svg { width: ${innerSize}px; height: ${innerSize}px; }
+        .${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-image { width: ${innerSize}px; height: ${innerSize}px; }
+        .${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-text { font-size: ${innerSize}px; }
+        `;
+  }
+  return css;
 };
 var getAutoplayProgressCss = (blockId, enabled, color, height) => {
   const deviceRule = (device) => `
@@ -2836,6 +3048,13 @@ var generateFlexiContentStyle = (attributes2) => {
     globalBoxShadowHoverValues,
     globalBoxShadowHoverCssValue,
     /** End Global Box Shadow */
+    enableCursorFollower,
+    cursorFollowerBg,
+    cursorFollowerColor,
+    cursorFollowerSize,
+    cursorFollowerInnerSize,
+    cursorFollowerFontWeight,
+    cursorFollowerTextTransform,
     /** Start Shape Dividers */
     enableTopDivider,
     topDividerColor,
@@ -2871,6 +3090,9 @@ var generateFlexiContentStyle = (attributes2) => {
     flip: bottomDividerFlip,
     invert: bottomDividerInvert
   };
+  const hasCursorFollower = Object.values(enableCursorFollower || {}).some(
+    Boolean
+  );
   const getGlobalBackgroundNormalStyles = (device) => {
     const bgType = globalNormalBackgroundType;
     const bgColor = globalNormalClassicColor;
@@ -3240,10 +3462,31 @@ var generateFlexiContentStyle = (attributes2) => {
         ` : ""}
 
 
+        ${hasCursorFollower ? `.${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower {
+            ${cursorFollowerBg ? `background: ${cursorFollowerBg};` : ""}
+            ${cursorFollowerColor ? `color: ${cursorFollowerColor};` : ""}
+        }
+        .${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-text {
+            ${cursorFollowerFontWeight ? `font-weight: ${cursorFollowerFontWeight};` : ""}
+            ${cursorFollowerTextTransform && cursorFollowerTextTransform !== "inherit" ? `text-transform: ${cursorFollowerTextTransform};` : ""}
+        }` : ""}
+        ${getCursorFollowerSizeCss(
+    blockId,
+    hasCursorFollower,
+    cursorFollowerSize?.Desktop,
+    cursorFollowerInnerSize?.Desktop
+  )}
         ${getShapeDividerCss(blockId, "top", topDivider, "Desktop")}
         ${getShapeDividerCss(blockId, "bottom", bottomDivider, "Desktop")}
 
         @media only screen and (max-width: 1024px) {
+
+            ${getCursorFollowerSizeCss(
+    blockId,
+    hasCursorFollower,
+    cursorFollowerSize?.Tablet,
+    cursorFollowerInnerSize?.Tablet
+  )}
 
             .${blockId}.gslider-flexi-content-wrapper {
                 ${globalTabletBackgroundNormalStyles}
@@ -3439,6 +3682,13 @@ var generateFlexiContentStyle = (attributes2) => {
         }
         
         @media only screen and (max-width: 767px) {
+
+            ${getCursorFollowerSizeCss(
+    blockId,
+    hasCursorFollower,
+    cursorFollowerSize?.Mobile,
+    cursorFollowerInnerSize?.Mobile
+  )}
 
             .${blockId}.gslider-flexi-content-wrapper {
                 ${globalMobileBackgroundNormalStyles}
