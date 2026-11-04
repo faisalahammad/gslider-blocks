@@ -109,10 +109,23 @@ const getHasPaginationCss = (
 	return '';
 };
 
-const getCursorFollowerSizeCss = ( blockId, enabled, size ) =>
-	enabled && size
-		? `.${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${ size }px; height: ${ size }px; }`
-		: '';
+const getCursorFollowerSizeCss = ( blockId, enabled, size, innerSize ) => {
+	if ( ! enabled ) {
+		return '';
+	}
+	let css = '';
+	if ( size ) {
+		css += `.${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${ size }px; height: ${ size }px; }`;
+	}
+	if ( innerSize ) {
+		css += `
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-icon svg { width: ${ innerSize }px; height: ${ innerSize }px; }
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-image { width: ${ innerSize }px; height: ${ innerSize }px; }
+        .${ blockId }.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-text { font-size: ${ innerSize }px; }
+        `;
+	}
+	return css;
+};
 
 /**
  * Autoplay progress bar color, height and per device visibility.
@@ -542,6 +555,7 @@ const generateFlexiContentStyle = ( attributes ) => {
 		cursorFollowerBg,
 		cursorFollowerColor,
 		cursorFollowerSize,
+		cursorFollowerInnerSize,
 		/** Start Shape Dividers */
 		enableTopDivider,
 		topDividerColor,
@@ -1424,7 +1438,8 @@ const generateFlexiContentStyle = ( attributes ) => {
         ${ getCursorFollowerSizeCss(
 			blockId,
 			hasCursorFollower,
-			cursorFollowerSize?.Desktop
+			cursorFollowerSize?.Desktop,
+			cursorFollowerInnerSize?.Desktop
 		) }
         ${ getShapeDividerCss( blockId, 'top', topDivider, 'Desktop' ) }
         ${ getShapeDividerCss( blockId, 'bottom', bottomDivider, 'Desktop' ) }
@@ -1434,7 +1449,8 @@ const generateFlexiContentStyle = ( attributes ) => {
             ${ getCursorFollowerSizeCss(
 				blockId,
 				hasCursorFollower,
-				cursorFollowerSize?.Tablet
+				cursorFollowerSize?.Tablet,
+				cursorFollowerInnerSize?.Tablet
 			) }
 
             .${ blockId }.gslider-flexi-content-wrapper {
@@ -1912,7 +1928,8 @@ const generateFlexiContentStyle = ( attributes ) => {
             ${ getCursorFollowerSizeCss(
 				blockId,
 				hasCursorFollower,
-				cursorFollowerSize?.Mobile
+				cursorFollowerSize?.Mobile,
+				cursorFollowerInnerSize?.Mobile
 			) }
 
             .${ blockId }.gslider-flexi-content-wrapper {

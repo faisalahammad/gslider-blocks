@@ -306,10 +306,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const interactiveSelector =
 			'a, button, input, select, textarea, label, summary, iframe, video, [role="button"], [role="link"], [role="tab"], [role="checkbox"], [role="switch"], [role="menuitem"], [role="option"], [role="slider"], [contenteditable]:not([contenteditable="false"]), .swiper-pagination';
 
-		const follower = document.createElement( 'div' );
-		follower.className = 'gslider-cursor-follower';
-		follower.setAttribute( 'aria-hidden', 'true' );
-		swiperElement.appendChild( follower );
+		let follower = swiperElement.querySelector(
+			':scope > .gslider-cursor-follower'
+		);
+		if ( ! follower ) {
+			follower = document.createElement( 'div' );
+			follower.className = 'gslider-cursor-follower';
+			follower.setAttribute( 'aria-hidden', 'true' );
+			swiperElement.appendChild( follower );
+		}
 
 		let pointer = null;
 		let pointerType = '';
@@ -346,7 +351,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 			const rect = swiperElement.getBoundingClientRect();
 			const x = pointer.clientX - rect.left;
-			follower.classList.toggle( 'is-left', x < rect.width / 2 );
+			follower.classList.toggle(
+				'is-left',
+				isLeftHalf( pointer.clientX ) !== Boolean( swiper.rtlTranslate )
+			);
 			follower.style.transform = `translate3d(${ x }px, ${
 				pointer.clientY - rect.top
 			}px, 0) translate(-50%, -50%)`;

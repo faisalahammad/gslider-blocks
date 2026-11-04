@@ -260,6 +260,46 @@ var attributes = {
       Mobile: false
     }
   },
+  cursorFollowerType: {
+    type: "string",
+    default: "icon"
+  },
+  cursorFollowerLeftIcon: {
+    type: "string",
+    default: "arrow-left"
+  },
+  cursorFollowerRightIcon: {
+    type: "string",
+    default: "arrow-right"
+  },
+  cursorFollowerLeftImageUrl: {
+    type: "string",
+    default: ""
+  },
+  cursorFollowerLeftImageAlt: {
+    type: "string",
+    default: "Previous"
+  },
+  cursorFollowerLeftImageID: {
+    type: "string",
+    default: ""
+  },
+  cursorFollowerRightImageUrl: {
+    type: "string",
+    default: ""
+  },
+  cursorFollowerRightImageAlt: {
+    type: "string",
+    default: "Next"
+  },
+  cursorFollowerRightImageID: {
+    type: "string",
+    default: ""
+  },
+  cursorFollowerText: {
+    type: "string",
+    default: "DRAG"
+  },
   cursorFollowerBg: {
     type: "string",
     default: "rgba(0, 0, 0, 0.75)"
@@ -274,6 +314,14 @@ var attributes = {
       Desktop: 48,
       Tablet: 48,
       Mobile: 48
+    }
+  },
+  cursorFollowerInnerSize: {
+    type: "object",
+    default: {
+      Desktop: 18,
+      Tablet: 16,
+      Mobile: 14
     }
   },
   paginationPositionType: {
@@ -2165,7 +2213,15 @@ function Save({ attributes: attributes2 }) {
     enableBottomDivider,
     bottomDividerShape,
     enableSlideLightbox,
-    enableCursorFollower
+    enableCursorFollower,
+    cursorFollowerType,
+    cursorFollowerLeftIcon,
+    cursorFollowerRightIcon,
+    cursorFollowerLeftImageUrl,
+    cursorFollowerLeftImageAlt,
+    cursorFollowerRightImageUrl,
+    cursorFollowerRightImageAlt,
+    cursorFollowerText
   } = attributes2;
   const marqueeEnabled = {
     Mobile: !!enableContinuousMarquee?.Mobile,
@@ -2313,6 +2369,40 @@ function Save({ attributes: attributes2 }) {
             ...globalID && { id: globalID },
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { ...innerBlocksProps }),
+              cursorFollowerDevices && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+                "div",
+                {
+                  className: "gslider-cursor-follower",
+                  "aria-hidden": "true",
+                  children: [
+                    (!cursorFollowerType || cursorFollowerType === "icon") && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-left", children: renderIcon_default(
+                        cursorFollowerLeftIcon || "arrow-left"
+                      ) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-right", children: renderIcon_default(
+                        cursorFollowerRightIcon || "arrow-right"
+                      ) })
+                    ] }),
+                    cursorFollowerType === "image" && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
+                      cursorFollowerLeftImageUrl && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-image gslider-cursor-left", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+                        "img",
+                        {
+                          src: cursorFollowerLeftImageUrl,
+                          alt: cursorFollowerLeftImageAlt || "Previous"
+                        }
+                      ) }),
+                      cursorFollowerRightImageUrl && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-image gslider-cursor-right", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+                        "img",
+                        {
+                          src: cursorFollowerRightImageUrl,
+                          alt: cursorFollowerRightImageAlt || "Next"
+                        }
+                      ) })
+                    ] }),
+                    cursorFollowerType === "text" && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "gslider-cursor-text", children: cursorFollowerText || "DRAG" })
+                  ]
+                }
+              ),
               showAutoplayProgress && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
                 "div",
                 {
@@ -2542,7 +2632,23 @@ var getHasPaginationCss = (blockId, showPagination, device, fallbackDevices, off
   }
   return "";
 };
-var getCursorFollowerSizeCss = (blockId, enabled, size) => enabled && size ? `.${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${size}px; height: ${size}px; }` : "";
+var getCursorFollowerSizeCss = (blockId, enabled, size, innerSize) => {
+  if (!enabled) {
+    return "";
+  }
+  let css = "";
+  if (size) {
+    css += `.${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower { width: ${size}px; height: ${size}px; }`;
+  }
+  if (innerSize) {
+    css += `
+        .${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-icon svg { width: ${innerSize}px; height: ${innerSize}px; }
+        .${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-image { width: ${innerSize}px; height: ${innerSize}px; }
+        .${blockId}.gslider-flexi-content-wrapper > .swiper > .gslider-cursor-follower .gslider-cursor-text { font-size: ${innerSize}px; }
+        `;
+  }
+  return css;
+};
 var getAutoplayProgressCss = (blockId, enabled, color, height) => {
   const deviceRule = (device) => `
         .${blockId} > .swiper > .gslider-autoplay-progress {
@@ -2918,6 +3024,7 @@ var generateFlexiContentStyle = (attributes2) => {
     cursorFollowerBg,
     cursorFollowerColor,
     cursorFollowerSize,
+    cursorFollowerInnerSize,
     /** Start Shape Dividers */
     enableTopDivider,
     topDividerColor,
@@ -3332,7 +3439,8 @@ var generateFlexiContentStyle = (attributes2) => {
         ${getCursorFollowerSizeCss(
     blockId,
     hasCursorFollower,
-    cursorFollowerSize?.Desktop
+    cursorFollowerSize?.Desktop,
+    cursorFollowerInnerSize?.Desktop
   )}
         ${getShapeDividerCss(blockId, "top", topDivider, "Desktop")}
         ${getShapeDividerCss(blockId, "bottom", bottomDivider, "Desktop")}
@@ -3342,7 +3450,8 @@ var generateFlexiContentStyle = (attributes2) => {
             ${getCursorFollowerSizeCss(
     blockId,
     hasCursorFollower,
-    cursorFollowerSize?.Tablet
+    cursorFollowerSize?.Tablet,
+    cursorFollowerInnerSize?.Tablet
   )}
 
             .${blockId}.gslider-flexi-content-wrapper {
@@ -3543,7 +3652,8 @@ var generateFlexiContentStyle = (attributes2) => {
             ${getCursorFollowerSizeCss(
     blockId,
     hasCursorFollower,
-    cursorFollowerSize?.Mobile
+    cursorFollowerSize?.Mobile,
+    cursorFollowerInnerSize?.Mobile
   )}
 
             .${blockId}.gslider-flexi-content-wrapper {

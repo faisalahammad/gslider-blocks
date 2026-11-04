@@ -93,9 +93,20 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		showPagination,
 		enableSlideLightbox,
 		enableCursorFollower,
+		cursorFollowerType,
+		cursorFollowerLeftIcon,
+		cursorFollowerRightIcon,
+		cursorFollowerLeftImageUrl,
+		cursorFollowerLeftImageAlt,
+		cursorFollowerLeftImageID,
+		cursorFollowerRightImageUrl,
+		cursorFollowerRightImageAlt,
+		cursorFollowerRightImageID,
+		cursorFollowerText,
 		cursorFollowerBg,
 		cursorFollowerColor,
 		cursorFollowerSize,
+		cursorFollowerInnerSize,
 		paginationPositionType,
 		/** End Show/Hide Elements */
 
@@ -539,6 +550,15 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	};
 	/** End Navigation Custom Arrows */
 
+	/** Cursor Follower Icons */
+	const cursorFollowerLeftIconHandler = ( IconName ) => {
+		setAttributes( { cursorFollowerLeftIcon: IconName } );
+	};
+	const cursorFollowerRightIconHandler = ( IconName ) => {
+		setAttributes( { cursorFollowerRightIcon: IconName } );
+	};
+	/** End Cursor Follower Icons */
+
 	/**
 	 * Inspector General Controls
 	 */
@@ -579,10 +599,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					setAttributes={ setAttributes }
 				/>
 				<ResponsiveToggleControl
-					label={ __(
-						'Cursor Follower Navigation',
-						'gslider-blocks'
-					) }
+					label={ __( 'Cursor Follower', 'gslider-blocks' ) }
 					toggleValue={ enableCursorFollower }
 					setToggleValue={ ( value ) =>
 						setAttributes( { enableCursorFollower: value } )
@@ -590,50 +607,6 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					deviceType={ deviceType }
 					setAttributes={ setAttributes }
 				/>
-				{ Object.values( enableCursorFollower || {} ).some(
-					Boolean
-				) && (
-					<>
-						<ColorControl
-							label={ __(
-								'Follower Background',
-								'gslider-blocks'
-							) }
-							color={ cursorFollowerBg }
-							onChangeColor={ ( value ) =>
-								setAttributes( { cursorFollowerBg: value } )
-							}
-							defaultColor="rgba(0, 0, 0, 0.75)"
-						/>
-						<ColorControl
-							label={ __(
-								'Follower Icon Color',
-								'gslider-blocks'
-							) }
-							color={ cursorFollowerColor }
-							onChangeColor={ ( value ) =>
-								setAttributes( { cursorFollowerColor: value } )
-							}
-							defaultColor="#ffffff"
-						/>
-						<ResponsiveRangeControl
-							min={ 32 }
-							max={ 80 }
-							label={ __(
-								'Follower Size (px)',
-								'gslider-blocks'
-							) }
-							rangeValue={ cursorFollowerSize }
-							onChangeValue={ ( value ) =>
-								setAttributes( { cursorFollowerSize: value } )
-							}
-							deviceType={ deviceType }
-							step={ 1 }
-							resetFallbackValue="48"
-							isRangeUnit={ false }
-						/>
-					</>
-				) }
 			</PanelBody>
 			<PanelBody
 				title={ __( 'Layout & Content Setting', 'gslider-blocks' ) }
@@ -3128,6 +3101,213 @@ const Inspector = ( { attributes, setAttributes } ) => {
 							/>
 						</>
 					) }
+				</PanelBody>
+			) }
+
+			{ Object.values( enableCursorFollower || {} ).some( Boolean ) && (
+				<PanelBody
+					title={ __( 'Cursor Follower', 'gslider-blocks' ) }
+					opened={ openPanels.styles === 'cursor-follower' }
+					onToggle={ () =>
+						togglePanel( 'styles', 'cursor-follower' )
+					}
+				>
+					<SwitcherControl
+						label={ __( 'Type', 'gslider-blocks' ) }
+						options={ [
+							{
+								label: __( 'Icon', 'gslider-blocks' ),
+								value: 'icon',
+							},
+							{
+								label: __( 'Image', 'gslider-blocks' ),
+								value: 'image',
+							},
+							{
+								label: __( 'Text', 'gslider-blocks' ),
+								value: 'text',
+							},
+						] }
+						value={ cursorFollowerType || 'icon' }
+						onChange={ ( value ) =>
+							setAttributes( { cursorFollowerType: value } )
+						}
+					/>
+
+					{ ( ! cursorFollowerType ||
+						cursorFollowerType === 'icon' ) && (
+						<>
+							<BaseControl>
+								<p className="components-base-control__label">
+									{ __( 'Left Icon', 'gslider-blocks' ) }
+								</p>
+								<IconPicker
+									value={ cursorFollowerLeftIcon }
+									setIconHandler={
+										cursorFollowerLeftIconHandler
+									}
+								/>
+							</BaseControl>
+							<BaseControl>
+								<p className="components-base-control__label">
+									{ __( 'Right Icon', 'gslider-blocks' ) }
+								</p>
+								<IconPicker
+									value={ cursorFollowerRightIcon }
+									setIconHandler={
+										cursorFollowerRightIconHandler
+									}
+								/>
+							</BaseControl>
+							<ResponsiveRangeControl
+								min={ 12 }
+								max={ 48 }
+								label={ __( 'Icon Size', 'gslider-blocks' ) }
+								rangeValue={ cursorFollowerInnerSize }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										cursorFollowerInnerSize: value,
+									} )
+								}
+								deviceType={ deviceType }
+								step={ 1 }
+								resetFallbackValue="18"
+								isRangeUnit={ false }
+							/>
+						</>
+					) }
+
+					{ cursorFollowerType === 'image' && (
+						<>
+							<BaseControl>
+								<p className="components-base-control__label">
+									{ __( 'Left Image', 'gslider-blocks' ) }
+								</p>
+								<ImageControl
+									imageUrl={ cursorFollowerLeftImageUrl }
+									setImageUrl={ ( value ) =>
+										setAttributes( {
+											cursorFollowerLeftImageUrl: value,
+										} )
+									}
+									imageAlt={ cursorFollowerLeftImageAlt }
+									setImageAlt={ ( value ) =>
+										setAttributes( {
+											cursorFollowerLeftImageAlt: value,
+										} )
+									}
+									imageID={ cursorFollowerLeftImageID }
+									setImageID={ ( value ) =>
+										setAttributes( {
+											cursorFollowerLeftImageID: value,
+										} )
+									}
+									isImageSize={ false }
+								/>
+							</BaseControl>
+							<BaseControl>
+								<p className="components-base-control__label">
+									{ __( 'Right Image', 'gslider-blocks' ) }
+								</p>
+								<ImageControl
+									imageUrl={ cursorFollowerRightImageUrl }
+									setImageUrl={ ( value ) =>
+										setAttributes( {
+											cursorFollowerRightImageUrl: value,
+										} )
+									}
+									imageAlt={ cursorFollowerRightImageAlt }
+									setImageAlt={ ( value ) =>
+										setAttributes( {
+											cursorFollowerRightImageAlt: value,
+										} )
+									}
+									imageID={ cursorFollowerRightImageID }
+									setImageID={ ( value ) =>
+										setAttributes( {
+											cursorFollowerRightImageID: value,
+										} )
+									}
+									isImageSize={ false }
+								/>
+							</BaseControl>
+							<ResponsiveRangeControl
+								min={ 12 }
+								max={ 50 }
+								label={ __( 'Image Size', 'gslider-blocks' ) }
+								rangeValue={ cursorFollowerInnerSize }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										cursorFollowerInnerSize: value,
+									} )
+								}
+								deviceType={ deviceType }
+								step={ 1 }
+								resetFallbackValue="24"
+								isRangeUnit={ false }
+							/>
+						</>
+					) }
+
+					{ cursorFollowerType === 'text' && (
+						<>
+							<InputControls
+								label={ __( 'Text', 'gslider-blocks' ) }
+								value={ cursorFollowerText }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										cursorFollowerText: value,
+									} )
+								}
+							/>
+							<ResponsiveRangeControl
+								min={ 10 }
+								max={ 24 }
+								label={ __( 'Font Size', 'gslider-blocks' ) }
+								rangeValue={ cursorFollowerInnerSize }
+								onChangeValue={ ( value ) =>
+									setAttributes( {
+										cursorFollowerInnerSize: value,
+									} )
+								}
+								deviceType={ deviceType }
+								step={ 1 }
+								resetFallbackValue="13"
+								isRangeUnit={ false }
+							/>
+						</>
+					) }
+
+					<ResponsiveRangeControl
+						min={ 32 }
+						max={ 100 }
+						label={ __( 'Follower Size', 'gslider-blocks' ) }
+						rangeValue={ cursorFollowerSize }
+						onChangeValue={ ( value ) =>
+							setAttributes( { cursorFollowerSize: value } )
+						}
+						deviceType={ deviceType }
+						step={ 1 }
+						resetFallbackValue="48"
+						isRangeUnit={ false }
+					/>
+
+					<ColorControl
+						label={ __( 'Background', 'gslider-blocks' ) }
+						color={ cursorFollowerBg }
+						onChangeColor={ ( value ) =>
+							setAttributes( { cursorFollowerBg: value } )
+						}
+						defaultColor="rgba(0, 0, 0, 0.75)"
+					/>
+					<ColorControl
+						label={ __( 'Color', 'gslider-blocks' ) }
+						color={ cursorFollowerColor }
+						onChangeColor={ ( value ) =>
+							setAttributes( { cursorFollowerColor: value } )
+						}
+						defaultColor="#ffffff"
+					/>
 				</PanelBody>
 			) }
 

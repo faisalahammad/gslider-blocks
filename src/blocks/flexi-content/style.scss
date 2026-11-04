@@ -95,19 +95,59 @@
 		pointer-events: none;
 		opacity: 0;
 		transition: opacity 0.2s ease;
+		overflow: hidden;
+		text-align: center;
+		user-select: none;
+		box-sizing: border-box;
 
-		// Chevron drawn with borders, so it follows the icon color
-		&::before {
-			content: "";
-			width: 28%;
-			height: 28%;
-			border-top: 2px solid currentcolor;
-			border-right: 2px solid currentcolor;
-			transform: translateX(-15%) rotate(45deg);
+		.gslider-cursor-icon,
+		.gslider-cursor-image {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			line-height: 1;
+
+			svg {
+				fill: currentcolor;
+				width: 18px;
+				height: 18px;
+				display: block;
+			}
+
+			img {
+				display: block;
+				max-width: 100%;
+				height: auto;
+				object-fit: contain;
+			}
 		}
 
-		&.is-left::before {
-			transform: translateX(15%) rotate(-135deg);
+		.gslider-cursor-text {
+			display: block;
+			font-size: 13px;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			line-height: 1;
+		}
+
+		.gslider-cursor-left {
+			display: none;
+		}
+
+		.gslider-cursor-right {
+			display: flex;
+		}
+
+		&.is-left {
+
+			.gslider-cursor-left {
+				display: flex;
+			}
+
+			.gslider-cursor-right {
+				display: none;
+			}
 		}
 	}
 

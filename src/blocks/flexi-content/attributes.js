@@ -184,6 +184,46 @@ const attributes = {
 			Mobile: false,
 		},
 	},
+	cursorFollowerType: {
+		type: 'string',
+		default: 'icon',
+	},
+	cursorFollowerLeftIcon: {
+		type: 'string',
+		default: 'arrow-left',
+	},
+	cursorFollowerRightIcon: {
+		type: 'string',
+		default: 'arrow-right',
+	},
+	cursorFollowerLeftImageUrl: {
+		type: 'string',
+		default: '',
+	},
+	cursorFollowerLeftImageAlt: {
+		type: 'string',
+		default: 'Previous',
+	},
+	cursorFollowerLeftImageID: {
+		type: 'string',
+		default: '',
+	},
+	cursorFollowerRightImageUrl: {
+		type: 'string',
+		default: '',
+	},
+	cursorFollowerRightImageAlt: {
+		type: 'string',
+		default: 'Next',
+	},
+	cursorFollowerRightImageID: {
+		type: 'string',
+		default: '',
+	},
+	cursorFollowerText: {
+		type: 'string',
+		default: 'DRAG',
+	},
 	cursorFollowerBg: {
 		type: 'string',
 		default: 'rgba(0, 0, 0, 0.75)',
@@ -198,6 +238,14 @@ const attributes = {
 			Desktop: 48,
 			Tablet: 48,
 			Mobile: 48,
+		},
+	},
+	cursorFollowerInnerSize: {
+		type: 'object',
+		default: {
+			Desktop: 18,
+			Tablet: 16,
+			Mobile: 14,
 		},
 	},
 	paginationPositionType: {

@@ -23,7 +23,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 291,
+  "totalAttributes": 302,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -67,6 +67,11 @@
       "flex-start",
       "center",
       "flex-end"
+    ],
+    "cursorFollowerType": [
+      "icon",
+      "image",
+      "text"
     ],
     "direction": [
       "horizontal",
@@ -397,6 +402,46 @@
         "Mobile": false
       }
     },
+    "cursorFollowerType": {
+      "type": "string",
+      "default": "icon"
+    },
+    "cursorFollowerLeftIcon": {
+      "type": "string",
+      "default": "arrow-left"
+    },
+    "cursorFollowerRightIcon": {
+      "type": "string",
+      "default": "arrow-right"
+    },
+    "cursorFollowerLeftImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "cursorFollowerLeftImageAlt": {
+      "type": "string",
+      "default": "Previous"
+    },
+    "cursorFollowerLeftImageID": {
+      "type": "string",
+      "default": ""
+    },
+    "cursorFollowerRightImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "cursorFollowerRightImageAlt": {
+      "type": "string",
+      "default": "Next"
+    },
+    "cursorFollowerRightImageID": {
+      "type": "string",
+      "default": ""
+    },
+    "cursorFollowerText": {
+      "type": "string",
+      "default": "DRAG"
+    },
     "cursorFollowerBg": {
       "type": "string",
       "default": "rgba(0, 0, 0, 0.75)"
@@ -411,6 +456,14 @@
         "Desktop": 48,
         "Tablet": 48,
         "Mobile": 48
+      }
+    },
+    "cursorFollowerInnerSize": {
+      "type": "object",
+      "default": {
+        "Desktop": 18,
+        "Tablet": 16,
+        "Mobile": 14
       }
     },
     "paginationPositionType": {
