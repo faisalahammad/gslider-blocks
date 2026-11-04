@@ -111,7 +111,6 @@ class BlockParserTest {
 		$this->test_css_sanitization();
 		$this->test_flexi_slide_css_in_rest_output();
 		$this->test_flexi_vertical_direction();
-		$this->test_flexi_hash_navigation();
 
 		fwrite( STDOUT, "\nAll BlockParser tests passed successfully!\n" );
 	}
@@ -386,7 +385,6 @@ class BlockParserTest {
 						'attrs'       => [
 							'blockId'    => 'slide-a',
 							'blockStyle' => '.slide-a{color:#abcdef}',
-							'slideHash'  => 'pricing',
 						],
 						'innerBlocks' => [
 							[
@@ -408,7 +406,6 @@ class BlockParserTest {
 		$slide = $flexi['slides'][0];
 		$this->assert_true( false !== strpos( $slide['css'], '.slide-a{color:#abcdef}' ) && false !== strpos( $slide['css'], '.slide-a-inner{margin:1px}' ), 'flexi slides[].css carries own and nested CSS' );
 		$this->assert_true( false !== strpos( $slide['innerHtml'], '<style id="gslider-style-slide-a">' ), 'flexi innerHtml keeps its <style> during REST requests' );
-		$this->assert_true( 'pricing' === $slide['slideHash'], 'flexi slides[].slideHash carries the slide slug' );
 	}
 
 	/**
@@ -430,25 +427,6 @@ class BlockParserTest {
 		);
 		$this->assert_true( 'vertical' === $vertical['swiperConfig']['direction'], 'vertical flexi config sets direction' );
 		$this->assert_true( ! isset( $vertical['swiperConfig']['autoHeight'] ), 'vertical flexi config skips autoHeight' );
-	}
-
-	/**
-	 * Test 8: Flexi Content Hash Navigation.
-	 *
-	 * @return void
-	 */
-	public function test_flexi_hash_navigation(): void {
-		$off = $this->normalize( [], 'gslider-blocks/flexi-content' );
-		$this->assert_true( ! isset( $off['swiperConfig']['hashNavigation'] ), 'default flexi config has no hashNavigation key' );
-
-		$on = $this->normalize( [ 'enableHashNavigation' => true ], 'gslider-blocks/flexi-content' );
-		$this->assert_true(
-			[
-				'watchState'   => true,
-				'replaceState' => true,
-			] === $on['swiperConfig']['hashNavigation'],
-			'enabled flexi config matches save.js hashNavigation'
-		);
 	}
 }
 

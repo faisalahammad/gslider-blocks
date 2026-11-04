@@ -74,10 +74,6 @@ var attributes = {
     type: "string",
     default: ""
   },
-  slideHash: {
-    type: "string",
-    default: ""
-  },
   /** Start slider Item Background */
   sliderItemNormalBackgroundType: {
     type: "string",
@@ -221,10 +217,9 @@ var attributes_default = attributes;
 var import_block_editor = require("@wordpress/block-editor");
 var import_jsx_runtime = require("react/jsx-runtime");
 function Save({ attributes: attributes2 }) {
-  const { blockId, slideHash, embedVideoType, embedVideoId } = attributes2;
+  const { blockId, embedVideoType, embedVideoId } = attributes2;
   const blockProps = import_block_editor.useBlockProps.save({
-    className: `flexi-content-item swiper-slide ${blockId}`,
-    ...slideHash && { "data-hash": slideHash }
+    className: `flexi-content-item swiper-slide ${blockId}`
   });
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { ...blockProps, children: [
     embedVideoId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(

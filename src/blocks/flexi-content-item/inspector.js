@@ -5,7 +5,7 @@ import { PanelBody } from '@wordpress/components';
 import InspectorControl from '@Components/inspector-controls';
 import BackgroundControl from '@Components/background-control';
 import SwitcherControl from '@Components/switcher-control';
-import InputControl from '@Components/input-control';
+import InputControls from '@Components/input-control';
 import { EMBED_VIDEO_TYPE } from '@Constants';
 import { useDeviceType } from '@Utils/displayType';
 import './editor.scss';
@@ -37,7 +37,6 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		blockId,
 		deviceType,
 		blockStyle,
-		slideHash,
 
 		/** Start slider Item Background */
 		sliderItemNormalBackgroundType,
@@ -91,25 +90,6 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	 */
 	const generalControls = (
 		<>
-			<PanelBody title={ __( 'General', 'gslider-blocks' ) } initialOpen>
-				<InputControl
-					label={ __( 'Slide URL Slug (Hash)', 'gslider-blocks' ) }
-					value={ slideHash }
-					onChangeValue={ ( value ) =>
-						// Swiper compares the raw URL hash, so keep only URL safe characters
-						setAttributes( {
-							slideHash: ( value || '' )
-								.replace( /^#+/, '' )
-								.toLowerCase()
-								.replace( /[^a-z0-9_-]+/g, '-' ),
-						} )
-					}
-					helpText={ __(
-						'e.g. pricing. Works when URL Hash Navigation is on in the slider.',
-						'gslider-blocks'
-					) }
-				/>
-			</PanelBody>
 			<PanelBody title={ __( 'Video', 'gslider-blocks' ) } initialOpen>
 				<SwitcherControl
 					label={ __( 'Embed Provider', 'gslider-blocks' ) }
@@ -122,7 +102,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 						} )
 					}
 				/>
-				<InputControl
+				<InputControls
 					label={ __( 'Video URL', 'gslider-blocks' ) }
 					value={ embedVideoUrl }
 					onChangeValue={ handleVideoUrlChange }
