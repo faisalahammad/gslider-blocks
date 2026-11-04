@@ -56,6 +56,18 @@ export default function Save( { attributes } ) {
 		enableBottomDivider,
 		bottomDividerShape,
 		enableSlideLightbox,
+		enableCursorFollower,
+		cursorFollowerType,
+		cursorFollowerLeftIcon,
+		cursorFollowerRightIcon,
+		cursorFollowerLeftImageUrl,
+		cursorFollowerLeftImageAlt,
+		cursorFollowerRightImageUrl,
+		cursorFollowerRightImageAlt,
+		cursorFollowerDirectionalText,
+		cursorFollowerText,
+		cursorFollowerLeftText,
+		cursorFollowerRightText,
 	} = attributes;
 
 	const marqueeEnabled = {
@@ -158,6 +170,9 @@ export default function Save( { attributes } ) {
 	// Only output the attribute when enabled, so markup of existing blocks stays the same
 	const lightboxDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
 		.filter( ( device ) => enableSlideLightbox?.[ device ] === true )
+		.join( ' ' );
+	const cursorFollowerDevices = [ 'Desktop', 'Tablet', 'Mobile' ]
+		.filter( ( device ) => enableCursorFollower?.[ device ] === true )
 		.join( ' ' );
 
 	// Configure Swiper settings for frontend rendering
@@ -272,12 +287,76 @@ export default function Save( { attributes } ) {
 			{ ...( lightboxDevices && {
 				'data-slide-lightbox': lightboxDevices,
 			} ) }
+			{ ...( cursorFollowerDevices && {
+				'data-cursor-follower': cursorFollowerDevices,
+			} ) }
 		>
 			<div
 				className={ `swiper ${ globalClass }` }
 				{ ...( globalID && { id: globalID } ) }
 			>
 				<div { ...innerBlocksProps } />
+
+				{ cursorFollowerDevices && (
+					<div className="gslider-cursor-follower" aria-hidden="true">
+						{ ( ! cursorFollowerType ||
+							cursorFollowerType === 'icon' ) && (
+							<>
+								<div className="gslider-cursor-icon gslider-cursor-left">
+									{ renderSVG(
+										cursorFollowerLeftIcon || 'arrow-left'
+									) }
+								</div>
+								<div className="gslider-cursor-icon gslider-cursor-right">
+									{ renderSVG(
+										cursorFollowerRightIcon || 'arrow-right'
+									) }
+								</div>
+							</>
+						) }
+						{ cursorFollowerType === 'image' && (
+							<>
+								{ cursorFollowerLeftImageUrl && (
+									<div className="gslider-cursor-image gslider-cursor-left">
+										<img
+											src={ cursorFollowerLeftImageUrl }
+											alt={
+												cursorFollowerLeftImageAlt ||
+												'Previous'
+											}
+										/>
+									</div>
+								) }
+								{ cursorFollowerRightImageUrl && (
+									<div className="gslider-cursor-image gslider-cursor-right">
+										<img
+											src={ cursorFollowerRightImageUrl }
+											alt={
+												cursorFollowerRightImageAlt ||
+												'Next'
+											}
+										/>
+									</div>
+								) }
+							</>
+						) }
+						{ cursorFollowerType === 'text' &&
+							( cursorFollowerDirectionalText ? (
+								<>
+									<span className="gslider-cursor-text gslider-cursor-left">
+										{ cursorFollowerLeftText || 'PREV' }
+									</span>
+									<span className="gslider-cursor-text gslider-cursor-right">
+										{ cursorFollowerRightText || 'NEXT' }
+									</span>
+								</>
+							) : (
+								<span className="gslider-cursor-text">
+									{ cursorFollowerText || 'DRAG' }
+								</span>
+							) ) }
+					</div>
+				) }
 
 				{ showAutoplayProgress && (
 					<div

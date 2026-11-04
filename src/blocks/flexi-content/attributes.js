@@ -176,6 +176,98 @@ const attributes = {
 			Mobile: false,
 		},
 	},
+	enableCursorFollower: {
+		type: 'object',
+		default: {
+			Desktop: false,
+			Tablet: false,
+			Mobile: false,
+		},
+	},
+	cursorFollowerType: {
+		type: 'string',
+		default: 'icon',
+	},
+	cursorFollowerLeftIcon: {
+		type: 'string',
+		default: 'arrow-left',
+	},
+	cursorFollowerRightIcon: {
+		type: 'string',
+		default: 'arrow-right',
+	},
+	cursorFollowerLeftImageUrl: {
+		type: 'string',
+		default: '',
+	},
+	cursorFollowerLeftImageAlt: {
+		type: 'string',
+		default: 'Previous',
+	},
+	cursorFollowerLeftImageID: {
+		type: 'string',
+		default: '',
+	},
+	cursorFollowerRightImageUrl: {
+		type: 'string',
+		default: '',
+	},
+	cursorFollowerRightImageAlt: {
+		type: 'string',
+		default: 'Next',
+	},
+	cursorFollowerRightImageID: {
+		type: 'string',
+		default: '',
+	},
+	cursorFollowerDirectionalText: {
+		type: 'boolean',
+		default: false,
+	},
+	cursorFollowerText: {
+		type: 'string',
+		default: 'DRAG',
+	},
+	cursorFollowerLeftText: {
+		type: 'string',
+		default: 'PREV',
+	},
+	cursorFollowerRightText: {
+		type: 'string',
+		default: 'NEXT',
+	},
+	cursorFollowerFontWeight: {
+		type: 'string',
+		default: '700',
+	},
+	cursorFollowerTextTransform: {
+		type: 'string',
+		default: 'uppercase',
+	},
+	cursorFollowerBg: {
+		type: 'string',
+		default: 'rgba(0, 0, 0, 0.75)',
+	},
+	cursorFollowerColor: {
+		type: 'string',
+		default: '#ffffff',
+	},
+	cursorFollowerSize: {
+		type: 'object',
+		default: {
+			Desktop: '48',
+			Tablet: '48',
+			Mobile: '40',
+		},
+	},
+	cursorFollowerInnerSize: {
+		type: 'object',
+		default: {
+			Desktop: '18',
+			Tablet: '16',
+			Mobile: '14',
+		},
+	},
 	paginationPositionType: {
 		type: 'string',
 		default: 'inside',
