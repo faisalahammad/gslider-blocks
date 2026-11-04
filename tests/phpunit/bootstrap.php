@@ -589,7 +589,7 @@ if ( ! function_exists( 'wp_mkdir_p' ) ) {
 
 if ( ! function_exists( 'sanitize_text_field' ) ) {
 	function sanitize_text_field( $str ) {
-		return is_string( $str ) ? trim( strip_tags( $str ) ) : '';
+		return is_string( $str ) ? trim( wp_strip_all_tags( $str ) ) : '';
 	}
 }
 
