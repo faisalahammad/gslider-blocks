@@ -331,17 +331,17 @@ var attributes = {
   cursorFollowerSize: {
     type: "object",
     default: {
-      Desktop: 48,
-      Tablet: 48,
-      Mobile: 48
+      Desktop: "48",
+      Tablet: "48",
+      Mobile: "40"
     }
   },
   cursorFollowerInnerSize: {
     type: "object",
     default: {
-      Desktop: 18,
-      Tablet: 16,
-      Mobile: 14
+      Desktop: "18",
+      Tablet: "16",
+      Mobile: "14"
     }
   },
   paginationPositionType: {
