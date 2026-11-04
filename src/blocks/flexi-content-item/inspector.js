@@ -8,7 +8,6 @@ import BackgroundControl from '@Components/background-control';
 import ImageControl from '@Components/image-control';
 import SwitcherControl from '@Components/switcher-control';
 import { YES_NO_SWITCHER } from '@Constants';
-import InputControl from '@Components/input-control';
 import { useDeviceType } from '@Utils/displayType';
 import './editor.scss';
 
@@ -17,7 +16,6 @@ const Inspector = ( { attributes, setAttributes } ) => {
 		blockId,
 		deviceType,
 		blockStyle,
-		slideHash,
 
 		/** Start slider Item Background */
 		sliderItemNormalBackgroundType,
@@ -66,23 +64,12 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	const generalControls = (
 		<>
 			<PanelBody title={ __( 'General', 'gslider-blocks' ) } initialOpen>
-				<InputControl
-					label={ __( 'Slide URL Slug (Hash)', 'gslider-blocks' ) }
-					value={ slideHash }
-					onChangeValue={ ( value ) =>
-						// Swiper compares the raw URL hash, so keep only URL safe characters
-						setAttributes( {
-							slideHash: ( value || '' )
-								.replace( /^#+/, '' )
-								.toLowerCase()
-								.replace( /[^a-z0-9_-]+/g, '-' ),
-						} )
-					}
-					helpText={ __(
-						'e.g. pricing. Works when URL Hash Navigation is on in the slider.',
+				<p>
+					{ __(
+						'No settings available. Move to Style Tab',
 						'gslider-blocks'
 					) }
-				/>
+				</p>
 			</PanelBody>
 		</>
 	);
@@ -341,7 +328,7 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	return (
 		<>
 			<InspectorControl
-				generalControls={ generalControls }
+				generalControls={ null }
 				styleControls={ styleControls }
 				advancedControls={ null }
 			/>

@@ -74,10 +74,6 @@ var attributes = {
     type: "string",
     default: ""
   },
-  slideHash: {
-    type: "string",
-    default: ""
-  },
   /** Start slider Item Background */
   sliderItemNormalBackgroundType: {
     type: "string",
@@ -231,15 +227,13 @@ var import_jsx_runtime = require("react/jsx-runtime");
 function Save({ attributes: attributes2 }) {
   const {
     blockId,
-    slideHash,
     backgroundVideoUrl,
     backgroundVideoPoster,
     backgroundVideoLoop,
     backgroundVideoMuted
   } = attributes2;
   const blockProps = import_block_editor.useBlockProps.save({
-    className: `flexi-content-item swiper-slide ${blockId}`,
-    ...slideHash && { "data-hash": slideHash }
+    className: `flexi-content-item swiper-slide ${blockId}`
   });
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { ...blockProps, children: [
     backgroundVideoUrl && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(

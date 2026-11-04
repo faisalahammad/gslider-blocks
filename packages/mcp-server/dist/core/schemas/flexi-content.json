@@ -23,7 +23,7 @@
       "carousel"
     ]
   },
-  "totalAttributes": 308,
+  "totalAttributes": 307,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -354,10 +354,6 @@
       "default": false
     },
     "keyboardNavigation": {
-      "type": "boolean",
-      "default": false
-    },
-    "enableHashNavigation": {
       "type": "boolean",
       "default": false
     },
