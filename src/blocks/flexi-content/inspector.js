@@ -614,6 +614,19 @@ const Inspector = ( { attributes, setAttributes } ) => {
 					deviceType={ deviceType }
 					setAttributes={ setAttributes }
 				/>
+				{ Object.values( enableCursorFollower || {} ).some(
+					Boolean
+				) && (
+					<p
+						className="components-base-control__help"
+						style={ { marginTop: '-8px', marginBottom: '12px' } }
+					>
+						{ __(
+							'Active on the frontend for site visitors.',
+							'gslider-blocks'
+						) }
+					</p>
+				) }
 			</PanelBody>
 			<PanelBody
 				title={ __( 'Layout & Content Setting', 'gslider-blocks' ) }
@@ -3119,6 +3132,15 @@ const Inspector = ( { attributes, setAttributes } ) => {
 						togglePanel( 'styles', 'cursor-follower' )
 					}
 				>
+					<p
+						className="components-base-control__help"
+						style={ { marginTop: 0, marginBottom: '16px' } }
+					>
+						{ __(
+							'Visible on the frontend to keep the editor smooth for content editing.',
+							'gslider-blocks'
+						) }
+					</p>
 					<SwitcherControl
 						label={ __( 'Type', 'gslider-blocks' ) }
 						options={ [

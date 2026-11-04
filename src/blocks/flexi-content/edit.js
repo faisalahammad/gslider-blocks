@@ -74,19 +74,6 @@ export default function Edit( {
 
 		layoutHeightSwitcher,
 
-		enableCursorFollower,
-		cursorFollowerType,
-		cursorFollowerLeftIcon,
-		cursorFollowerRightIcon,
-		cursorFollowerLeftImageUrl,
-		cursorFollowerLeftImageAlt,
-		cursorFollowerRightImageUrl,
-		cursorFollowerRightImageAlt,
-		cursorFollowerDirectionalText,
-		cursorFollowerText,
-		cursorFollowerLeftText,
-		cursorFollowerRightText,
-
 		enableTopDivider,
 		topDividerShape,
 		enableBottomDivider,
@@ -136,7 +123,6 @@ export default function Edit( {
 	const swiperContainerRef = useRef( null );
 	const swiperInstanceRef = useRef( null );
 	const autoplayProgressFillRef = useRef( null );
-	const followerRef = useRef( null );
 
 	// Ref for panel settings focus management
 	const panelRef = useRef( null );
@@ -490,66 +476,6 @@ export default function Edit( {
 		slideCount,
 	] );
 
-	const isCursorFollowerEnabled = !! enableCursorFollower?.[ deviceType ];
-
-	useEffect( () => {
-		const swiperEl = swiperContainerRef.current;
-		const followerEl = followerRef.current;
-		if ( ! isCursorFollowerEnabled || ! swiperEl || ! followerEl ) {
-			return;
-		}
-
-		const onPointerMove = ( event ) => {
-			if ( event.pointerType && event.pointerType !== 'mouse' ) {
-				return;
-			}
-
-			const interactive = event.target.closest(
-				'.swiper-button-prev, .swiper-button-next, .swiper-pagination, .block-editor-block-toolbar'
-			);
-
-			if ( interactive ) {
-				swiperEl.classList.remove( 'gslider-cursor-active' );
-				return;
-			}
-
-			const rect = swiperEl.getBoundingClientRect();
-			const x = event.clientX - rect.left;
-			const y = event.clientY - rect.top;
-			const isLeft = x < rect.width / 2;
-			const isRTL = Boolean( swiperInstanceRef.current?.rtlTranslate );
-
-			followerEl.classList.toggle( 'is-left', isLeft !== isRTL );
-			followerEl.style.transform = `translate3d(${ x }px, ${ y }px, 0) translate(-50%, -50%)`;
-			swiperEl.classList.add( 'gslider-cursor-active' );
-		};
-
-		const onPointerLeave = () => {
-			swiperEl.classList.remove( 'gslider-cursor-active' );
-		};
-
-		swiperEl.addEventListener( 'pointermove', onPointerMove );
-		swiperEl.addEventListener( 'pointerleave', onPointerLeave );
-
-		return () => {
-			swiperEl.removeEventListener( 'pointermove', onPointerMove );
-			swiperEl.removeEventListener( 'pointerleave', onPointerLeave );
-			swiperEl.classList.remove( 'gslider-cursor-active' );
-		};
-	}, [
-		isCursorFollowerEnabled,
-		cursorFollowerType,
-		cursorFollowerLeftIcon,
-		cursorFollowerRightIcon,
-		cursorFollowerLeftImageUrl,
-		cursorFollowerRightImageUrl,
-		cursorFollowerDirectionalText,
-		cursorFollowerText,
-		cursorFollowerLeftText,
-		cursorFollowerRightText,
-		deviceType,
-	] );
-
 	const getSliderTemplate = [
 		[ 'gslider-blocks/flexi-content-item' ],
 		[ 'gslider-blocks/flexi-content-item' ],
@@ -584,78 +510,6 @@ export default function Edit( {
 					{ ...( globalID && { id: globalID } ) }
 				>
 					<div { ...innerBlocksProps } />
-
-					{ isCursorFollowerEnabled && (
-						<div
-							ref={ followerRef }
-							className="gslider-cursor-follower"
-							aria-hidden="true"
-						>
-							{ ( ! cursorFollowerType ||
-								cursorFollowerType === 'icon' ) && (
-								<>
-									<div className="gslider-cursor-icon gslider-cursor-left">
-										{ renderSVG(
-											cursorFollowerLeftIcon ||
-												'arrow-left'
-										) }
-									</div>
-									<div className="gslider-cursor-icon gslider-cursor-right">
-										{ renderSVG(
-											cursorFollowerRightIcon ||
-												'arrow-right'
-										) }
-									</div>
-								</>
-							) }
-							{ cursorFollowerType === 'image' && (
-								<>
-									{ cursorFollowerLeftImageUrl && (
-										<div className="gslider-cursor-image gslider-cursor-left">
-											<img
-												src={
-													cursorFollowerLeftImageUrl
-												}
-												alt={
-													cursorFollowerLeftImageAlt ||
-													'Previous'
-												}
-											/>
-										</div>
-									) }
-									{ cursorFollowerRightImageUrl && (
-										<div className="gslider-cursor-image gslider-cursor-right">
-											<img
-												src={
-													cursorFollowerRightImageUrl
-												}
-												alt={
-													cursorFollowerRightImageAlt ||
-													'Next'
-												}
-											/>
-										</div>
-									) }
-								</>
-							) }
-							{ cursorFollowerType === 'text' &&
-								( cursorFollowerDirectionalText ? (
-									<>
-										<span className="gslider-cursor-text gslider-cursor-left">
-											{ cursorFollowerLeftText || 'PREV' }
-										</span>
-										<span className="gslider-cursor-text gslider-cursor-right">
-											{ cursorFollowerRightText ||
-												'NEXT' }
-										</span>
-									</>
-								) : (
-									<span className="gslider-cursor-text">
-										{ cursorFollowerText || 'DRAG' }
-									</span>
-								) ) }
-						</div>
-					) }
 
 					{ autoplay && enableAutoplayProgress?.[ deviceType ] && (
 						<div
