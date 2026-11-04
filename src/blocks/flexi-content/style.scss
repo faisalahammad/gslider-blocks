@@ -79,6 +79,85 @@
 		backface-visibility: visible !important;
 	}
 
+	> .swiper > .gslider-cursor-follower {
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 20;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		background: rgba(0, 0, 0, 0.75);
+		color: #fff;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 0.2s ease;
+		overflow: hidden;
+		text-align: center;
+		user-select: none;
+		box-sizing: border-box;
+
+		.gslider-cursor-icon,
+		.gslider-cursor-image {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			line-height: 1;
+
+			svg {
+				fill: currentcolor;
+				width: 18px;
+				height: 18px;
+				display: block;
+			}
+
+			img {
+				display: block;
+				max-width: 100%;
+				height: auto;
+				object-fit: contain;
+			}
+		}
+
+		.gslider-cursor-text {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			line-height: 1;
+			white-space: nowrap;
+		}
+
+		.gslider-cursor-left {
+			display: none;
+		}
+
+		.gslider-cursor-right {
+			display: flex;
+		}
+
+		&.is-left {
+
+			.gslider-cursor-left {
+				display: flex;
+			}
+
+			.gslider-cursor-right {
+				display: none;
+			}
+		}
+	}
+
+	> .swiper.gslider-cursor-active {
+		cursor: none;
+
+		> .gslider-cursor-follower {
+			opacity: 1;
+		}
+	}
+
 	// Vertical slider needs a height, 500px matches the verticalHeight default.
 	> .swiper-vertical {
 		height: 500px;
