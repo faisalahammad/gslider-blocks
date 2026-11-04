@@ -3,8 +3,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const IMAGE_URL_PATTERN = /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
 	// Counter keeps gallery names unique when sliders are added later
 	let lightboxCount = 0;
-	// Same for default slide hashes, so sliders added later never reuse a hash
-	let hashSliderCount = 0;
 
 	/**
 	 * Get the largest image source from srcset, fallback to src.
@@ -456,23 +454,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 				if ( swiperSettings ) {
 					const settings = JSON.parse( swiperSettings );
-
-					// Swiper writes "#null" for slides without a hash, so give them a default one
-					// The slider number keeps it unique when the page has more than one slider
-					if ( settings.hashNavigation ) {
-						const sliderNumber = ++hashSliderCount;
-						swiperElement
-							.querySelectorAll(
-								':scope > .swiper-wrapper > .swiper-slide'
-							)
-							.forEach( ( slide, index ) => {
-								if ( ! slide.dataset.hash ) {
-									slide.dataset.hash = `slider-${ sliderNumber }-slide-${
-										index + 1
-									}`;
-								}
-							} );
-					}
 
 					// Fix for fade effect: disable initial transition to prevent right-to-left glitch on page load
 					if ( settings.effect === 'fade' ) {
