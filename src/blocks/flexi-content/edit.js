@@ -74,6 +74,19 @@ export default function Edit( {
 
 		layoutHeightSwitcher,
 
+		enableCursorFollower,
+		cursorFollowerType,
+		cursorFollowerLeftIcon,
+		cursorFollowerRightIcon,
+		cursorFollowerLeftImageUrl,
+		cursorFollowerLeftImageAlt,
+		cursorFollowerRightImageUrl,
+		cursorFollowerRightImageAlt,
+		cursorFollowerDirectionalText,
+		cursorFollowerText,
+		cursorFollowerLeftText,
+		cursorFollowerRightText,
+
 		enableTopDivider,
 		topDividerShape,
 		enableBottomDivider,
@@ -123,6 +136,7 @@ export default function Edit( {
 	const swiperContainerRef = useRef( null );
 	const swiperInstanceRef = useRef( null );
 	const autoplayProgressFillRef = useRef( null );
+	const followerRef = useRef( null );
 
 	// Ref for panel settings focus management
 	const panelRef = useRef( null );
@@ -476,6 +490,99 @@ export default function Edit( {
 		slideCount,
 	] );
 
+	const isCursorFollowerEnabled = !! enableCursorFollower?.[ deviceType ];
+
+	useEffect( () => {
+		const swiperEl = swiperContainerRef.current;
+		const followerEl = followerRef.current;
+		if ( ! isCursorFollowerEnabled || ! swiperEl || ! followerEl ) {
+			return;
+		}
+
+		let pointer = null;
+		let frame = 0;
+
+		const interactiveSelector =
+			'a, button, input, select, textarea, label, summary, iframe, video, [role="button"], [role="link"], [role="tab"], [role="checkbox"], [role="switch"], [role="menuitem"], [role="option"], [role="slider"], [contenteditable]:not([contenteditable="false"]), .swiper-pagination, .swiper-button-prev, .swiper-button-next, .block-editor-block-toolbar, .block-editor-block-popover';
+
+		const isFreeArea = ( target ) =>
+			!! target &&
+			target.closest( '.swiper' ) === swiperEl &&
+			! target.closest( interactiveSelector );
+
+		const isLeftHalf = ( clientX ) => {
+			const rect = swiperEl.getBoundingClientRect();
+			return clientX - rect.left < rect.width / 2;
+		};
+
+		const render = () => {
+			frame = 0;
+			const active =
+				pointer &&
+				isFreeArea(
+					document.elementFromPoint(
+						pointer.clientX,
+						pointer.clientY
+					)
+				);
+
+			swiperEl.classList.toggle( 'gslider-cursor-active', !! active );
+			if ( ! active ) {
+				return;
+			}
+
+			const rect = swiperEl.getBoundingClientRect();
+			const x = pointer.clientX - rect.left;
+			const y = pointer.clientY - rect.top;
+			const isRTL = swiperInstanceRef.current?.rtlTranslate || false;
+			followerEl.classList.toggle(
+				'is-left',
+				isLeftHalf( pointer.clientX ) !== Boolean( isRTL )
+			);
+			followerEl.style.transform = `translate3d(${ x }px, ${ y }px, 0) translate(-50%, -50%)`;
+		};
+
+		const scheduleRender = () => {
+			if ( ! frame ) {
+				frame = window.requestAnimationFrame( render );
+			}
+		};
+
+		const onPointerMove = ( event ) => {
+			pointer = event.pointerType === 'mouse' ? event : null;
+			scheduleRender();
+		};
+
+		const onPointerLeave = () => {
+			pointer = null;
+			scheduleRender();
+		};
+
+		swiperEl.addEventListener( 'pointermove', onPointerMove );
+		swiperEl.addEventListener( 'pointerleave', onPointerLeave );
+
+		return () => {
+			if ( frame ) {
+				window.cancelAnimationFrame( frame );
+			}
+			swiperEl.removeEventListener( 'pointermove', onPointerMove );
+			swiperEl.removeEventListener( 'pointerleave', onPointerLeave );
+			swiperEl.classList.remove( 'gslider-cursor-active' );
+		};
+	}, [
+		isCursorFollowerEnabled,
+		cursorFollowerType,
+		cursorFollowerLeftIcon,
+		cursorFollowerRightIcon,
+		cursorFollowerLeftImageUrl,
+		cursorFollowerRightImageUrl,
+		cursorFollowerDirectionalText,
+		cursorFollowerText,
+		cursorFollowerLeftText,
+		cursorFollowerRightText,
+		deviceType,
+	] );
+
 	const getSliderTemplate = [
 		[ 'gslider-blocks/flexi-content-item' ],
 		[ 'gslider-blocks/flexi-content-item' ],
@@ -510,6 +617,78 @@ export default function Edit( {
 					{ ...( globalID && { id: globalID } ) }
 				>
 					<div { ...innerBlocksProps } />
+
+					{ isCursorFollowerEnabled && (
+						<div
+							ref={ followerRef }
+							className="gslider-cursor-follower"
+							aria-hidden="true"
+						>
+							{ ( ! cursorFollowerType ||
+								cursorFollowerType === 'icon' ) && (
+								<>
+									<div className="gslider-cursor-icon gslider-cursor-left">
+										{ renderSVG(
+											cursorFollowerLeftIcon ||
+												'arrow-left'
+										) }
+									</div>
+									<div className="gslider-cursor-icon gslider-cursor-right">
+										{ renderSVG(
+											cursorFollowerRightIcon ||
+												'arrow-right'
+										) }
+									</div>
+								</>
+							) }
+							{ cursorFollowerType === 'image' && (
+								<>
+									{ cursorFollowerLeftImageUrl && (
+										<div className="gslider-cursor-image gslider-cursor-left">
+											<img
+												src={
+													cursorFollowerLeftImageUrl
+												}
+												alt={
+													cursorFollowerLeftImageAlt ||
+													'Previous'
+												}
+											/>
+										</div>
+									) }
+									{ cursorFollowerRightImageUrl && (
+										<div className="gslider-cursor-image gslider-cursor-right">
+											<img
+												src={
+													cursorFollowerRightImageUrl
+												}
+												alt={
+													cursorFollowerRightImageAlt ||
+													'Next'
+												}
+											/>
+										</div>
+									) }
+								</>
+							) }
+							{ cursorFollowerType === 'text' &&
+								( cursorFollowerDirectionalText ? (
+									<>
+										<span className="gslider-cursor-text gslider-cursor-left">
+											{ cursorFollowerLeftText || 'PREV' }
+										</span>
+										<span className="gslider-cursor-text gslider-cursor-right">
+											{ cursorFollowerRightText ||
+												'NEXT' }
+										</span>
+									</>
+								) : (
+									<span className="gslider-cursor-text">
+										{ cursorFollowerText || 'DRAG' }
+									</span>
+								) ) }
+						</div>
+					) }
 
 					{ autoplay && enableAutoplayProgress?.[ deviceType ] && (
 						<div

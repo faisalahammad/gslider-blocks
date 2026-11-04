@@ -2254,7 +2254,10 @@ function Save({ attributes: attributes2 }) {
   const anyMarqueeEnabled = marqueeEnabled.Mobile || marqueeEnabled.Tablet || marqueeEnabled.Desktop;
   const marqueeClasses = ["Desktop", "Tablet", "Mobile"].filter((device) => marqueeEnabled[device]).flatMap((device) => {
     const slug = device.toLowerCase();
-    return marqueePauseOnHover?.[device] === false ? [`gslider-marquee-${slug}`] : [`gslider-marquee-${slug}`, `gslider-marquee-pause-${slug}`];
+    return marqueePauseOnHover?.[device] === false ? [`gslider-marquee-${slug}`] : [
+      `gslider-marquee-${slug}`,
+      `gslider-marquee-pause-${slug}`
+    ];
   }).join(" ");
   const blockProps = import_block_editor.useBlockProps.save({
     className: `gslider-flexi-content-wrapper ${blockId} ${navigationArrowPositionType} ${navigationArrowPosition} ${showPagination?.Desktop || showPagination?.Tablet || showPagination?.Mobile ? "has-pagination" : ""}${marqueeClasses ? ` ${marqueeClasses}` : ""}`
@@ -2391,8 +2394,12 @@ function Save({ attributes: attributes2 }) {
               /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { ...innerBlocksProps }),
               cursorFollowerDevices && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "gslider-cursor-follower", "aria-hidden": "true", children: [
                 (!cursorFollowerType || cursorFollowerType === "icon") && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-left", children: renderIcon_default(cursorFollowerLeftIcon || "arrow-left") }),
-                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-right", children: renderIcon_default(cursorFollowerRightIcon || "arrow-right") })
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-left", children: renderIcon_default(
+                    cursorFollowerLeftIcon || "arrow-left"
+                  ) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-icon gslider-cursor-right", children: renderIcon_default(
+                    cursorFollowerRightIcon || "arrow-right"
+                  ) })
                 ] }),
                 cursorFollowerType === "image" && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, { children: [
                   cursorFollowerLeftImageUrl && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "gslider-cursor-image gslider-cursor-left", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
@@ -3657,7 +3664,12 @@ var generateFlexiContentStyle = (attributes2) => {
   )}
             ` : ""}
             ${getShapeDividerCss(blockId, "top", topDivider, "Tablet")}
-            ${getShapeDividerCss(blockId, "bottom", bottomDivider, "Tablet")}
+            ${getShapeDividerCss(
+    blockId,
+    "bottom",
+    bottomDivider,
+    "Tablet"
+  )}
         }
         
         @media only screen and (max-width: 767px) {
@@ -3854,7 +3866,12 @@ var generateFlexiContentStyle = (attributes2) => {
   )}
             ` : ""}
             ${getShapeDividerCss(blockId, "top", topDivider, "Mobile")}
-            ${getShapeDividerCss(blockId, "bottom", bottomDivider, "Mobile")}
+            ${getShapeDividerCss(
+    blockId,
+    "bottom",
+    bottomDivider,
+    "Mobile"
+  )}
         }
     `;
   const autoplayProgressCSS = autoplay && (enableAutoplayProgress?.Desktop || enableAutoplayProgress?.Tablet || enableAutoplayProgress?.Mobile) ? getAutoplayProgressCss(
