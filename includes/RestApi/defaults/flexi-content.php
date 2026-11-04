@@ -73,6 +73,7 @@ return [
 	'carouselEffect' => 'slide',
 	'mousewheelControl' => false,
 	'keyboardNavigation' => false,
+	'enableHashNavigation' => false,
 	'paginationType' => 'bullets',
 	'dynamicBullets' => false,
 	'enableContinuousMarquee' => [

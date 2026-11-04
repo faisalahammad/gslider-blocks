@@ -11,6 +11,10 @@ const attributes = {
 		type: 'string',
 		default: '',
 	},
+	slideHash: {
+		type: 'string',
+		default: '',
+	},
 
 	/** Start slider Item Background */
 	sliderItemNormalBackgroundType: {
