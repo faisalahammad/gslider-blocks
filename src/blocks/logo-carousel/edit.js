@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars, react-hooks/exhaustive-deps, object-shorthand, jsdoc/require-param, no-nested-ternary */
+/* eslint-disable no-unused-vars, react-hooks/exhaustive-deps, object-shorthand, jsdoc/require-param */
 import { __ } from '@wordpress/i18n';
 import {
 	useBlockProps,
@@ -383,6 +383,13 @@ export default function Edit( {
 		);
 	};
 
+	let linkTooltipButtonLabel = __( 'Edit Tooltip', 'gslider-blocks' );
+	if ( enableLogoLinks && showTooltip ) {
+		linkTooltipButtonLabel = __( 'Edit Link & Tooltip', 'gslider-blocks' );
+	} else if ( enableLogoLinks ) {
+		linkTooltipButtonLabel = __( 'Edit Link', 'gslider-blocks' );
+	}
+
 	return (
 		<>
 			{ isSelected && (
@@ -674,21 +681,7 @@ export default function Edit( {
 														)
 													}
 													label={
-														enableLogoLinks &&
-														showTooltip
-															? __(
-																	'Edit Link & Tooltip',
-																	'gslider-blocks'
-															  )
-															: enableLogoLinks
-															? __(
-																	'Edit Link',
-																	'gslider-blocks'
-															  )
-															: __(
-																	'Edit Tooltip',
-																	'gslider-blocks'
-															  )
+														linkTooltipButtonLabel
 													}
 													showTooltip={ true }
 												/>
