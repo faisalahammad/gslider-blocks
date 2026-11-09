@@ -224,21 +224,46 @@ export function allowedValuesProblems( slug, block ) {
 	return problems;
 }
 
-/** JS typeof value each declared attribute type must match for its default. */
-const JS_TYPE_FOR_ATTRIBUTE_TYPE = {
-	string: 'string',
-	number: 'number',
-	integer: 'number',
-	boolean: 'boolean',
-};
+/**
+ * Checks a default or sample value against its declared attribute type.
+ *
+ * Covers `string`, `number`, `integer`, `boolean`, `object`, and `array`.
+ * Anything else (no type, null unions) is accepted, because no single JS
+ * shape can be required for it.
+ *
+ * @param {*}      value Default or sample value to check.
+ * @param {Object} def   Attribute (or property) definition object.
+ * @return {boolean} True when the value matches the declared type.
+ */
+function valueMatchesAttributeType( value, def ) {
+	switch ( def.type ) {
+		case 'string':
+			return typeof value === 'string';
+		case 'number':
+		case 'integer':
+			return typeof value === 'number';
+		case 'boolean':
+			return typeof value === 'boolean';
+		case 'object':
+			return (
+				value !== null &&
+				typeof value === 'object' &&
+				! Array.isArray( value )
+			);
+		case 'array':
+			return Array.isArray( value );
+		default:
+			return true;
+	}
+}
 
 /**
  * Finds attribute defaults whose JS type does not match their declared type.
  *
  * Walks top-level attribute definitions, nested array `items.properties`
  * definitions, and the sample entries inside array defaults. Sourced
- * attributes and types without a single matching JS type (object, array,
- * null unions) are skipped.
+ * attributes are skipped; null-union and unknown types are accepted without
+ * a shape assertion.
  *
  * @param {string} slug  Block slug, such as "testimonial".
  * @param {Object} block Cached block module with an `attributes` map.
@@ -264,12 +289,7 @@ export function defaultTypeProblems( slug, block ) {
 		if ( ! ( 'default' in def ) || def.default === undefined ) {
 			return;
 		}
-		const expected = JS_TYPE_FOR_ATTRIBUTE_TYPE[ def.type ];
-		if ( ! expected ) {
-			// object/array/null-union types have no single JS type to match.
-			return;
-		}
-		if ( typeof def.default !== expected ) {
+		if ( ! valueMatchesAttributeType( def.default, def ) ) {
 			problems.push(
 				`Attribute "${ name }" in "${ slug }" declares type "${
 					def.type
@@ -304,8 +324,7 @@ export function defaultTypeProblems( slug, block ) {
 				if ( ! propDef ) {
 					continue;
 				}
-				const expected = JS_TYPE_FOR_ATTRIBUTE_TYPE[ propDef.type ];
-				if ( expected && typeof value !== expected ) {
+				if ( ! valueMatchesAttributeType( value, propDef ) ) {
 					problems.push(
 						`Attribute "${ name }.default[${ itemIndex }].${ propName }" in "${ slug }" declares type "${
 							propDef.type
