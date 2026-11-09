@@ -240,8 +240,9 @@ function valueMatchesAttributeType( value, def ) {
 		case 'string':
 			return typeof value === 'string';
 		case 'number':
-		case 'integer':
 			return typeof value === 'number';
+		case 'integer':
+			return Number.isInteger( value );
 		case 'boolean':
 			return typeof value === 'boolean';
 		case 'object':
