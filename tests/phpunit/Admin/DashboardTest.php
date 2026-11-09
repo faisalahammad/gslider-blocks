@@ -14,6 +14,11 @@
  * 9. Assets localization provides all required runtime config keys.
  * 10. Compiled dashboard CSS and JS bundles exist and contain verified selectors and components.
  * 11. Script translations are registered for the dashboard handle with the plugin text domain.
+ * 12. register() hooks the register_block_type_args filter for inserter hiding.
+ * 13. filter_allowed_block_types keeps boolean true unchanged with disabled blocks.
+ * 14. filter_allowed_block_types removes disabled blocks from explicit allow lists.
+ * 15. hide_disabled_from_inserter sets supports.inserter false only for disabled blocks.
+ * 16. Disabled block names are normalized, deduped, and validated.
  *
  * @package GSlider\Tests\Admin
  */
@@ -50,6 +55,11 @@ class DashboardTest {
 		$this->test_compiled_blocks_manager_tab();
 		$this->test_streamlined_two_tab_navigation();
 		$this->test_enqueue_registers_script_translations();
+		$this->test_register_hooks_register_block_type_args_filter();
+		$this->test_filter_allowed_block_types_true_stays_true();
+		$this->test_filter_allowed_block_types_array_removes_disabled();
+		$this->test_hide_disabled_from_inserter_sets_supports();
+		$this->test_get_disabled_block_names_normalization();
 
 		echo "All Admin Dashboard tests passed successfully!\n";
 	}
@@ -642,6 +652,191 @@ class DashboardTest {
 			exit( 1 );
 		}
 		echo "OK: Script translations registered for gslider-dashboard-script (domain gslider-blocks, languages path)\n";
+	}
+
+	/**
+	 * Test 12: register() hooks the register_block_type_args filter.
+	 *
+	 * @return void
+	 */
+	public function test_register_hooks_register_block_type_args_filter(): void {
+		global $wp_filters;
+		$dashboard = Dashboard::getInstance();
+		$dashboard->register();
+
+		if ( empty( $wp_filters['register_block_type_args'] ) ) {
+			fwrite( STDERR, "FAIL: Dashboard register() did not hook into register_block_type_args\n" );
+			exit( 1 );
+		}
+
+		$has_filter = false;
+		foreach ( $wp_filters['register_block_type_args'] as $filter ) {
+			if ( is_array( $filter['callback'] ) && $filter['callback'][0] === $dashboard && 'hide_disabled_from_inserter' === $filter['callback'][1] ) {
+				$has_filter = true;
+				break;
+			}
+		}
+		if ( ! $has_filter ) {
+			fwrite( STDERR, "FAIL: hide_disabled_from_inserter not registered on register_block_type_args\n" );
+			exit( 1 );
+		}
+		echo "OK: Dashboard hooks hide_disabled_from_inserter into register_block_type_args\n";
+	}
+
+	/**
+	 * Test 13: Boolean true input stays true even with disabled blocks,
+	 * so JS-only third-party blocks are not hidden site-wide.
+	 *
+	 * @return void
+	 */
+	public function test_filter_allowed_block_types_true_stays_true(): void {
+		global $wp_options;
+		$dashboard  = Dashboard::getInstance();
+		$wp_options['gslider_disabled_blocks'] = [ 'testimonial' ];
+
+		$result = $dashboard->filter_allowed_block_types( true, null );
+
+		if ( true !== $result ) {
+			fwrite( STDERR, "FAIL: filter_allowed_block_types(true) should return true, got: " . var_export( $result, true ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: filter_allowed_block_types keeps true unchanged with disabled blocks\n";
+
+		unset( $wp_options['gslider_disabled_blocks'] );
+	}
+
+	/**
+	 * Test 14: Explicit allow lists have disabled GSlider blocks removed.
+	 *
+	 * @return void
+	 */
+	public function test_filter_allowed_block_types_array_removes_disabled(): void {
+		global $wp_options;
+		$dashboard = Dashboard::getInstance();
+
+		$wp_options['gslider_disabled_blocks'] = [ 'logo-carousel', 'gslider-blocks/flexi-content' ];
+		$allowed  = [ 'core/paragraph', 'gslider-blocks/logo-carousel', 'gslider-blocks/flexi-content', 'gslider-blocks/flexi-content-item', 'core/heading' ];
+
+		$result = $dashboard->filter_allowed_block_types( $allowed, null );
+		$expected = [ 'core/paragraph', 'core/heading' ];
+
+		if ( $result !== $expected ) {
+			fwrite( STDERR, "FAIL: Expected " . json_encode( $expected ) . ', got: ' . json_encode( $result ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: filter_allowed_block_types removes disabled blocks from explicit arrays\n";
+
+		// Short slugs normalize and flexi-content cascades to its item.
+		$wp_options['gslider_disabled_blocks'] = [ 'flexi-content' ];
+		$result = $dashboard->filter_allowed_block_types( [ 'gslider-blocks/flexi-content-item' ], null );
+		if ( [] !== $result ) {
+			fwrite( STDERR, "FAIL: flexi-content disabling should cascade to flexi-content-item, got: " . json_encode( $result ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: flexi-content disabling cascades to flexi-content-item in allow lists\n";
+
+		// Empty option leaves the list untouched.
+		unset( $wp_options['gslider_disabled_blocks'] );
+		$result = $dashboard->filter_allowed_block_types( [ 'core/paragraph' ], null );
+		if ( [ 'core/paragraph' ] !== $result ) {
+			fwrite( STDERR, "FAIL: Empty disabled option should return list unchanged\n" );
+			exit( 1 );
+		}
+		echo "OK: filter_allowed_block_types returns list unchanged when nothing is disabled\n";
+	}
+
+	/**
+	 * Test 15: hide_disabled_from_inserter sets supports.inserter false only
+	 * for disabled GSlider blocks.
+	 *
+	 * @return void
+	 */
+	public function test_hide_disabled_from_inserter_sets_supports(): void {
+		global $wp_options;
+		$dashboard = Dashboard::getInstance();
+
+		$wp_options['gslider_disabled_blocks'] = [ 'testimonial' ];
+		$args = $dashboard->hide_disabled_from_inserter( [ 'supports' => [ 'anchor' => true ] ], 'gslider-blocks/testimonial' );
+		if ( false !== ( $args['supports']['inserter'] ?? null ) || true !== ( $args['supports']['anchor'] ?? null ) ) {
+			fwrite( STDERR, "FAIL: Disabled block should get supports.inserter=false with existing supports preserved\n" );
+			exit( 1 );
+		}
+		echo "OK: hide_disabled_from_inserter sets inserter=false on disabled block\n";
+
+		// Missing supports key gets created.
+		$args = $dashboard->hide_disabled_from_inserter( [], 'gslider-blocks/testimonial' );
+		if ( false !== ( $args['supports']['inserter'] ?? null ) ) {
+			fwrite( STDERR, "FAIL: Missing supports key should be initialized with inserter=false\n" );
+			exit( 1 );
+		}
+		echo "OK: hide_disabled_from_inserter initializes missing supports\n";
+
+		// Enabled blocks pass through untouched.
+		$args = [ 'supports' => [ 'inserter' => true ] ];
+		$args = $dashboard->hide_disabled_from_inserter( $args, 'core/paragraph' );
+		if ( true !== ( $args['supports']['inserter'] ?? null ) ) {
+			fwrite( STDERR, "FAIL: Non-disabled blocks must pass through unchanged\n" );
+			exit( 1 );
+		}
+		echo "OK: hide_disabled_from_inserter leaves other blocks untouched\n";
+
+		// Flexi Content cascade covers the child item block.
+		$wp_options['gslider_disabled_blocks'] = [ 'flexi-content' ];
+		$args = $dashboard->hide_disabled_from_inserter( [], 'gslider-blocks/flexi-content-item' );
+		if ( false !== ( $args['supports']['inserter'] ?? null ) ) {
+			fwrite( STDERR, "FAIL: flexi-content disabling should hide flexi-content-item from inserter\n" );
+			exit( 1 );
+		}
+		echo "OK: hide_disabled_from_inserter cascades flexi-content to flexi-content-item\n";
+
+		// Nothing disabled: args unchanged.
+		unset( $wp_options['gslider_disabled_blocks'] );
+		$args = [ 'supports' => [ 'inserter' => true ] ];
+		$args = $dashboard->hide_disabled_from_inserter( $args, 'gslider-blocks/testimonial' );
+		if ( true !== ( $args['supports']['inserter'] ?? null ) ) {
+			fwrite( STDERR, "FAIL: Empty disabled option must not change args\n" );
+			exit( 1 );
+		}
+		echo "OK: hide_disabled_from_inserter no-ops when nothing is disabled\n";
+	}
+
+	/**
+	 * Test 16: get_disabled_block_names normalizes slugs, dedupes, and skips
+	 * invalid entries.
+	 *
+	 * @return void
+	 */
+	public function test_get_disabled_block_names_normalization(): void {
+		global $wp_options;
+		$dashboard = Dashboard::getInstance();
+
+		$wp_options['gslider_disabled_blocks'] = [ 'testimonial', 'gslider-blocks/testimonial', '', 123, null, 'logo-carousel' ];
+
+		$ref = new ReflectionMethod( Dashboard::class, 'get_disabled_block_names' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		$names = $ref->invoke( $dashboard );
+
+		$expected = [ 'gslider-blocks/testimonial', 'gslider-blocks/logo-carousel' ];
+		if ( $expected !== $names ) {
+			fwrite( STDERR, "FAIL: Expected " . json_encode( $expected ) . ', got: ' . json_encode( $names ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: get_disabled_block_names normalizes, dedupes, and skips invalid entries\n";
+
+		// Non-array or empty option returns empty list.
+		$wp_options['gslider_disabled_blocks'] = 'bad';
+		if ( [] !== $ref->invoke( $dashboard ) ) {
+			fwrite( STDERR, "FAIL: Non-array option should return empty list\n" );
+			exit( 1 );
+		}
+		unset( $wp_options['gslider_disabled_blocks'] );
+		if ( [] !== $ref->invoke( $dashboard ) ) {
+			fwrite( STDERR, "FAIL: Missing option should return empty list\n" );
+			exit( 1 );
+		}
+		echo "OK: get_disabled_block_names handles non-array and missing options\n";
 	}
 }
 
