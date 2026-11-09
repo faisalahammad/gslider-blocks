@@ -739,7 +739,7 @@ class DashboardTest {
 		unset( $wp_options['gslider_disabled_blocks'] );
 		$result = $dashboard->filter_allowed_block_types( [ 'core/paragraph' ], null );
 		if ( [ 'core/paragraph' ] !== $result ) {
-			fwrite( STDERR, "FAIL: Empty disabled option should return list unchanged\n" );
+			fwrite( STDERR, "FAIL: Empty disabled option should return list unchanged, expected ['core/paragraph'], got: " . json_encode( $result ) . "\n" );
 			exit( 1 );
 		}
 		echo "OK: filter_allowed_block_types returns list unchanged when nothing is disabled\n";
@@ -758,7 +758,7 @@ class DashboardTest {
 		$wp_options['gslider_disabled_blocks'] = [ 'testimonial' ];
 		$args = $dashboard->hide_disabled_from_inserter( [ 'supports' => [ 'anchor' => true ] ], 'gslider-blocks/testimonial' );
 		if ( false !== ( $args['supports']['inserter'] ?? null ) || true !== ( $args['supports']['anchor'] ?? null ) ) {
-			fwrite( STDERR, "FAIL: Disabled block should get supports.inserter=false with existing supports preserved\n" );
+			fwrite( STDERR, "FAIL: Expected supports.inserter=false and anchor=true for disabled block, got: " . json_encode( $args ) . "\n" );
 			exit( 1 );
 		}
 		echo "OK: hide_disabled_from_inserter sets inserter=false on disabled block\n";
@@ -766,7 +766,7 @@ class DashboardTest {
 		// Missing supports key gets created.
 		$args = $dashboard->hide_disabled_from_inserter( [], 'gslider-blocks/testimonial' );
 		if ( false !== ( $args['supports']['inserter'] ?? null ) ) {
-			fwrite( STDERR, "FAIL: Missing supports key should be initialized with inserter=false\n" );
+			fwrite( STDERR, "FAIL: Expected supports.inserter=false when supports key is missing, got: " . json_encode( $args ) . "\n" );
 			exit( 1 );
 		}
 		echo "OK: hide_disabled_from_inserter initializes missing supports\n";
@@ -775,7 +775,7 @@ class DashboardTest {
 		$args = [ 'supports' => [ 'inserter' => true ] ];
 		$args = $dashboard->hide_disabled_from_inserter( $args, 'core/paragraph' );
 		if ( true !== ( $args['supports']['inserter'] ?? null ) ) {
-			fwrite( STDERR, "FAIL: Non-disabled blocks must pass through unchanged\n" );
+			fwrite( STDERR, "FAIL: Non-disabled blocks must pass through unchanged with inserter=true, got: " . json_encode( $args ) . "\n" );
 			exit( 1 );
 		}
 		echo "OK: hide_disabled_from_inserter leaves other blocks untouched\n";
@@ -784,7 +784,7 @@ class DashboardTest {
 		$wp_options['gslider_disabled_blocks'] = [ 'flexi-content' ];
 		$args = $dashboard->hide_disabled_from_inserter( [], 'gslider-blocks/flexi-content-item' );
 		if ( false !== ( $args['supports']['inserter'] ?? null ) ) {
-			fwrite( STDERR, "FAIL: flexi-content disabling should hide flexi-content-item from inserter\n" );
+			fwrite( STDERR, "FAIL: flexi-content disabling should hide flexi-content-item from inserter, got: " . json_encode( $args ) . "\n" );
 			exit( 1 );
 		}
 		echo "OK: hide_disabled_from_inserter cascades flexi-content to flexi-content-item\n";
@@ -794,7 +794,7 @@ class DashboardTest {
 		$args = [ 'supports' => [ 'inserter' => true ] ];
 		$args = $dashboard->hide_disabled_from_inserter( $args, 'gslider-blocks/testimonial' );
 		if ( true !== ( $args['supports']['inserter'] ?? null ) ) {
-			fwrite( STDERR, "FAIL: Empty disabled option must not change args\n" );
+			fwrite( STDERR, "FAIL: Empty disabled option must not change args, expected inserter=true, got: " . json_encode( $args ) . "\n" );
 			exit( 1 );
 		}
 		echo "OK: hide_disabled_from_inserter no-ops when nothing is disabled\n";
@@ -828,12 +828,12 @@ class DashboardTest {
 		// Non-array or empty option returns empty list.
 		$wp_options['gslider_disabled_blocks'] = 'bad';
 		if ( [] !== $ref->invoke( $dashboard ) ) {
-			fwrite( STDERR, "FAIL: Non-array option should return empty list\n" );
+			fwrite( STDERR, "FAIL: Expected [] for non-array option, got: " . json_encode( $ref->invoke( $dashboard ) ) . "\n" );
 			exit( 1 );
 		}
 		unset( $wp_options['gslider_disabled_blocks'] );
 		if ( [] !== $ref->invoke( $dashboard ) ) {
-			fwrite( STDERR, "FAIL: Missing option should return empty list\n" );
+			fwrite( STDERR, "FAIL: Expected [] for missing option, got: " . json_encode( $ref->invoke( $dashboard ) ) . "\n" );
 			exit( 1 );
 		}
 		echo "OK: get_disabled_block_names handles non-array and missing options\n";
