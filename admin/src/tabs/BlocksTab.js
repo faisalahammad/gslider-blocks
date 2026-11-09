@@ -89,15 +89,49 @@ const getBlocksMetadata = () => [
 ];
 
 /**
+ * Extracts a readable message from an apiFetch error.
+ *
+ * Nonce expiry gets a dedicated hint; otherwise the server message is shown
+ * so admins can see why a toggle failed (permission, busy lock, bad slug).
+ *
+ * @param {Object} err Error thrown by apiFetch.
+ * @return {string} Message to surface in the error toast.
+ */
+const getToggleErrorMessage = ( err ) => {
+	if ( err && 'rest_cookie_invalid_nonce' === err.code ) {
+		return __(
+			'Your session has expired. Please reload the page and try again.',
+			'gslider-blocks'
+		);
+	}
+
+	if ( err && err.message ) {
+		return err.message;
+	}
+
+	return __(
+		'Failed to update block status. Please try again.',
+		'gslider-blocks'
+	);
+};
+
+/**
  * BlocksTab Component.
  *
  * @param {Object}   props                    Component props.
  * @param {Object}   [props.dashboardData]    Current dashboard metrics.
  * @param {Function} [props.setDashboardData] Parent dashboard state setter.
+ * @param {boolean}  [props.hasError=false]   Whether dashboard data failed to load.
+ * @param {Function} [props.onRetry]          Callback to retry loading dashboard data.
  * @return {JSX.Element} Rendered blocks management view.
  */
-const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
-	const getInitialBlocks = () => {
+const BlocksTab = ( {
+	dashboardData = null,
+	setDashboardData,
+	hasError = false,
+	onRetry,
+} ) => {
+	const [ blocks, setBlocks ] = useState( () => {
 		const serverBlocks = dashboardData?.blocks || [];
 		return getBlocksMetadata().map( ( meta ) => {
 			const found = serverBlocks.find( ( b ) => b.slug === meta.slug );
@@ -106,14 +140,35 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 				enabled: found ? Boolean( found.enabled ) : true,
 			};
 		} );
-	};
-
-	const [ blocks, setBlocks ] = useState( getInitialBlocks );
+	} );
 	const [ isToggling, setIsToggling ] = useState( {} );
 	const [ isBulkUpdating, setIsBulkUpdating ] = useState( false );
 	const [ toast, setToast ] = useState( null );
 	const toastTimeoutRef = useRef( null );
+	const isMountedRef = useRef( true );
+	const blocksRef = useRef( blocks );
 
+	useEffect( () => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+			if ( toastTimeoutRef.current ) {
+				clearTimeout( toastTimeoutRef.current );
+			}
+		};
+	}, [] );
+
+	/**
+	 * Mirrors the latest blocks state so async handlers read the true
+	 * current values instead of render-time closures.
+	 */
+	useEffect( () => {
+		blocksRef.current = blocks;
+	}, [ blocks ] );
+
+	/**
+	 * Syncs block state from dashboardData whenever no toggle is in flight.
+	 */
 	useEffect( () => {
 		if (
 			dashboardData?.blocks &&
@@ -133,14 +188,6 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 		}
 	}, [ dashboardData, isToggling, isBulkUpdating ] );
 
-	useEffect( () => {
-		return () => {
-			if ( toastTimeoutRef.current ) {
-				clearTimeout( toastTimeoutRef.current );
-			}
-		};
-	}, [] );
-
 	const showToast = ( type, message ) => {
 		if ( toastTimeoutRef.current ) {
 			clearTimeout( toastTimeoutRef.current );
@@ -151,33 +198,92 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 		}, 3000 );
 	};
 
-	const handleToggle = async ( slug, nextEnabled ) => {
-		if ( isToggling[ slug ] || isBulkUpdating ) {
+	/**
+	 * Merges the toggled slug's entry into the parent dashboard state.
+	 *
+	 * setDashboardData lives in App, which never unmounts, so this stays
+	 * safe even after the user switches tabs mid-request. Per-slug merge
+	 * keeps an older in-flight response from clobbering a newer toggle.
+	 *
+	 * @param {Array}  newServerBlocks Full updated server block list.
+	 * @param {string} slug            Block slug to merge from the list.
+	 * @return {void}
+	 */
+	const mergeServerBlocks = ( newServerBlocks, slug ) => {
+		if (
+			! Array.isArray( newServerBlocks ) ||
+			typeof setDashboardData !== 'function'
+		) {
 			return;
 		}
 
-		const prevBlocks = [ ...blocks ];
-		const updatedBlocks = blocks.map( ( b ) =>
-			b.slug === slug ? { ...b, enabled: nextEnabled } : b
+		setDashboardData( ( prev ) => {
+			if ( ! prev ) {
+				return prev;
+			}
+
+			const updatedServerBlock = newServerBlocks.find(
+				( b ) => b.slug === slug
+			);
+			if ( ! updatedServerBlock ) {
+				return prev;
+			}
+
+			return {
+				...prev,
+				blocks: prev.blocks
+					? prev.blocks.map( ( b ) =>
+							b.slug === slug ? updatedServerBlock : b
+					  )
+					: [ updatedServerBlock ],
+			};
+		} );
+	};
+
+	/**
+	 * Sets a single block's enabled state in both local and parent state.
+	 *
+	 * @param {string}  slug    Block slug to update.
+	 * @param {boolean} enabled New enabled value.
+	 * @return {void}
+	 */
+	// The functional setDashboardData updater keeps prev untouched when
+	// dashboard data is absent, so no render-closure check is needed here.
+	const setBlockEnabled = ( slug, enabled ) => {
+		// Keep the ref in sync immediately so a bulk toggle started in the
+		// same tick snapshots the true latest values, not the last render.
+		blocksRef.current = blocksRef.current.map( ( b ) =>
+			b.slug === slug ? { ...b, enabled } : b
 		);
-
-		setBlocks( updatedBlocks );
-		setIsToggling( ( prev ) => ( { ...prev, [ slug ]: true } ) );
-
+		setBlocks( ( prev ) =>
+			prev.map( ( b ) => ( b.slug === slug ? { ...b, enabled } : b ) )
+		);
 		if ( typeof setDashboardData === 'function' ) {
 			setDashboardData( ( prev ) =>
 				prev
 					? {
 							...prev,
-							blocks: updatedBlocks.map( ( b ) => ( {
-								slug: b.slug,
-								name: b.name,
-								enabled: b.enabled,
-							} ) ),
+							blocks: prev.blocks
+								? prev.blocks.map( ( b ) =>
+										b.slug === slug ? { ...b, enabled } : b
+								  )
+								: prev.blocks,
 					  }
 					: prev
 			);
 		}
+	};
+
+	const hasAnyToggleInFlight = () =>
+		Object.values( isToggling ).some( Boolean );
+
+	const handleToggle = async ( slug, nextEnabled ) => {
+		if ( isToggling[ slug ] || isBulkUpdating ) {
+			return;
+		}
+
+		setBlockEnabled( slug, nextEnabled );
+		setIsToggling( ( prev ) => ( { ...prev, [ slug ]: true } ) );
 
 		try {
 			const response = await apiFetch( {
@@ -190,6 +296,14 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 			} );
 
 			if ( response && response.status === 'success' ) {
+				// Parent state carries server truth across tab switches, so
+				// update it before the unmount check below.
+				mergeServerBlocks( response.blocks, slug );
+
+				if ( ! isMountedRef.current ) {
+					return;
+				}
+
 				const blockMeta = getBlocksMetadata().find(
 					( b ) => b.slug === slug
 				);
@@ -215,58 +329,45 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 								blockName
 						  )
 				);
-
-				if (
-					response.blocks &&
-					typeof setDashboardData === 'function'
-				) {
-					setDashboardData( ( prev ) =>
-						prev ? { ...prev, blocks: response.blocks } : prev
-					);
-				}
 			} else {
 				throw new Error( 'Toggle rejected by server' );
 			}
 		} catch ( err ) {
-			setBlocks( prevBlocks );
-			if ( typeof setDashboardData === 'function' ) {
-				setDashboardData( ( prev ) =>
-					prev
-						? {
-								...prev,
-								blocks: prevBlocks.map( ( b ) => ( {
-									slug: b.slug,
-									name: b.name,
-									enabled: b.enabled,
-								} ) ),
-						  }
-						: prev
-				);
+			// Revert only this slug so concurrent toggles survive; parent
+			// state reverts even though the tab may have unmounted.
+			setBlockEnabled( slug, ! nextEnabled );
+
+			if ( ! isMountedRef.current ) {
+				return;
 			}
-			showToast(
-				'error',
-				__(
-					'Failed to update block status. Please try again.',
-					'gslider-blocks'
-				)
-			);
+
+			showToast( 'error', getToggleErrorMessage( err ) );
 		} finally {
 			setIsToggling( ( prev ) => ( { ...prev, [ slug ]: false } ) );
 		}
 	};
 
 	const handleToggleAll = async ( nextEnabled ) => {
-		if ( isBulkUpdating ) {
+		if ( isBulkUpdating || hasAnyToggleInFlight() ) {
 			return;
 		}
 
-		const prevBlocks = [ ...blocks ];
-		const updatedBlocks = blocks.map( ( b ) => ( {
+		// Snapshot the true latest state via the ref, then flip every switch.
+		const priorEnabled = {};
+		blocksRef.current.forEach( ( b ) => {
+			priorEnabled[ b.slug ] = b.enabled;
+		} );
+
+		blocksRef.current = blocksRef.current.map( ( b ) => ( {
 			...b,
 			enabled: nextEnabled,
 		} ) );
-
-		setBlocks( updatedBlocks );
+		setBlocks( ( prev ) =>
+			prev.map( ( b ) => ( {
+				...b,
+				enabled: nextEnabled,
+			} ) )
+		);
 		setIsBulkUpdating( true );
 
 		if ( typeof setDashboardData === 'function' ) {
@@ -274,11 +375,12 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 				prev
 					? {
 							...prev,
-							blocks: updatedBlocks.map( ( b ) => ( {
-								slug: b.slug,
-								name: b.name,
-								enabled: b.enabled,
-							} ) ),
+							blocks: prev.blocks
+								? prev.blocks.map( ( b ) => ( {
+										...b,
+										enabled: nextEnabled,
+								  } ) )
+								: prev.blocks,
 					  }
 					: prev
 			);
@@ -295,6 +397,20 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 			} );
 
 			if ( response && response.status === 'success' ) {
+				// Bulk response reflects every slug at completion time.
+				if (
+					response.blocks &&
+					typeof setDashboardData === 'function'
+				) {
+					setDashboardData( ( prev ) =>
+						prev ? { ...prev, blocks: response.blocks } : prev
+					);
+				}
+
+				if ( ! isMountedRef.current ) {
+					return;
+				}
+
 				showToast(
 					'success',
 					nextEnabled
@@ -307,41 +423,36 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 								'gslider-blocks'
 						  )
 				);
-
-				if (
-					response.blocks &&
-					typeof setDashboardData === 'function'
-				) {
-					setDashboardData( ( prev ) =>
-						prev ? { ...prev, blocks: response.blocks } : prev
-					);
-				}
 			} else {
 				throw new Error( 'Bulk toggle rejected by server' );
 			}
 		} catch ( err ) {
-			setBlocks( prevBlocks );
+			const revertBlocks = ( prevBlocks ) =>
+				prevBlocks.map( ( b ) =>
+					Object.prototype.hasOwnProperty.call( priorEnabled, b.slug )
+						? { ...b, enabled: priorEnabled[ b.slug ] }
+						: b
+				);
+
 			if ( typeof setDashboardData === 'function' ) {
 				setDashboardData( ( prev ) =>
 					prev
 						? {
 								...prev,
-								blocks: prevBlocks.map( ( b ) => ( {
-									slug: b.slug,
-									name: b.name,
-									enabled: b.enabled,
-								} ) ),
+								blocks: prev.blocks
+									? revertBlocks( prev.blocks )
+									: prev.blocks,
 						  }
 						: prev
 				);
 			}
-			showToast(
-				'error',
-				__(
-					'Failed to update all blocks. Please try again.',
-					'gslider-blocks'
-				)
-			);
+
+			if ( ! isMountedRef.current ) {
+				return;
+			}
+
+			setBlocks( ( prev ) => revertBlocks( prev ) );
+			showToast( 'error', getToggleErrorMessage( err ) );
 		} finally {
 			setIsBulkUpdating( false );
 		}
@@ -349,6 +460,57 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 
 	const activeCount = blocks.filter( ( b ) => b.enabled ).length;
 	const totalCount = blocks.length;
+
+	// No server state yet: show a loading card while fetching, an error card
+	// with retry when the load failed. Never default switches to enabled.
+	const hasServerState = Boolean(
+		dashboardData?.blocks && dashboardData.blocks.length
+	);
+	const showLoadFailure = hasError && ! hasServerState;
+
+	if ( ! hasServerState ) {
+		return (
+			<div className="gslider-dashboard-blocks-container">
+				<div className="gslider-dashboard-card gslider-dashboard-blocks-header-card">
+					<div className="gslider-dashboard-blocks-header">
+						<div className="gslider-dashboard-blocks-header-left">
+							<h2 className="gslider-dashboard-blocks-title">
+								{ showLoadFailure
+									? __(
+											'Unable to load block status',
+											'gslider-blocks'
+									  )
+									: __(
+											'Loading block status',
+											'gslider-blocks'
+									  ) }
+							</h2>
+							<p className="gslider-dashboard-blocks-desc">
+								{ showLoadFailure
+									? __(
+											'The block list could not be loaded. Your saved settings are unchanged.',
+											'gslider-blocks'
+									  )
+									: __(
+											'Fetching the current block status from the server.',
+											'gslider-blocks'
+									  ) }
+							</p>
+						</div>
+					</div>
+				</div>
+				{ showLoadFailure && typeof onRetry === 'function' && (
+					<button
+						type="button"
+						onClick={ onRetry }
+						className="gslider-dashboard-btn-sm"
+					>
+						{ __( 'Try again', 'gslider-blocks' ) }
+					</button>
+				) }
+			</div>
+		);
+	}
 
 	return (
 		<div className="gslider-dashboard-blocks-container">
@@ -372,7 +534,9 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 								type="button"
 								className="gslider-dashboard-btn-sm"
 								disabled={
-									activeCount === totalCount || isBulkUpdating
+									activeCount === totalCount ||
+									isBulkUpdating ||
+									hasAnyToggleInFlight()
 								}
 								onClick={ () => handleToggleAll( true ) }
 							>
@@ -381,7 +545,11 @@ const BlocksTab = ( { dashboardData = null, setDashboardData } ) => {
 							<button
 								type="button"
 								className="gslider-dashboard-btn-sm"
-								disabled={ activeCount === 0 || isBulkUpdating }
+								disabled={
+									activeCount === 0 ||
+									isBulkUpdating ||
+									hasAnyToggleInFlight()
+								}
 								onClick={ () => handleToggleAll( false ) }
 							>
 								{ __( 'Deactivate All', 'gslider-blocks' ) }

@@ -43,6 +43,8 @@ class DashboardControllerTest {
 		$this->test_system_metrics_payload();
 		$this->test_endpoint_response_payload_structure();
 		$this->test_toggle_block_action();
+		$this->test_toggle_block_sequential_updates_persist();
+		$this->test_toggle_block_lock_unavailable_rejects_without_writing();
 		$this->test_rest_schema_definition();
 		$this->test_plugin_service_registration();
 
@@ -549,6 +551,125 @@ class DashboardControllerTest {
 		echo "OK: Toggling all on enables all blocks\n";
 
 		delete_option( 'gslider_disabled_blocks' );
+	}
+
+	/**
+	 * Test 8c: Sequential toggles of different slugs both persist (#329).
+	 *
+	 * Sequential stand-in for the race the lock now serializes: each toggle
+	 * re-reads the option inside the lock, so the second toggle builds on the
+	 * first one's write instead of dropping it. Also verifies the lock is
+	 * acquired before each write and released after every exit path.
+	 *
+	 * @return void
+	 */
+	public function test_toggle_block_sequential_updates_persist(): void {
+		global $current_caps, $wp_options;
+		$controller = DashboardController::getInstance();
+
+		$current_caps['manage_options'] = true;
+		$wp_options['gslider_disabled_blocks'] = [];
+		$GLOBALS['wpdb']->query_log = [];
+
+		// First request disables base (same unlocked read both requests used to share).
+		$request_base = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request_base->set_param( 'slug', 'base' );
+		$request_base->set_param( 'enabled', false );
+		$response_base = $controller->toggle_block( $request_base );
+		$data_base     = $response_base->get_data();
+
+		if ( ! in_array( 'gslider-blocks/base', $data_base['disabled_blocks'], true ) ) {
+			fwrite( STDERR, "FAIL: first toggle did not disable base\n" );
+			exit( 1 );
+		}
+
+		// Second request disables testimonial; must still see base disabled.
+		$request_testimonial = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request_testimonial->set_param( 'slug', 'testimonial' );
+		$request_testimonial->set_param( 'enabled', false );
+		$response_testimonial = $controller->toggle_block( $request_testimonial );
+		$data_testimonial     = $response_testimonial->get_data();
+
+		if ( ! in_array( 'gslider-blocks/base', $data_testimonial['disabled_blocks'], true ) ) {
+			fwrite( STDERR, "FAIL: second toggle lost the first toggle's change\n" );
+			exit( 1 );
+		}
+		if ( ! in_array( 'gslider-blocks/testimonial', $data_testimonial['disabled_blocks'], true ) ) {
+			fwrite( STDERR, "FAIL: second toggle did not disable testimonial\n" );
+			exit( 1 );
+		}
+		if ( ! in_array( 'gslider-blocks/base', (array) get_option( 'gslider_disabled_blocks' ), true ) ) {
+			fwrite( STDERR, "FAIL: persisted option lost the first toggle's change\n" );
+			exit( 1 );
+		}
+
+		// Each toggle acquires the lock before writing and releases after: the
+		// query log for the second toggle must contain GET_LOCK and end with
+		// RELEASE_LOCK.
+		$query_log = $GLOBALS['wpdb']->query_log;
+		$lock_queries = array_filter(
+			(array) $query_log,
+			static function ( $q ) {
+				return (bool) preg_match( '/GET_LOCK|RELEASE_LOCK/i', (string) $q );
+			}
+		);
+		$lock_sequence = array_values( $lock_queries );
+		$lock_count = count( $lock_sequence );
+		if ( $lock_count < 4 ) {
+			fwrite( STDERR, "FAIL: expected at least 2 acquire/release lock pairs, got: " . $lock_count . "\n" );
+			exit( 1 );
+		}
+		if ( 0 !== $lock_count % 2 || ! preg_match( '/GET_LOCK/i', $lock_sequence[ $lock_count - 2 ] ) || ! preg_match( '/RELEASE_LOCK/i', $lock_sequence[ $lock_count - 1 ] ) ) {
+			fwrite( STDERR, "FAIL: toggle lock acquire/release did not alternate as pairs; log: " . json_encode( $lock_sequence ) . "\n" );
+			exit( 1 );
+		}
+
+		echo "OK: Sequential toggles of two slugs both persist\n";
+
+		$wp_options['gslider_disabled_blocks'] = [];
+	}
+
+	/**
+	 * Test 8d: Toggle rejected when the lock is held elsewhere (#329).
+	 *
+	 * @return void
+	 */
+	public function test_toggle_block_lock_unavailable_rejects_without_writing(): void {
+		global $current_caps, $wp_options, $gslider_mock_lock_available;
+		$controller = DashboardController::getInstance();
+
+		$current_caps['manage_options']    = true;
+		$wp_options['gslider_disabled_blocks'] = [ 'gslider-blocks/testimonial' ];
+		$gslider_mock_lock_available       = 0;
+
+		$request = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request->set_param( 'slug', 'base' );
+		$request->set_param( 'enabled', false );
+
+		$response = $controller->toggle_block( $request );
+
+		if ( ! ( $response instanceof WP_Error ) ) {
+			fwrite( STDERR, "FAIL: lock-unavailable toggle did not return WP_Error\n" );
+			exit( 1 );
+		}
+		if ( 'gslider_toggle_busy' !== $response->get_error_code() ) {
+			fwrite( STDERR, "FAIL: lock-unavailable error code is not gslider_toggle_busy\n" );
+			exit( 1 );
+		}
+		$error_data = $response->get_error_data();
+		if ( ! isset( $error_data['status'] ) || 409 !== $error_data['status'] ) {
+			fwrite( STDERR, "FAIL: lock-unavailable error status is not 409\n" );
+			exit( 1 );
+		}
+		if ( [ 'gslider-blocks/testimonial' ] !== $wp_options['gslider_disabled_blocks'] ) {
+			fwrite( STDERR, "FAIL: rejected toggle modified the disabled blocks option\n" );
+			exit( 1 );
+		}
+
+		echo "OK: Toggle with lock held elsewhere returns 409 and leaves option untouched\n";
+
+		$gslider_mock_lock_available = null;
+		$wp_options['gslider_disabled_blocks'] = [];
 	}
 
 	/**

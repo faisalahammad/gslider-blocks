@@ -50,6 +50,7 @@ $wp_mock_posts         = [];
 $password_clear        = [];
 $can_read              = [];
 $registered_rest_fields = [];
+$gslider_mock_lock_available = null;
 
 if ( ! function_exists( 'add_action' ) ) {
 	function add_action( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
@@ -464,14 +465,23 @@ if ( ! class_exists( 'WP_Error' ) ) {
 	}
 }
 
+if ( ! function_exists( 'is_wp_error' ) ) {
+	function is_wp_error( $thing ) {
+		return ( $thing instanceof WP_Error );
+	}
+}
+
 if ( ! class_exists( 'MockWPDB' ) ) {
 	class MockWPDB {
 		public $posts      = 'wp_posts';
+		public $options    = 'wp_options';
 		public $last_query = '';
 		public $return_col = [];
+		public $query_log  = [];
 
 		public function get_col( $query ) {
-			$this->last_query = $query;
+			$this->last_query  = $query;
+			$this->query_log[] = $query;
 			return $this->return_col;
 		}
 
@@ -487,8 +497,24 @@ if ( ! class_exists( 'MockWPDB' ) ) {
 			return vsprintf( $query, $args );
 		}
 
+		public function query( $query ) {
+			$this->last_query    = $query;
+			$this->query_log[]   = $query;
+			return 1;
+		}
+
 		public function get_var( $query ) {
-			$this->last_query = $query;
+			$this->last_query  = $query;
+			$this->query_log[] = $query;
+
+			global $gslider_mock_lock_available;
+			if ( preg_match( '/GET_LOCK/i', (string) $query ) ) {
+				// Simulate GET_LOCK(): 1 = acquired, 0 = timeout, per test needs.
+				return null !== $gslider_mock_lock_available
+					? (string) $gslider_mock_lock_available
+					: '1';
+			}
+
 			return count( $this->return_col );
 		}
 	}
