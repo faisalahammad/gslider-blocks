@@ -19,5 +19,5 @@ registerBlockType( metadata.name, {
 	save,
 	deprecated,
 	icon: Icon,
-	...transforms,
+	transforms,
 } );
