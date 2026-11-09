@@ -224,6 +224,82 @@ export function allowedValuesProblems( slug, block ) {
 	return problems;
 }
 
+const JS_TYPE_FOR_ATTRIBUTE_TYPE = {
+	string: 'string',
+	number: 'number',
+	integer: 'number',
+	boolean: 'boolean',
+};
+
+export function defaultTypeProblems( slug, block ) {
+	const problems = [];
+
+	const checkDefault = ( name, def ) => {
+		if ( ! def || typeof def !== 'object' || Array.isArray( def ) ) {
+			return;
+		}
+		if ( def.source !== undefined ) {
+			// Sourced attributes read their value from the HTML, not the comment.
+			return;
+		}
+		if ( ! ( 'default' in def ) || def.default === undefined ) {
+			return;
+		}
+		const expected = JS_TYPE_FOR_ATTRIBUTE_TYPE[ def.type ];
+		if ( ! expected ) {
+			// object/array/null-union types have no single JS type to match.
+			return;
+		}
+		if ( typeof def.default !== expected ) {
+			problems.push(
+				`Attribute "${ name }" in "${ slug }" declares type "${
+					def.type
+				}" but its default is ${ JSON.stringify( def.default ) }`
+			);
+		}
+	};
+
+	for ( const [ name, def ] of Object.entries( block.attributes || {} ) ) {
+		checkDefault( name, def );
+		if ( def?.type === 'array' && def.items?.properties ) {
+			for ( const [ propName, propDef ] of Object.entries(
+				def.items.properties
+			) ) {
+				checkDefault( `${ name }.${ propName }`, propDef );
+			}
+		}
+	}
+
+	// Sample items stitched into the array default must be type-correct too.
+	for ( const [ name, def ] of Object.entries( block.attributes || {} ) ) {
+		if ( def?.type !== 'array' || ! Array.isArray( def.default ) ) {
+			continue;
+		}
+		const properties = def.items?.properties || {};
+		for ( const [ itemIndex, item ] of def.default.entries() ) {
+			if ( ! item || typeof item !== 'object' || Array.isArray( item ) ) {
+				continue;
+			}
+			for ( const [ propName, value ] of Object.entries( item ) ) {
+				const propDef = properties[ propName ];
+				if ( ! propDef ) {
+					continue;
+				}
+				const expected = JS_TYPE_FOR_ATTRIBUTE_TYPE[ propDef.type ];
+				if ( expected && typeof value !== expected ) {
+					problems.push(
+						`Attribute "${ name }.default[${ itemIndex }].${ propName }" in "${ slug }" declares type "${
+							propDef.type
+						}" but its sample value is ${ JSON.stringify( value ) }`
+					);
+				}
+			}
+		}
+	}
+
+	return problems;
+}
+
 async function runDriftCheck() {
 	const schemasDir = path.resolve( __dirname, '../src/core/schemas' );
 	let hasDrift = false;
@@ -245,6 +321,11 @@ async function runDriftCheck() {
 		}
 
 		for ( const problem of allowedValuesProblems( slug, cachedBlock ) ) {
+			console.error( `FAIL: ${ problem }.` );
+			hasDrift = true;
+		}
+
+		for ( const problem of defaultTypeProblems( slug, cachedBlock ) ) {
 			console.error( `FAIL: ${ problem }.` );
 			hasDrift = true;
 		}

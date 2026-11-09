@@ -23,7 +23,7 @@ export declare const validateBlockToolDefinition: {
 export declare function handleValidateBlock(args: unknown): Promise<{
     isError: boolean;
     content: {
-        type: "text";
+        type: 'text';
         text: string;
     }[];
 }>;

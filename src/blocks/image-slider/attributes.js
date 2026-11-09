@@ -324,7 +324,7 @@ const attributes = {
 	},
 	imageNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	imageNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -345,7 +345,7 @@ const attributes = {
 	},
 	imageHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	imageHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -609,7 +609,7 @@ const attributes = {
 	},
 	imageCaptionNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	imageCaptionNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -629,7 +629,7 @@ const attributes = {
 	},
 	imageCaptionHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	imageCaptionHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -1214,7 +1214,7 @@ const attributes = {
 	},
 	navigationArrowNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	navigationArrowNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -1234,7 +1234,7 @@ const attributes = {
 	},
 	navigationArrowHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	navigationArrowHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -2258,7 +2258,7 @@ const attributes = {
 	},
 	globalNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	globalNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -2319,7 +2319,7 @@ const attributes = {
 	},
 	globalHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	globalHoverCustomGradientSwitcher: {
 		type: 'boolean',

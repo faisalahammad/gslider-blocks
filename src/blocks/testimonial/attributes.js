@@ -46,7 +46,7 @@ const attributes = {
 
 				normalItemBackgroundType: 'classic',
 				normalItemClassicColor: '#EDEDED',
-				normalItemGradientColor: null,
+				normalItemGradientColor: '',
 				normalItemCustomGradientSwitcher: false,
 				normalItemCustomGradientInputValue: '',
 
@@ -89,7 +89,7 @@ const attributes = {
 				itemBackgroundOverlaySwitcher: false,
 				itemBackgroundOverlayType: 'classic',
 				itemBackgroundOverlayClassicColor: '#000',
-				itemBackgroundOverlayGradientColor: null,
+				itemBackgroundOverlayGradientColor: '',
 				itemBackgroundOverlayCustomGradientSwitcher: false,
 				itemBackgroundOverlayCustomGradientInputValue: '',
 				itemBackgroundOverlayOpacity: 0.5,
@@ -116,7 +116,7 @@ const attributes = {
 
 				normalItemBackgroundType: 'classic',
 				normalItemClassicColor: '#EDEDED',
-				normalItemGradientColor: null,
+				normalItemGradientColor: '',
 				normalItemCustomGradientSwitcher: false,
 				normalItemCustomGradientInputValue: '',
 
@@ -159,7 +159,7 @@ const attributes = {
 				itemBackgroundOverlaySwitcher: false,
 				itemBackgroundOverlayType: 'classic',
 				itemBackgroundOverlayClassicColor: '#000',
-				itemBackgroundOverlayGradientColor: null,
+				itemBackgroundOverlayGradientColor: '',
 				itemBackgroundOverlayCustomGradientSwitcher: false,
 				itemBackgroundOverlayCustomGradientInputValue: '',
 				itemBackgroundOverlayOpacity: 0.5,
@@ -186,7 +186,7 @@ const attributes = {
 
 				normalItemBackgroundType: 'classic',
 				normalItemClassicColor: '#EDEDED',
-				normalItemGradientColor: null,
+				normalItemGradientColor: '',
 				normalItemCustomGradientSwitcher: false,
 				normalItemCustomGradientInputValue: '',
 
@@ -229,7 +229,7 @@ const attributes = {
 				itemBackgroundOverlaySwitcher: false,
 				itemBackgroundOverlayType: 'classic',
 				itemBackgroundOverlayClassicColor: '#000',
-				itemBackgroundOverlayGradientColor: null,
+				itemBackgroundOverlayGradientColor: '',
 				itemBackgroundOverlayCustomGradientSwitcher: false,
 				itemBackgroundOverlayCustomGradientInputValue: '',
 				itemBackgroundOverlayOpacity: 0.5,
@@ -294,7 +294,7 @@ const attributes = {
 				},
 				normalItemGradientColor: {
 					type: 'string',
-					default: null,
+					default: '',
 				},
 				normalItemCustomGradientSwitcher: {
 					type: 'boolean',
@@ -376,7 +376,7 @@ const attributes = {
 				},
 				itemBackgroundOverlayGradientColor: {
 					type: 'string',
-					default: null,
+					default: '',
 				},
 				itemBackgroundOverlayCustomGradientSwitcher: {
 					type: 'boolean',
@@ -2083,7 +2083,7 @@ const attributes = {
 	},
 	quoteImageID: {
 		type: 'number',
-		default: '',
+		default: 0,
 	},
 	/** End Quote Icon Settings */
 
@@ -2628,7 +2628,7 @@ const attributes = {
 	},
 	navigationArrowNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	navigationArrowNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -2648,7 +2648,7 @@ const attributes = {
 	},
 	navigationArrowHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	navigationArrowHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -3672,7 +3672,7 @@ const attributes = {
 	},
 	globalNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	globalNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -3733,7 +3733,7 @@ const attributes = {
 	},
 	globalHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	globalHoverCustomGradientSwitcher: {
 		type: 'boolean',

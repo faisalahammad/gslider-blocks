@@ -238,12 +238,12 @@ return [
 	'navigationArrowColorHover' => '',
 	'navigationArrowNormalBackgroundType' => 'classic',
 	'navigationArrowNormalClassicColor' => '#d2d2d2c7',
-	'navigationArrowNormalGradientColor' => null,
+	'navigationArrowNormalGradientColor' => '',
 	'navigationArrowNormalCustomGradientSwitcher' => false,
 	'navigationArrowNormalCustomGradientInputValue' => '',
 	'navigationArrowHoverBackgroundType' => 'classic',
 	'navigationArrowHoverClassicColor' => '#787878b8',
-	'navigationArrowHoverGradientColor' => null,
+	'navigationArrowHoverGradientColor' => '',
 	'navigationArrowHoverCustomGradientSwitcher' => false,
 	'navigationArrowHoverCustomGradientInputValue' => '',
 	'navigationArrowWidth' => [
@@ -798,7 +798,7 @@ return [
 	'globalClass' => '',
 	'globalNormalBackgroundType' => 'classic',
 	'globalNormalClassicColor' => '',
-	'globalNormalGradientColor' => null,
+	'globalNormalGradientColor' => '',
 	'globalNormalCustomGradientSwitcher' => false,
 	'globalNormalCustomGradientInputValue' => '',
 	'globalNormalBackgroundImageUrl' => [
@@ -837,7 +837,7 @@ return [
 	],
 	'globalHoverBackgroundType' => 'classic',
 	'globalHoverClassicColor' => '',
-	'globalHoverGradientColor' => null,
+	'globalHoverGradientColor' => '',
 	'globalHoverCustomGradientSwitcher' => false,
 	'globalHoverCustomGradientInputValue' => '',
 	'globalHoverBackgroundImageUrl' => [

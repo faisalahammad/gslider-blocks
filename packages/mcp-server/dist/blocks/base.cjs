@@ -109,7 +109,7 @@ var attributes = {
         secondaryButtonSponsored: false,
         normalItemBackgroundType: "classic",
         normalItemClassicColor: "#EDEDED",
-        normalItemGradientColor: null,
+        normalItemGradientColor: "",
         normalItemCustomGradientSwitcher: false,
         normalItemCustomGradientInputValue: "",
         normalBackgroundImageUrl: {
@@ -150,7 +150,7 @@ var attributes = {
         itemBackgroundOverlaySwitcher: false,
         itemBackgroundOverlayType: "classic",
         itemBackgroundOverlayClassicColor: "#000",
-        itemBackgroundOverlayGradientColor: null,
+        itemBackgroundOverlayGradientColor: "",
         itemBackgroundOverlayCustomGradientSwitcher: false,
         itemBackgroundOverlayCustomGradientInputValue: "",
         itemBackgroundOverlayOpacity: 0.5
@@ -173,7 +173,7 @@ var attributes = {
         secondaryButtonSponsored: false,
         normalItemBackgroundType: "classic",
         normalItemClassicColor: "#EDEDED",
-        normalItemGradientColor: null,
+        normalItemGradientColor: "",
         normalItemCustomGradientSwitcher: false,
         normalItemCustomGradientInputValue: "",
         normalBackgroundImageUrl: {
@@ -214,7 +214,7 @@ var attributes = {
         itemBackgroundOverlaySwitcher: false,
         itemBackgroundOverlayType: "classic",
         itemBackgroundOverlayClassicColor: "#000",
-        itemBackgroundOverlayGradientColor: null,
+        itemBackgroundOverlayGradientColor: "",
         itemBackgroundOverlayCustomGradientSwitcher: false,
         itemBackgroundOverlayCustomGradientInputValue: "",
         itemBackgroundOverlayOpacity: 0.5
@@ -237,7 +237,7 @@ var attributes = {
         secondaryButtonSponsored: false,
         normalItemBackgroundType: "classic",
         normalItemClassicColor: "#EDEDED",
-        normalItemGradientColor: null,
+        normalItemGradientColor: "",
         normalItemCustomGradientSwitcher: false,
         normalItemCustomGradientInputValue: "",
         normalBackgroundImageUrl: {
@@ -278,7 +278,7 @@ var attributes = {
         itemBackgroundOverlaySwitcher: false,
         itemBackgroundOverlayType: "classic",
         itemBackgroundOverlayClassicColor: "#000",
-        itemBackgroundOverlayGradientColor: null,
+        itemBackgroundOverlayGradientColor: "",
         itemBackgroundOverlayCustomGradientSwitcher: false,
         itemBackgroundOverlayCustomGradientInputValue: "",
         itemBackgroundOverlayOpacity: 0.5
@@ -357,7 +357,7 @@ var attributes = {
         },
         normalItemGradientColor: {
           type: "string",
-          default: null
+          default: ""
         },
         normalItemCustomGradientSwitcher: {
           type: "boolean",
@@ -437,7 +437,7 @@ var attributes = {
         },
         itemBackgroundOverlayGradientColor: {
           type: "string",
-          default: null
+          default: ""
         },
         itemBackgroundOverlayCustomGradientSwitcher: {
           type: "boolean",
@@ -1437,7 +1437,7 @@ var attributes = {
   },
   primaryButtonNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   primaryButtonNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -1457,7 +1457,7 @@ var attributes = {
   },
   primaryButtonHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   primaryButtonHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -1830,7 +1830,7 @@ var attributes = {
   },
   secondaryButtonNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   secondaryButtonNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -1850,7 +1850,7 @@ var attributes = {
   },
   secondaryButtonHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   secondaryButtonHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -2200,7 +2200,7 @@ var attributes = {
   },
   navigationArrowNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   navigationArrowNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -2220,7 +2220,7 @@ var attributes = {
   },
   navigationArrowHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   navigationArrowHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -3219,7 +3219,7 @@ var attributes = {
   },
   globalNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   globalNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -3279,7 +3279,7 @@ var attributes = {
   },
   globalHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   globalHoverCustomGradientSwitcher: {
     type: "boolean",

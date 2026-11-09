@@ -509,7 +509,7 @@ const attributes = {
 	},
 	navigationArrowNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	navigationArrowNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -529,7 +529,7 @@ const attributes = {
 	},
 	navigationArrowHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	navigationArrowHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -1668,7 +1668,7 @@ const attributes = {
 	},
 	globalNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	globalNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -1729,7 +1729,7 @@ const attributes = {
 	},
 	globalHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	globalHoverCustomGradientSwitcher: {
 		type: 'boolean',

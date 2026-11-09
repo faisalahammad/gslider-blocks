@@ -401,7 +401,7 @@ var attributes = {
   },
   imageNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   imageNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -421,7 +421,7 @@ var attributes = {
   },
   imageHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   imageHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -681,7 +681,7 @@ var attributes = {
   },
   imageCaptionNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   imageCaptionNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -701,7 +701,7 @@ var attributes = {
   },
   imageCaptionHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   imageCaptionHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -1269,7 +1269,7 @@ var attributes = {
   },
   navigationArrowNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   navigationArrowNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -1289,7 +1289,7 @@ var attributes = {
   },
   navigationArrowHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   navigationArrowHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -2288,7 +2288,7 @@ var attributes = {
   },
   globalNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   globalNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -2348,7 +2348,7 @@ var attributes = {
   },
   globalHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   globalHoverCustomGradientSwitcher: {
     type: "boolean",

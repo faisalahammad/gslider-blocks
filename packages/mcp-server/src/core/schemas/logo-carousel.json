@@ -530,7 +530,7 @@
     },
     "logoNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "logoNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -599,7 +599,7 @@
     },
     "logoHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "logoHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -900,7 +900,7 @@
     },
     "logoCaptionNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "logoCaptionNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -920,7 +920,7 @@
     },
     "logoCaptionHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "logoCaptionHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -1466,7 +1466,7 @@
     },
     "navigationArrowNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "navigationArrowNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -1486,7 +1486,7 @@
     },
     "navigationArrowHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "navigationArrowHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -2442,7 +2442,7 @@
     },
     "globalNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "globalNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -2511,7 +2511,7 @@
     },
     "globalHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "globalHoverCustomGradientSwitcher": {
       "type": "boolean",
