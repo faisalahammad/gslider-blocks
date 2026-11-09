@@ -233,6 +233,8 @@ if ( isset( $attributes['postsPerPage'] ) ) {
         $posts_per_page = intval( $attributes['postsPerPage'] );
     }
 }
+// Cap the count so a value like -1 cannot load every post.
+$posts_per_page        = max( 1, min( 30, $posts_per_page ) );
 $categories            = isset( $attributes['categories'] ) ? array_map( 'intval', (array) $attributes['categories'] ) : array();
 $category_filter_type  = isset( $attributes['categoryFilterType'] ) ? sanitize_text_field( $attributes['categoryFilterType'] ) : 'include';
 $tags                  = isset( $attributes['tags'] ) ? array_map( 'intval', (array) $attributes['tags'] ) : array();
