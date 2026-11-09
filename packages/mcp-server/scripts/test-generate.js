@@ -1,4 +1,4 @@
-/* eslint-disable no-console, no-nested-ternary */
+/* eslint-disable no-console */
 import { isDeepStrictEqual } from 'util';
 import { handleGenerateBlock } from '../dist/tools/generate-block.js';
 import { handleValidateBlock } from '../dist/tools/validate-block.js';
@@ -164,12 +164,12 @@ for ( const slug of [ 'image-slider', 'logo-carousel' ] ) {
 console.log( 'ok generated image and logo slides have no attachment ids' );
 
 for ( const template of listTemplates() ) {
-	const field =
-		template.blockSlug === 'image-slider'
-			? 'images'
-			: template.blockSlug === 'logo-carousel'
-			? 'logos'
-			: null;
+	let field = null;
+	if ( template.blockSlug === 'image-slider' ) {
+		field = 'images';
+	} else if ( template.blockSlug === 'logo-carousel' ) {
+		field = 'logos';
+	}
 	if ( ! field ) {
 		continue;
 	}
