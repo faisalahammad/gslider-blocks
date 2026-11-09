@@ -24,6 +24,7 @@ GET /wp-json/gslider/v1/blocks/{id}
   - **Public published posts/pages**: No authentication required. Public visitors and headless build servers can fetch freely.
   - **Drafts, private posts, and pending posts**: Requires authentication with the post type's read capability (e.g. `read_post` via WordPress Application Passwords or JWT).
   - **Password-protected posts**: Denied (`rest_cannot_read_post`) until the valid password cookie is provided.
+- **Synced patterns (`core/block` refs):** Only published, unprotected patterns are expanded for anonymous requests. Draft, private, pending, trashed, or password-protected patterns are skipped unless the request can read them, so REST output always matches what the front end renders.
 
 #### Example Request:
 ```bash

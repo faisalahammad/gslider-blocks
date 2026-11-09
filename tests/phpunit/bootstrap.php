@@ -899,6 +899,20 @@ if ( ! function_exists( 'parse_blocks' ) ) {
 				],
 			];
 		}
+		if ( preg_match( '/<!--\s*wp:block\s+(\{.*?\})\s*\/-->/', (string) $content, $matches ) ) {
+			$attrs = [];
+			$decoded = json_decode( $matches[1], true );
+			if ( is_array( $decoded ) ) {
+				$attrs = $decoded;
+			}
+			return [
+				[
+					'blockName'   => 'core/block',
+					'attrs'       => $attrs,
+					'innerBlocks' => [],
+				],
+			];
+		}
 		return [];
 	}
 }

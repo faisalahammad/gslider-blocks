@@ -161,7 +161,8 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 		 * Loads sliders stored inside a core/block reusable reference.
 		 *
 		 * The ref's own inner blocks are empty. The slider markup lives on
-		 * the wp_block post.
+		 * the wp_block post. Only published and readable patterns are
+		 * expanded, matching what core renders on the front end.
 		 *
 		 * @since 1.1.9
 		 *
@@ -175,15 +176,42 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			}
 
 			self::$reusable_refs[ $ref ] = true;
-			$reusable                     = get_post( $ref );
-			$sliders                      = [];
+			$reusable                    = get_post( $ref );
+			$sliders                     = [];
 
-			if ( $reusable instanceof \WP_Post && 'wp_block' === $reusable->post_type && is_string( $reusable->post_content ) && '' !== $reusable->post_content ) {
+			if ( $reusable instanceof \WP_Post && self::can_expand_reusable( $reusable ) && is_string( $reusable->post_content ) && '' !== $reusable->post_content ) {
 				$sliders = self::extract_and_normalize_blocks( parse_blocks( $reusable->post_content ) );
 			}
 
 			unset( self::$reusable_refs[ $ref ] );
 			return $sliders;
+		}
+
+		/**
+		 * Checks if a reusable block post may be expanded in REST output.
+		 *
+		 * Mirrors core's render_block_core_block() gate: the pattern must be
+		 * published and unprotected, unless the current user can read it.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @param \WP_Post $post Referenced wp_block post.
+		 * @return bool
+		 */
+		private static function can_expand_reusable( \WP_Post $post ): bool {
+			if ( 'wp_block' !== $post->post_type ) {
+				return false;
+			}
+
+			if ( post_password_required( $post ) ) {
+				return false;
+			}
+
+			if ( 'publish' === $post->post_status ) {
+				return true;
+			}
+
+			return current_user_can( 'read_post', $post->ID );
 		}
 
 		/**
