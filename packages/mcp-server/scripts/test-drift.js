@@ -224,6 +224,7 @@ export function allowedValuesProblems( slug, block ) {
 	return problems;
 }
 
+/** JS typeof value each declared attribute type must match for its default. */
 const JS_TYPE_FOR_ATTRIBUTE_TYPE = {
 	string: 'string',
 	number: 'number',
@@ -231,9 +232,27 @@ const JS_TYPE_FOR_ATTRIBUTE_TYPE = {
 	boolean: 'boolean',
 };
 
+/**
+ * Finds attribute defaults whose JS type does not match their declared type.
+ *
+ * Walks top-level attribute definitions, nested array `items.properties`
+ * definitions, and the sample entries inside array defaults. Sourced
+ * attributes and types without a single matching JS type (object, array,
+ * null unions) are skipped.
+ *
+ * @param {string} slug  Block slug, such as "testimonial".
+ * @param {Object} block Cached block module with an `attributes` map.
+ * @return {string[]} One message per type mismatch found.
+ */
 export function defaultTypeProblems( slug, block ) {
 	const problems = [];
 
+	/**
+	 * Type-checks a single default against its declared attribute type.
+	 *
+	 * @param {string} name Attribute name, dotted for nested properties.
+	 * @param {Object} def  Attribute (or property) definition object.
+	 */
 	const checkDefault = ( name, def ) => {
 		if ( ! def || typeof def !== 'object' || Array.isArray( def ) ) {
 			return;
@@ -300,6 +319,13 @@ export function defaultTypeProblems( slug, block ) {
 	return problems;
 }
 
+/**
+ * Runs the full schema drift check across all supported blocks.
+ *
+ * For each block slug, validates the generated schema in `src/core/schemas`
+ * (slide schema, allowed values, default types) and compares its attributes
+ * against the live block source. Exits non-zero when any problem is found.
+ */
 async function runDriftCheck() {
 	const schemasDir = path.resolve( __dirname, '../src/core/schemas' );
 	let hasDrift = false;
