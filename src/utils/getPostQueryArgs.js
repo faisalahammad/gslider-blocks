@@ -45,13 +45,16 @@ export const getPostQueryArgs = (
 	} = attributes;
 
 	// Resolve responsive posts count and offset
+	const rawPostsPerPage =
+		typeof postsPerPage === 'object'
+			? postsPerPage?.[ deviceType ]
+			: postsPerPage;
+	const parsedPostsPerPage = parseInt( rawPostsPerPage, 10 );
 	const activePostsPerPage = Math.min(
 		30,
 		Math.max(
 			1,
-			typeof postsPerPage === 'object'
-				? parseInt( postsPerPage?.[ deviceType ] ) || 6
-				: parseInt( postsPerPage ) || 6
+			Number.isNaN( parsedPostsPerPage ) ? 6 : parsedPostsPerPage
 		)
 	);
 

@@ -392,6 +392,12 @@ if ( $use_related_posts_query ) {
 
 $posts_query = new WP_Query( $query_args );
 
+// Enforce the 1–30 cap even when WP_Query prepends sticky posts beyond posts_per_page.
+if ( is_array( $posts_query->posts ) && count( $posts_query->posts ) > $posts_per_page ) {
+    $posts_query->posts      = array_slice( $posts_query->posts, 0, $posts_per_page );
+    $posts_query->post_count = count( $posts_query->posts );
+}
+
 if ( ! $posts_query->have_posts() ) {
     wp_reset_postdata();
     return;
