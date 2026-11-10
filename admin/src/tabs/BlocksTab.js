@@ -89,6 +89,36 @@ const getBlocksMetadata = () => [
 ];
 
 /**
+ * Server error code returned when another toggle holds the advisory lock.
+ *
+ * @type {string}
+ */
+const TOGGLE_BUSY_ERROR_CODE = 'gslider_toggle_busy';
+
+/**
+ * Tries per toggle: one initial request plus one retry on a busy lock, so
+ * concurrent toggles for different slugs both persist (issue #329).
+ *
+ * @type {number}
+ */
+const TOGGLE_MAX_ATTEMPTS = 2;
+
+/**
+ * Wait between toggle attempts, in milliseconds.
+ *
+ * @type {number}
+ */
+const TOGGLE_RETRY_DELAY_MS = 500;
+
+/**
+ * Registry key that marks an in-flight bulk (toggle all) request in the
+ * App-held in-flight set.
+ *
+ * @type {string}
+ */
+const BULK_TOGGLE_KEY = '__all__';
+
+/**
  * Extracts a readable message from an apiFetch error.
  *
  * Nonce expiry gets a dedicated hint; otherwise the server message is shown
@@ -116,18 +146,30 @@ const getToggleErrorMessage = ( err ) => {
 };
 
 /**
+ * Waits for the given delay before a retry attempt.
+ *
+ * @param {number} ms Delay in milliseconds.
+ * @return {Promise<void>} Promise that resolves after the delay.
+ */
+const wait = ( ms ) => new Promise( ( resolve ) => setTimeout( resolve, ms ) );
+
+/**
  * BlocksTab Component.
  *
- * @param {Object}   props                    Component props.
- * @param {Object}   [props.dashboardData]    Current dashboard metrics.
- * @param {Function} [props.setDashboardData] Parent dashboard state setter.
- * @param {boolean}  [props.hasError=false]   Whether dashboard data failed to load.
- * @param {Function} [props.onRetry]          Callback to retry loading dashboard data.
+ * @param {Object}   props                      Component props.
+ * @param {Object}   [props.dashboardData]      Current dashboard metrics.
+ * @param {Function} [props.setDashboardData]   Parent dashboard state setter.
+ * @param {Set}      [props.inFlightTogglesRef] Ref set of slugs with pending toggle requests, held in App so the guard survives tab switches.
+ * @param {boolean}  [props.isLoading=false]    Whether the dashboard request is still running.
+ * @param {boolean}  [props.hasError=false]     Whether dashboard data failed to load.
+ * @param {Function} [props.onRetry]            Callback to retry loading dashboard data.
  * @return {JSX.Element} Rendered blocks management view.
  */
 const BlocksTab = ( {
 	dashboardData = null,
 	setDashboardData,
+	inFlightTogglesRef,
+	isLoading = false,
 	hasError = false,
 	onRetry,
 } ) => {
@@ -274,26 +316,89 @@ const BlocksTab = ( {
 		}
 	};
 
+	/**
+	 * Marks a slug as in-flight in the App-held set and mirrors it into
+	 * local state. The set lives in App, so the guard survives tab switches
+	 * where this component unmounts and remounts.
+	 *
+	 * @param {string}  key     Slug (or bulk key) to mark.
+	 * @param {boolean} running Whether the request is in flight.
+	 * @return {void}
+	 */
+	const setInFlight = ( key, running ) => {
+		if ( inFlightTogglesRef && inFlightTogglesRef.current instanceof Set ) {
+			if ( running ) {
+				inFlightTogglesRef.current.add( key );
+			} else {
+				inFlightTogglesRef.current.delete( key );
+			}
+		}
+		setIsToggling( ( prev ) => ( { ...prev, [ key ]: running } ) );
+	};
+
 	const hasAnyToggleInFlight = () =>
-		Object.values( isToggling ).some( Boolean );
+		Boolean(
+			inFlightTogglesRef?.current instanceof Set &&
+				inFlightTogglesRef.current.size > 0
+		) || Object.values( isToggling ).some( Boolean );
+
+	/**
+	 * Whether one slug's toggle request is pending, checking the App-held
+	 * set first so the guard survives a BlocksTab unmount and remount. A
+	 * bulk toggle is busy for every slug: its success replaces the whole
+	 * block list and its failure reverts every slug to its prior state.
+	 *
+	 * @param {string} slug Block slug to check.
+	 * @return {boolean} True when that slug already has a request in flight.
+	 */
+	const isSlugInFlight = ( slug ) =>
+		Boolean(
+			( inFlightTogglesRef?.current instanceof Set &&
+				( inFlightTogglesRef.current.has( slug ) ||
+					inFlightTogglesRef.current.has( BULK_TOGGLE_KEY ) ) ) ||
+				isToggling[ slug ] ||
+				isToggling[ BULK_TOGGLE_KEY ]
+		);
 
 	const handleToggle = async ( slug, nextEnabled ) => {
-		if ( isToggling[ slug ] || isBulkUpdating ) {
+		if ( isSlugInFlight( slug ) || isBulkUpdating ) {
 			return;
 		}
 
 		setBlockEnabled( slug, nextEnabled );
-		setIsToggling( ( prev ) => ( { ...prev, [ slug ]: true } ) );
+		setInFlight( slug, true );
 
 		try {
-			const response = await apiFetch( {
-				path: '/gslider/v1/dashboard/toggle-block',
-				method: 'POST',
-				data: {
-					slug,
-					enabled: nextEnabled,
-				},
-			} );
+			let response = null;
+
+			// One retry on a busy lock. The server already waits up to 3s on
+			// GET_LOCK, so a 409 means the lock stayed busy for that whole
+			// time; one more try after a short pause lets a concurrent
+			// toggle for a different slug persist instead of dropping it
+			// (issue #329). More than two overlapping toggles can still
+			// fail, and that slug reverts with the busy message.
+			for ( let attempt = 1; attempt <= TOGGLE_MAX_ATTEMPTS; attempt++ ) {
+				try {
+					response = await apiFetch( {
+						path: '/gslider/v1/dashboard/toggle-block',
+						method: 'POST',
+						data: {
+							slug,
+							enabled: nextEnabled,
+						},
+					} );
+					break;
+				} catch ( attemptErr ) {
+					const isLastAttempt = attempt === TOGGLE_MAX_ATTEMPTS;
+					const isBusy =
+						attemptErr &&
+						TOGGLE_BUSY_ERROR_CODE === attemptErr.code;
+					if ( ! isBusy || isLastAttempt ) {
+						throw attemptErr;
+					}
+					await wait( TOGGLE_RETRY_DELAY_MS );
+				}
+			}
 
 			if ( response && response.status === 'success' ) {
 				// Parent state carries server truth across tab switches, so
@@ -330,7 +435,9 @@ const BlocksTab = ( {
 						  )
 				);
 			} else {
-				throw new Error( 'Toggle rejected by server' );
+				// Throw without a message so the translated generic fallback
+				// shows instead of a raw English server string.
+				throw new Error();
 			}
 		} catch ( err ) {
 			// Revert only this slug so concurrent toggles survive; parent
@@ -343,7 +450,7 @@ const BlocksTab = ( {
 
 			showToast( 'error', getToggleErrorMessage( err ) );
 		} finally {
-			setIsToggling( ( prev ) => ( { ...prev, [ slug ]: false } ) );
+			setInFlight( slug, false );
 		}
 	};
 
@@ -351,6 +458,8 @@ const BlocksTab = ( {
 		if ( isBulkUpdating || hasAnyToggleInFlight() ) {
 			return;
 		}
+
+		setInFlight( BULK_TOGGLE_KEY, true );
 
 		// Snapshot the true latest state via the ref, then flip every switch.
 		const priorEnabled = {};
@@ -424,7 +533,9 @@ const BlocksTab = ( {
 						  )
 				);
 			} else {
-				throw new Error( 'Bulk toggle rejected by server' );
+				// Throw without a message so the translated generic fallback
+				// shows instead of a raw English server string.
+				throw new Error();
 			}
 		} catch ( err ) {
 			const revertBlocks = ( prevBlocks ) =>
@@ -455,6 +566,7 @@ const BlocksTab = ( {
 			showToast( 'error', getToggleErrorMessage( err ) );
 		} finally {
 			setIsBulkUpdating( false );
+			setInFlight( BULK_TOGGLE_KEY, false );
 		}
 	};
 
@@ -462,11 +574,13 @@ const BlocksTab = ( {
 	const totalCount = blocks.length;
 
 	// No server state yet: show a loading card while fetching, an error card
-	// with retry when the load failed. Never default switches to enabled.
+	// with retry when the load failed or finished with no blocks (so an
+	// empty list never leaves a stuck loading card). Never default switches
+	// to enabled.
 	const hasServerState = Boolean(
 		dashboardData?.blocks && dashboardData.blocks.length
 	);
-	const showLoadFailure = hasError && ! hasServerState;
+	const showLoadFailure = ( hasError || ! isLoading ) && ! hasServerState;
 
 	if ( ! hasServerState ) {
 		return (
@@ -613,12 +727,15 @@ const BlocksTab = ( {
 									id={ `gslider-toggle-${ block.slug }` }
 									checked={ block.enabled }
 									disabled={ Boolean(
-										isToggling[ block.slug ] ||
+										isSlugInFlight( block.slug ) ||
 											isBulkUpdating
 									) }
-									onChange={ ( nextVal ) =>
-										handleToggle( block.slug, nextVal )
-									}
+									onChange={ ( nextVal ) => {
+										if ( isSlugInFlight( block.slug ) ) {
+											return;
+										}
+										handleToggle( block.slug, nextVal );
+									} }
 									ariaLabel={ sprintf(
 										/* translators: %s: Block name */
 										__(

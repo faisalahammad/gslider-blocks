@@ -200,13 +200,41 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 			$raw_slug = (string) $request->get_param( 'slug' );
 			$enabled  = (bool) $request->get_param( 'enabled' );
 
+			$short_slug = str_replace( 'gslider-blocks/', '', $raw_slug );
+			$full_slug  = 'gslider-blocks/' . $short_slug;
+
+			// Reject unknown slugs before taking the lock so a bad request
+			// can never hold the toggle serialization open, and so the
+			// endpoint returns an explicit error instead of writing an
+			// arbitrary slug into the option (issue #329 acceptance).
+			// flexi-content-item is not listed as its own block, but the
+			// endpoint accepted it before validation existed, so keep it valid.
+			$known_slugs   = array_column( $this->get_blocks_status(), 'slug' );
+			$known_slugs[] = 'flexi-content-item';
+			if ( 'all' !== $raw_slug && ! in_array( $short_slug, $known_slugs, true ) ) {
+				return new WP_Error(
+					'gslider_toggle_invalid_slug',
+					__( 'Unknown block slug.', 'gslider-blocks' ),
+					[ 'status' => 400 ]
+				);
+			}
+
 			$lock = $this->acquire_toggle_lock();
 			if ( is_wp_error( $lock ) ) {
 				return $lock;
 			}
 
 			try {
-				// Re-read inside the lock so concurrent requests never overwrite each other.
+				// get_option() serves the request-local copy of the option that
+				// was cached at bootstrap, so it would hide writes made by
+				// concurrent requests while this request waited on the lock.
+				// Drop the cached copies first — the alloptions/notoptions
+				// invalidation core uses when option rows change — so the read
+				// inside the lock reflects the stored value, and the write
+				// builds on it instead of reverting a concurrent toggle.
+				wp_cache_delete( 'alloptions', 'options' );
+				wp_cache_delete( 'notoptions', 'options' );
+				wp_cache_delete( 'gslider_disabled_blocks', 'options' );
 				$disabled_blocks = get_option( 'gslider_disabled_blocks', [] );
 				if ( ! is_array( $disabled_blocks ) ) {
 					$disabled_blocks = [];
@@ -236,9 +264,6 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 						'disabled_blocks' => $disabled_blocks,
 					] );
 				}
-
-				$short_slug = str_replace( 'gslider-blocks/', '', $raw_slug );
-				$full_slug  = 'gslider-blocks/' . $short_slug;
 
 				if ( $enabled ) {
 					$to_remove = [ $short_slug, $full_slug ];
@@ -277,8 +302,13 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 		 *
 		 * Uses a MySQL advisory lock for the same isolation goal as the
 		 * options-row lock in WP_Upgrader::create_lock(), but scoped to this
-		 * toggle so a stuck upgrade lock can never block the dashboard. Falls
-		 * back to a per-request guard when no database is reachable (unit tests).
+		 * toggle so a stuck upgrade lock can never block the dashboard.
+		 *
+		 * When no database is reachable, or when the storage driver reports
+		 * that it does not support advisory locks (GET_LOCK returns NULL),
+		 * this falls back to a per-request flag. That flag only serializes
+		 * calls inside the current PHP process; it gives no cross-request
+		 * protection, so concurrent requests on such hosts can still race.
 		 *
 		 * @since 1.2.3
 		 *
@@ -287,16 +317,17 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 		private function acquire_toggle_lock() {
 			global $wpdb;
 
-			// Key the lock to the options table so multisite sites sharing one
-			// database server never block each other's toggles.
-			$lock_name = $wpdb->options . '_gslider_toggle';
-			$timeout   = 3;
-
 			$has_wpdb = isset( $wpdb ) && is_object( $wpdb ) && method_exists( $wpdb, 'get_var' );
 
 			if ( $has_wpdb ) {
+				// Key the lock to the options table so multisite sites sharing
+				// one database server never block each other's toggles.
+				$lock_name = $wpdb->options . '_gslider_toggle';
+				$timeout   = 3;
+
 				// get_var() is required: GET_LOCK() always returns one row, so
 				// query() would report success even when the lock was not granted.
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Advisory lock; caching does not apply.
 				$lock_result = $wpdb->get_var(
 					$wpdb->prepare( 'SELECT GET_LOCK(%s, %d)', $lock_name, $timeout )
 				);
@@ -343,6 +374,7 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 			}
 
 			if ( isset( $wpdb ) && is_object( $wpdb ) && method_exists( $wpdb, 'query' ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Advisory lock release; caching does not apply.
 				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $wpdb->options . '_gslider_toggle' ) );
 			}
 		}

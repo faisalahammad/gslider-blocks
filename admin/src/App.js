@@ -45,6 +45,14 @@ const App = () => {
 	const [ hasError, setHasError ] = useState( false );
 	const isMountedRef = useRef( true );
 
+	/**
+	 * Slugs with a pending toggle request, held in App because it never
+	 * unmounts. The per-slug guard must survive tab switches: BlocksTab
+	 * unmounts on a tab change and would otherwise forget a toggle that is
+	 * still in flight (issue #329, duplicate overlapping toggle).
+	 */
+	const inFlightTogglesRef = useRef( new Set() );
+
 	useEffect( () => {
 		isMountedRef.current = true;
 		return () => {
@@ -149,6 +157,8 @@ const App = () => {
 						<BlocksTab
 							dashboardData={ dashboardData }
 							setDashboardData={ setDashboardData }
+							inFlightTogglesRef={ inFlightTogglesRef }
+							isLoading={ isLoading }
 							hasError={ hasError }
 							onRetry={ fetchDashboardData }
 						/>

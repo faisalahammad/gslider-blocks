@@ -52,6 +52,19 @@ $can_read              = [];
 $registered_rest_fields = [];
 $gslider_mock_lock_available = null;
 
+/**
+ * Mock option cache backing the get_option()/wp_cache_delete() stubs.
+ *
+ * Empty in every pre-existing test, which keeps those tests on a direct
+ * $wp_options read. A test that seeds this array explicitly simulates the
+ * request-local options cache (alloptions) that real get_option() serves,
+ * so the cache invalidation in DashboardController::toggle_block() can be
+ * unit tested.
+ *
+ * @var array
+ */
+$wp_option_cache = [];
+
 if ( ! function_exists( 'add_action' ) ) {
 	function add_action( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
 		global $wp_actions;
@@ -509,7 +522,13 @@ if ( ! class_exists( 'MockWPDB' ) ) {
 
 			global $gslider_mock_lock_available;
 			if ( preg_match( '/GET_LOCK/i', (string) $query ) ) {
-				// Simulate GET_LOCK(): 1 = acquired, 0 = timeout, per test needs.
+				// 'unsupported_driver' simulates a storage driver without
+				// advisory locks: GET_LOCK() returns PHP null. Any other
+				// value maps to a string ('1' = acquired, '0' = timeout),
+				// and null means "acquired" for tests that do not care.
+				if ( 'unsupported_driver' === $gslider_mock_lock_available ) {
+					return null;
+				}
 				return null !== $gslider_mock_lock_available
 					? (string) $gslider_mock_lock_available
 					: '1';
@@ -570,8 +589,26 @@ if ( ! function_exists( 'delete_transient' ) ) {
 }
 
 if ( ! function_exists( 'get_option' ) ) {
+	/**
+	 * Serves gslider_disabled_blocks from the mock option cache when a test
+	 * has seeded it, mirroring how wp_load_alloptions() hides concurrent
+	 * writes from a real request. Every other option reads $wp_options
+	 * directly, and reads never repopulate the cache.
+	 *
+	 * @param string $option  Option name.
+	 * @param mixed  $default Default value.
+	 * @return mixed
+	 */
 	function get_option( $option, $default = false ) {
-		global $wp_options;
+		global $wp_options, $wp_option_cache;
+
+		if ( 'gslider_disabled_blocks' === $option && array_key_exists( 'alloptions', $wp_option_cache ) ) {
+			$alloptions = $wp_option_cache['alloptions'];
+			if ( is_array( $alloptions ) && array_key_exists( $option, $alloptions ) ) {
+				return $alloptions[ $option ];
+			}
+		}
+
 		return isset( $wp_options[ $option ] ) ? $wp_options[ $option ] : $default;
 	}
 }
@@ -588,6 +625,29 @@ if ( ! function_exists( 'delete_option' ) ) {
 	function delete_option( $option ) {
 		global $wp_options;
 		unset( $wp_options[ $option ] );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_cache_delete' ) ) {
+	/**
+	 * Mock of wp_cache_delete() for the options group: removes the cached
+	 * key from the mock option cache so the next get_option() re-reads
+	 * $wp_options, like the real cache flush does.
+	 *
+	 * @param string $key   Cache key.
+	 * @param string $group Cache group.
+	 * @return bool True when a cached entry was removed.
+	 */
+	function wp_cache_delete( $key, $group = 'default' ) {
+		global $wp_option_cache;
+		if ( 'options' !== $group ) {
+			return false;
+		}
+		if ( ! array_key_exists( $key, $wp_option_cache ) ) {
+			return false;
+		}
+		unset( $wp_option_cache[ $key ] );
 		return true;
 	}
 }
