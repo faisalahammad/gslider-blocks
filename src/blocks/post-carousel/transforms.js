@@ -13,6 +13,15 @@ const toResponsive = ( value ) => ( {
 } );
 
 /**
+ * Highest post count the carousel queries. The same cap is applied by the
+ * PHP renderer and the editor query helper, so converted blocks keep
+ * displaying the exact count the carousel renders.
+ *
+ * @type {number}
+ */
+const MAX_POSTS_PER_PAGE = 30;
+
+/**
  * Check whether a responsive boolean is enabled on at least one breakpoint.
  * Core blocks store display toggles as a single boolean, so a multi-breakpoint
  * setting has to collapse to one value when converting back. Visibility flags
@@ -116,7 +125,9 @@ const toPostCarouselFromLatestPosts = ( {
 	const carouselAttributes = {
 		globalID: anchor || '',
 		postsPerPage: toResponsive(
-			Number.isFinite( postsToShow ) && postsToShow > 0 ? postsToShow : 6
+			Number.isFinite( postsToShow ) && postsToShow > 0
+				? Math.min( postsToShow, MAX_POSTS_PER_PAGE )
+				: 6
 		),
 		categories: toTermIds( categories ),
 		authors: toPositiveIds( [ selectedAuthor ] ),
@@ -239,7 +250,9 @@ const toPostCarouselFromQuery = ( { anchor, query } = {} ) => {
 		globalID: anchor || '',
 		postType: postType || 'post',
 		postsPerPage: toResponsive(
-			Number.isFinite( perPage ) && perPage > 0 ? perPage : 6
+			Number.isFinite( perPage ) && perPage > 0
+				? Math.min( perPage, MAX_POSTS_PER_PAGE )
+				: 6
 		),
 		offset: toResponsive(
 			Number.isFinite( offset ) && offset > 0 ? offset : 0
@@ -266,7 +279,10 @@ const toPostCarouselFromQuery = ( { anchor, query } = {} ) => {
 /**
  * Transform that converts the Post Carousel block back into a native
  * `core/latest-posts` block. Carousel-only settings (presets, tags, custom
- * post types, offset) have no core equivalent and are dropped.
+ * post types, offset) have no core equivalent and are dropped. Author
+ * filters shrink the same way: an exclude filter is dropped and a multi
+ * author filter falls back to its first author because core accepts a
+ * single include-only author.
  *
  * @param {Object}  [attributes={}]                     The carousel's own attributes.
  * @param {string}  [attributes.globalID]               Custom anchor ID carried over as `anchor`.
@@ -301,10 +317,14 @@ const toLatestPosts = ( {
 	order,
 	orderBy,
 } = {} ) => {
+	// postsPerPage values can arrive as numeric strings, for example from the
+	// shared query panel's reset fallback, so parse like the excerpt limit.
+	const desktopCount = parseInt( postsPerPage?.Desktop, 10 );
+
 	const coreAttributes = {
 		postsToShow:
-			Number.isFinite( postsPerPage?.Desktop ) && postsPerPage.Desktop > 0
-				? postsPerPage.Desktop
+			Number.isFinite( desktopCount ) && desktopCount > 0
+				? desktopCount
 				: 5,
 		displayFeaturedImage: isAnyBreakpoint( showFeaturedImage ),
 		displayPostContent: isAnyBreakpoint( showExcerpt ),
@@ -321,6 +341,9 @@ const toLatestPosts = ( {
 		orderBy: orderBy || 'date',
 	};
 
+	// core/latest-posts accepts a single include-only author, so an exclude
+	// filter is dropped rather than silently flipped into an include, and a
+	// multi author filter falls back to the first author.
 	const validAuthors = toPositiveIds( authors );
 	if ( validAuthors.length > 0 && 'exclude' !== authorFilterType ) {
 		coreAttributes.selectedAuthor = validAuthors[ 0 ];
