@@ -143,6 +143,49 @@ const toPostCarouselFromLatestPosts = ( {
 };
 
 /**
+ * Normalize the `core/query` taxQuery attribute into per taxonomy term lists.
+ *
+ * WordPress 7.0 nests terms under include and exclude maps while older Query
+ * Loops store taxonomy slugs at the top level, and core reads both shapes in
+ * build_query_vars_from_query_block(). Include terms win when a taxonomy
+ * appears in both lists because the carousel stores a single filter type per
+ * taxonomy.
+ *
+ * @param {Object} taxQuery Raw taxQuery value from the query block.
+ * @return {Object} Picker per taxonomy slug plus the union slug list.
+ */
+const toTaxonomyFilters = ( taxQuery ) => {
+	const rawTaxQuery =
+		taxQuery && 'object' === typeof taxQuery ? taxQuery : {};
+	const isNested = Object.keys( rawTaxQuery ).every(
+		( key ) => 'include' === key || 'exclude' === key
+	);
+	const includeTerms = isNested ? rawTaxQuery.include || {} : rawTaxQuery;
+	const excludeTerms = isNested ? rawTaxQuery.exclude || {} : {};
+
+	const pickTerms = ( taxSlug ) => {
+		const included = toPositiveIds( includeTerms[ taxSlug ] );
+		if ( included.length > 0 ) {
+			return { ids: included, type: 'include' };
+		}
+		const excluded = toPositiveIds( excludeTerms[ taxSlug ] );
+		if ( excluded.length > 0 ) {
+			return { ids: excluded, type: 'exclude' };
+		}
+		return { ids: [], type: 'include' };
+	};
+
+	const taxonomies = [
+		...new Set( [
+			...Object.keys( includeTerms ),
+			...Object.keys( excludeTerms ),
+		] ),
+	];
+
+	return { pickTerms, taxonomies };
+};
+
+/**
  * Transform that converts a native `core/query` (Query Loop) block into a
  * Post Carousel block, mapping the query parameters onto the carousel's
  * own query engine.
@@ -150,7 +193,8 @@ const toPostCarouselFromLatestPosts = ( {
  * The carousel runs a self-contained WP_Query, so an inherited Query Loop
  * stops following the archive context after conversion. Taxonomy filters
  * map to the dedicated categories and tags attributes when they are
- * category or tag terms; any other taxonomy goes into taxonomyQuery.
+ * category or tag terms, carrying an include or exclude filter type; any
+ * other taxonomy goes into taxonomyQuery.
  *
  * @param {Object} [attributes={}]     The query block's own attributes.
  * @param {string} [attributes.anchor] Optional HTML anchor carried over as `globalID`.
@@ -172,25 +216,24 @@ const toPostCarouselFromQuery = ( { anchor, query } = {} ) => {
 		taxQuery,
 	} = query || {};
 
-	const categories = toPositiveIds( taxQuery?.category );
-	const tags = toPositiveIds( taxQuery?.post_tag );
+	const { pickTerms, taxonomies } = toTaxonomyFilters( taxQuery );
+	const category = pickTerms( 'category' );
+	const postTag = pickTerms( 'post_tag' );
 
-	// Every taxonomy beyond category and tag keeps its include filter in the
-	// generic taxonomyQuery map consumed by the renderer's tax_query builder.
+	// Every taxonomy beyond category and tag keeps its filter in the generic
+	// taxonomyQuery map consumed by the renderer's tax_query builder.
 	const taxonomyQuery = {};
 	const taxonomyFilterTypes = {};
-	if ( taxQuery && 'object' === typeof taxQuery ) {
-		Object.keys( taxQuery ).forEach( ( taxSlug ) => {
-			if ( 'category' === taxSlug || 'post_tag' === taxSlug ) {
-				return;
-			}
-			const termIds = toPositiveIds( taxQuery[ taxSlug ] );
-			if ( termIds.length > 0 ) {
-				taxonomyQuery[ taxSlug ] = termIds;
-				taxonomyFilterTypes[ taxSlug ] = 'include';
-			}
-		} );
-	}
+	taxonomies.forEach( ( taxSlug ) => {
+		if ( 'category' === taxSlug || 'post_tag' === taxSlug ) {
+			return;
+		}
+		const { ids, type } = pickTerms( taxSlug );
+		if ( ids.length > 0 ) {
+			taxonomyQuery[ taxSlug ] = ids;
+			taxonomyFilterTypes[ taxSlug ] = type;
+		}
+	} );
 
 	const carouselAttributes = {
 		globalID: anchor || '',
@@ -201,8 +244,10 @@ const toPostCarouselFromQuery = ( { anchor, query } = {} ) => {
 		offset: toResponsive(
 			Number.isFinite( offset ) && offset > 0 ? offset : 0
 		),
-		categories,
-		tags,
+		categories: category.ids,
+		categoryFilterType: category.type,
+		tags: postTag.ids,
+		tagFilterType: postTag.type,
 		taxonomyQuery,
 		taxonomyFilterTypes,
 		authors: toAuthorIds( author ),
@@ -227,7 +272,9 @@ const toPostCarouselFromQuery = ( { anchor, query } = {} ) => {
  * @param {string}  [attributes.globalID]               Custom anchor ID carried over as `anchor`.
  * @param {Object}  [attributes.postsPerPage]           Responsive post count.
  * @param {Array}   [attributes.categories]             Term ID filter array.
+ * @param {string}  [attributes.categoryFilterType]     `include` or `exclude` category filter.
  * @param {Array}   [attributes.authors]                Author ID filter array.
+ * @param {string}  [attributes.authorFilterType]       `include` or `exclude` author filter.
  * @param {Object}  [attributes.showFeaturedImage]      Responsive featured image toggle.
  * @param {Object}  [attributes.showExcerpt]            Responsive excerpt toggle.
  * @param {Object}  [attributes.showMetaAuthor]         Responsive author toggle.
@@ -242,7 +289,9 @@ const toLatestPosts = ( {
 	globalID,
 	postsPerPage,
 	categories,
+	categoryFilterType,
 	authors,
+	authorFilterType,
 	showFeaturedImage,
 	showExcerpt,
 	showMetaAuthor,
@@ -262,13 +311,18 @@ const toLatestPosts = ( {
 		displayPostContentRadio: 'excerpt',
 		displayAuthor: isAnyBreakpoint( showMetaAuthor ),
 		displayPostDate: isAnyBreakpoint( showMetaDate ),
-		categories: toLatestPostsCategories( categories ),
+		// core/latest-posts can only include terms, so an exclude filter is
+		// dropped rather than silently flipped into an include.
+		categories:
+			'exclude' === categoryFilterType
+				? []
+				: toLatestPostsCategories( categories ),
 		order: order || 'desc',
 		orderBy: orderBy || 'date',
 	};
 
 	const validAuthors = toPositiveIds( authors );
-	if ( validAuthors.length > 0 ) {
+	if ( validAuthors.length > 0 && 'exclude' !== authorFilterType ) {
 		coreAttributes.selectedAuthor = validAuthors[ 0 ];
 	}
 
@@ -302,6 +356,9 @@ const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'core/latest-posts' ],
+			// core/latest-posts only queries posts, so hide the transform
+			// when the carousel filters a custom post type.
+			isMatch: ( { postType } ) => ! postType || 'post' === postType,
 			transform: toLatestPosts,
 		},
 	],
