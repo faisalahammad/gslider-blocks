@@ -17,7 +17,7 @@
  *     (not a stale request-local cache) inside the critical section, rejects
  *     contention with 409, rejects unknown slugs with 400, guards the
  *     unsupported-driver per-request fallback, and wraps the 'all' toggle
- *     in a lock pair (#329, #723 review).
+ *     in a lock pair (#329).
  *
  * @package GSlider\Tests\Admin
  */
@@ -683,7 +683,7 @@ class DashboardControllerTest {
 
 	/**
 	 * Test 8e: Toggle inside the lock reads the stored option, not a stale
-	 * request-local cache (#329, CodeRabbit/Grok blocker).
+	 * request-local cache (#329).
 	 *
 	 * get_option() serves the request's cached copy while this request waits
 	 * on the lock, so the toggle must drop the cached copies first. Seeds a
@@ -728,7 +728,7 @@ class DashboardControllerTest {
 
 	/**
 	 * Test 8f: Unsafe per-request fallback (GET_LOCK unsupported) lets one
-	 * toggle through and rejects the next (#329, CodeRabbit thread 3).
+	 * toggle through and rejects the next (#329).
 	 *
 	 * The fallback only serializes inside one PHP process and gives no
 	 * cross-request guarantee; this pins the documented behavior: first
@@ -766,7 +766,9 @@ class DashboardControllerTest {
 		// must reject the nested acquisition with 409 instead of letting
 		// both through.
 		$acquire = new ReflectionMethod( $controller, 'acquire_toggle_lock' );
-		$acquire->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$acquire->setAccessible( true );
+		}
 		$held_token = $acquire->invoke( $controller );
 		if ( 'request' !== $held_token ) {
 			fwrite( STDERR, "FAIL: fallback acquire returned token other than 'request', got: " . var_export( $held_token, true ) . "\n" );
@@ -796,7 +798,9 @@ class DashboardControllerTest {
 		// release_toggle_lock('request') resets the flag, so the next
 		// acquisition is admitted again.
 		$release = new ReflectionMethod( $controller, 'release_toggle_lock' );
-		$release->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$release->setAccessible( true );
+		}
 		$release->invoke( $controller, $held_token );
 
 		$token_after_release = $acquire->invoke( $controller );
@@ -873,8 +877,7 @@ class DashboardControllerTest {
 
 	/**
 	 * Test 8h: Toggle 'all' under the lock disables every current block and
-	 * the GET_LOCK/RELEASE_LOCK pair wraps the write (#329, CodeRabbit
-	 * thread 4 coverage request).
+	 * the GET_LOCK/RELEASE_LOCK pair wraps the write (#329).
 	 *
 	 * @return void
 	 */

@@ -194,7 +194,7 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 		 * @since 1.2.0
 		 *
 		 * @param WP_REST_Request $request Full data about the request.
-		 * @return WP_REST_Response Response object with updated block status.
+		 * @return WP_REST_Response|WP_Error Response object with updated block status, or an error.
 		 */
 		public function toggle_block( $request ) {
 			$raw_slug = (string) $request->get_param( 'slug' );
@@ -220,7 +220,7 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 			}
 
 			$lock = $this->acquire_toggle_lock();
-			if ( is_wp_error( $lock ) ) {
+			if ( $lock instanceof WP_Error ) {
 				return $lock;
 			}
 
@@ -321,8 +321,12 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 
 			if ( $has_wpdb ) {
 				// Key the lock to the options table so multisite sites sharing
-				// one database server never block each other's toggles.
-				$lock_name = $wpdb->options . '_gslider_toggle';
+				// one database server never block each other's toggles. The
+				// hash keeps the name inside MySQL's 64-character lock-name
+				// limit for sites with long table prefixes; a longer name
+				// would error GET_LOCK into a NULL and lose the advisory
+				// locking entirely.
+				$lock_name = $this->get_toggle_lock_name();
 				$timeout   = 3;
 
 				// get_var() is required: GET_LOCK() always returns one row, so
@@ -356,6 +360,19 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 		}
 
 		/**
+		 * Builds the advisory lock name shared by GET_LOCK and RELEASE_LOCK.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @return string Fixed-length lock name keyed to the options table.
+		 */
+		private function get_toggle_lock_name(): string {
+			global $wpdb;
+
+			return 'gslider_toggle_' . md5( (string) $wpdb->options );
+		}
+
+		/**
 		 * Releases a lock acquired by acquire_toggle_lock().
 		 *
 		 * @since 1.2.3
@@ -375,9 +392,10 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 
 			if ( isset( $wpdb ) && is_object( $wpdb ) && method_exists( $wpdb, 'query' ) ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Advisory lock release; caching does not apply.
-				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $wpdb->options . '_gslider_toggle' ) );
+				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $this->get_toggle_lock_name() ) );
 			}
 		}
+
 
 		/**
 		 * Counts total published sliders across posts and pages with transient caching.

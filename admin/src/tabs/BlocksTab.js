@@ -570,7 +570,6 @@ const BlocksTab = ( {
 		}
 	};
 
-	const activeCount = blocks.filter( ( b ) => b.enabled ).length;
 	const totalCount = blocks.length;
 
 	// No server state yet: show a loading card while fetching, an error card
@@ -581,6 +580,27 @@ const BlocksTab = ( {
 		dashboardData?.blocks && dashboardData.blocks.length
 	);
 	const showLoadFailure = ( hasError || ! isLoading ) && ! hasServerState;
+
+	// Derive the displayed enabled values from the server data during render
+	// while no toggle is running. The post-commit sync effect alone would let
+	// the first render after a dashboard load paint the local defaults
+	// (enabled: true) for one frame before the effect corrects them. Mid
+	//-toggle the derivation pauses: the optimistic values in both the local
+	// state and the parent data are then newer than the server list.
+	const toggleIdle =
+		Object.values( isToggling ).every( ( v ) => ! v ) && ! isBulkUpdating;
+	const displayedBlocks =
+		toggleIdle && hasServerState
+			? blocks.map( ( block ) => {
+					const found = dashboardData.blocks.find(
+						( b ) => b.slug === block.slug
+					);
+					return found
+						? { ...block, enabled: Boolean( found.enabled ) }
+						: block;
+			  } )
+			: blocks;
+	const activeCount = displayedBlocks.filter( ( b ) => b.enabled ).length;
 
 	if ( ! hasServerState ) {
 		return (
@@ -689,7 +709,7 @@ const BlocksTab = ( {
 
 			{ /* 3-Column / 2-Column Responsive Card Grid */ }
 			<div className="gslider-dashboard-blocks-grid" role="list">
-				{ blocks.map( ( block ) => (
+				{ displayedBlocks.map( ( block ) => (
 					<div
 						key={ block.slug }
 						role="listitem"
