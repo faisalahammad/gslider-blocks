@@ -64,6 +64,7 @@ export const getPostQueryArgs = (
 		searchQuery = '',
 		stickyPosts = 'include',
 		taxonomyQuery = {},
+		taxonomyFilterTypes = {},
 		excludeCurrentPost = false,
 		metaKey = '',
 		metaValue = '',
@@ -281,7 +282,19 @@ export const getPostQueryArgs = (
 									.filter( ( id ) => ! isNaN( id ) );
 
 						if ( taxIds.length > 0 ) {
-							queryArgs[ restBase ] = taxIds;
+							const isExcluded =
+								taxonomyFilterTypes &&
+								typeof taxonomyFilterTypes === 'object' &&
+								! Array.isArray( taxonomyFilterTypes ) &&
+								Object.prototype.hasOwnProperty.call(
+									taxonomyFilterTypes,
+									tax.slug
+								) &&
+								taxonomyFilterTypes[ tax.slug ] === 'exclude';
+							const queryKey = isExcluded
+								? `${ restBase }_exclude`
+								: restBase;
+							queryArgs[ queryKey ] = taxIds;
 						}
 					}
 				}
