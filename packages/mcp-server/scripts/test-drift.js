@@ -265,7 +265,7 @@ function valueMatchesAttributeType( value, def ) {
 		case 'string':
 			return typeof value === 'string';
 		case 'number':
-			return typeof value === 'number';
+			return Number.isFinite( value );
 		case 'integer':
 			return Number.isInteger( value );
 		case 'boolean':
