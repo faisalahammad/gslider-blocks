@@ -18,6 +18,32 @@ import Select2 from 'react-select';
 import SelectControls from '@Components/select-controls';
 import ResponsiveRangeControl from '@Components/responsive-range-control';
 
+// Pure helper: matches the attribute value against the loaded font options.
+// The attribute can also hold a value that is not a Google font, e.g. a
+// preset font stack, so an unmatched non-empty value is shown as-is
+// instead of claiming "Default".
+const buildFontSelection = ( options, fontFamilyValue ) => {
+	const current = options.find( ( f ) => f.value === fontFamilyValue );
+
+	if ( current ) {
+		return {
+			selection: current,
+			weights: current.weights || [],
+		};
+	}
+
+	return {
+		selection:
+			fontFamilyValue && fontFamilyValue !== 'Default'
+				? { label: fontFamilyValue, value: fontFamilyValue }
+				: {
+						label: __( 'Default', 'gslider-blocks' ),
+						value: 'Default',
+				  },
+		weights: [],
+	};
+};
+
 const ResponsiveTypographyControl = ( {
 	fontFamily,
 	onChangeFontFamily,
@@ -51,22 +77,6 @@ const ResponsiveTypographyControl = ( {
 	const [ selectedFontFamilyOption, setSelectedFontFamilyOption ] =
 		useState( null );
 	const [ availableFontWeights, setAvailableFontWeights ] = useState( [] );
-
-	const buildFontSelection = ( options, fontFamilyValue ) => {
-		const current = options.find( ( f ) => f.value === fontFamilyValue );
-
-		if ( current ) {
-			return {
-				selection: current,
-				weights: current.weights || [],
-			};
-		}
-
-		return {
-			selection: { label: __( 'Default', 'gslider-blocks' ), value: 'Default' },
-			weights: [],
-		};
-	};
 
 	useEffect( () => {
 		GOOGLE_FONTS().then( ( fetchedFonts ) => {
@@ -344,6 +354,21 @@ const ResponsiveTypographyControl = ( {
 										),
 										value: 'inherit',
 									},
+									// Keep a stored weight selectable when the
+									// family's weight list does not include it.
+									...( availableFontWeights.length > 0 &&
+									fontWeight &&
+									fontWeight !== 'inherit' &&
+									! availableFontWeights.includes(
+										fontWeight
+									)
+										? [
+												{
+													label: fontWeight,
+													value: fontWeight,
+												},
+										  ]
+										: [] ),
 									...( availableFontWeights.length > 0
 										? availableFontWeights.map(
 												( weight ) => ( {
