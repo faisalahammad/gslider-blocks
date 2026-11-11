@@ -2,6 +2,13 @@ import { RichText, useBlockProps } from '@wordpress/block-editor';
 import renderSVG from '@Components/icon-picker/components/icon-picker/controls/renderIcon';
 import { normalizeContentOrder } from './content-order';
 
+/**
+ * Saves the Testimonial Slider block's static markup and Swiper configuration.
+ *
+ * @param {Object} props            Save component props.
+ * @param {Object} props.attributes Current block attributes.
+ * @return {Element} Rendered block save element.
+ */
 export default function Save( { attributes } ) {
 	const {
 		blockId,

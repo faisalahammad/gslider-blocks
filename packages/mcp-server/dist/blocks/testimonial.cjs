@@ -5487,8 +5487,8 @@ var generateBaseSliderStyle = (attributes2) => {
             ${layoutHeight.Desktop && layoutHeightSwitcher === "fixed" ? `min-height: ${layoutHeight.Desktop}${layoutHeightUnits.Desktop};` : "auto"}
         }
 
-        ${direction === "vertical" && Number(verticalHeight?.Desktop || layoutHeight.Desktop) > 0 && (verticalHeightUnits?.Desktop || layoutHeightUnits.Desktop) !== "%" ? `.${blockId}.gslider-testimonial-wrapper > .swiper {
-            height: ${verticalHeight?.Desktop || layoutHeight.Desktop}${verticalHeightUnits?.Desktop || layoutHeightUnits.Desktop || "px"};
+        ${direction === "vertical" && Number(verticalHeight?.Desktop || "500") > 0 && (verticalHeightUnits?.Desktop || "px") !== "%" ? `.${blockId}.gslider-testimonial-wrapper > .swiper {
+            height: ${verticalHeight?.Desktop || "500"}${verticalHeightUnits?.Desktop || "px"};
         }` : ""}
 
         .${blockId} .swiper-slide{
@@ -5744,7 +5744,12 @@ var generateBaseSliderStyle = (attributes2) => {
                 padding: 0 0 ${navigationArrowPositionOutsidePadding.Desktop}${navigationArrowPositionOutsidePaddingUnits.Desktop};
             ` : ""}
 
-            ${navigationArrowPosition === "center" ? `
+            ${navigationArrowPosition === "center" && direction === "vertical" ? `
+                padding: ${navigationArrowPositionOutsidePadding.Desktop}${navigationArrowPositionOutsidePaddingUnits.Desktop} 0;
+
+            ` : ""}
+
+            ${navigationArrowPosition === "center" && direction !== "vertical" ? `
                 padding: 0 ${navigationArrowPositionOutsidePadding.Desktop}${navigationArrowPositionOutsidePaddingUnits.Desktop};
 
             ` : ""}
@@ -5981,8 +5986,8 @@ var generateBaseSliderStyle = (attributes2) => {
                 ${layoutHeight.Tablet && layoutHeightSwitcher === "fixed" ? `min-height: ${layoutHeight.Tablet}${layoutHeightUnits.Tablet};` : "auto"}
             }
 
-            ${direction === "vertical" && Number(verticalHeight?.Tablet || layoutHeight.Tablet) > 0 && (verticalHeightUnits?.Tablet || layoutHeightUnits.Tablet) !== "%" ? `.${blockId}.gslider-testimonial-wrapper > .swiper {
-                height: ${verticalHeight?.Tablet || layoutHeight.Tablet}${verticalHeightUnits?.Tablet || layoutHeightUnits.Tablet || "px"};
+            ${direction === "vertical" && Number(verticalHeight?.Tablet || "420") > 0 && (verticalHeightUnits?.Tablet || "px") !== "%" ? `.${blockId}.gslider-testimonial-wrapper > .swiper {
+                height: ${verticalHeight?.Tablet || "420"}${verticalHeightUnits?.Tablet || "px"};
             }` : ""}
 
             .${blockId} .swiper-slide{
@@ -6124,7 +6129,12 @@ var generateBaseSliderStyle = (attributes2) => {
                     padding: 0 0 ${navigationArrowPositionOutsidePadding.Tablet}${navigationArrowPositionOutsidePaddingUnits.Tablet};
                 ` : ""}
         
-                ${navigationArrowPosition === "center" ? `
+                ${navigationArrowPosition === "center" && direction === "vertical" ? `
+                    padding: ${navigationArrowPositionOutsidePadding.Tablet}${navigationArrowPositionOutsidePaddingUnits.Tablet} 0;
+
+                ` : ""}
+
+                ${navigationArrowPosition === "center" && direction !== "vertical" ? `
                     padding: 0 ${navigationArrowPositionOutsidePadding.Tablet}${navigationArrowPositionOutsidePaddingUnits.Tablet};
 
                 ` : ""}
@@ -6266,8 +6276,8 @@ var generateBaseSliderStyle = (attributes2) => {
                 ${layoutHeight.Mobile && layoutHeightSwitcher === "fixed" ? `min-height: ${layoutHeight.Mobile}${layoutHeightUnits.Mobile};` : "auto"}
             }
 
-            ${direction === "vertical" && Number(verticalHeight?.Mobile || layoutHeight.Mobile) > 0 && (verticalHeightUnits?.Mobile || layoutHeightUnits.Mobile) !== "%" ? `.${blockId}.gslider-testimonial-wrapper > .swiper {
-                height: ${verticalHeight?.Mobile || layoutHeight.Mobile}${verticalHeightUnits?.Mobile || layoutHeightUnits.Mobile || "px"};
+            ${direction === "vertical" && Number(verticalHeight?.Mobile || "350") > 0 && (verticalHeightUnits?.Mobile || "px") !== "%" ? `.${blockId}.gslider-testimonial-wrapper > .swiper {
+                height: ${verticalHeight?.Mobile || "350"}${verticalHeightUnits?.Mobile || "px"};
             }` : ""}
 
             .${blockId} .swiper-slide{
@@ -6409,7 +6419,12 @@ var generateBaseSliderStyle = (attributes2) => {
                     padding: 0 0 ${navigationArrowPositionOutsidePadding.Mobile}${navigationArrowPositionOutsidePaddingUnits.Mobile};
                 ` : ""}
         
-                ${navigationArrowPosition === "center" ? `
+                ${navigationArrowPosition === "center" && direction === "vertical" ? `
+                    padding: ${navigationArrowPositionOutsidePadding.Mobile}${navigationArrowPositionOutsidePaddingUnits.Mobile} 0;
+
+                ` : ""}
+
+                ${navigationArrowPosition === "center" && direction !== "vertical" ? `
                     padding: 0 ${navigationArrowPositionOutsidePadding.Mobile}${navigationArrowPositionOutsidePaddingUnits.Mobile};
 
                 ` : ""}

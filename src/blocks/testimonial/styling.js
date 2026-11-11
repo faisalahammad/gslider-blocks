@@ -1045,14 +1045,11 @@ const generateBaseSliderStyle = ( attributes ) => {
 
         ${
 			direction === 'vertical' &&
-			Number( verticalHeight?.Desktop || layoutHeight.Desktop ) > 0 &&
-			( verticalHeightUnits?.Desktop || layoutHeightUnits.Desktop ) !==
-				'%'
+			Number( verticalHeight?.Desktop || '500' ) > 0 &&
+			( verticalHeightUnits?.Desktop || 'px' ) !== '%'
 				? `.${ blockId }.gslider-testimonial-wrapper > .swiper {
-            height: ${ verticalHeight?.Desktop || layoutHeight.Desktop }${
-				verticalHeightUnits?.Desktop ||
-				layoutHeightUnits.Desktop ||
-				'px'
+            height: ${ verticalHeight?.Desktop || '500' }${
+				verticalHeightUnits?.Desktop || 'px'
 			};
         }`
 				: ''
@@ -1835,7 +1832,16 @@ const generateBaseSliderStyle = ( attributes ) => {
 			}
 
             ${
-				navigationArrowPosition === 'center'
+				navigationArrowPosition === 'center' && direction === 'vertical'
+					? `
+                padding: ${ navigationArrowPositionOutsidePadding.Desktop }${ navigationArrowPositionOutsidePaddingUnits.Desktop } 0;
+
+            `
+					: ''
+			}
+
+            ${
+				navigationArrowPosition === 'center' && direction !== 'vertical'
 					? `
                 padding: 0 ${ navigationArrowPositionOutsidePadding.Desktop }${ navigationArrowPositionOutsidePaddingUnits.Desktop };
 
@@ -2431,14 +2437,11 @@ const generateBaseSliderStyle = ( attributes ) => {
 
             ${
 				direction === 'vertical' &&
-				Number( verticalHeight?.Tablet || layoutHeight.Tablet ) > 0 &&
-				( verticalHeightUnits?.Tablet || layoutHeightUnits.Tablet ) !==
-					'%'
+				Number( verticalHeight?.Tablet || '420' ) > 0 &&
+				( verticalHeightUnits?.Tablet || 'px' ) !== '%'
 					? `.${ blockId }.gslider-testimonial-wrapper > .swiper {
-                height: ${ verticalHeight?.Tablet || layoutHeight.Tablet }${
-					verticalHeightUnits?.Tablet ||
-					layoutHeightUnits.Tablet ||
-					'px'
+                height: ${ verticalHeight?.Tablet || '420' }${
+					verticalHeightUnits?.Tablet || 'px'
 				};
             }`
 					: ''
@@ -2915,7 +2918,18 @@ const generateBaseSliderStyle = ( attributes ) => {
 				}
         
                 ${
-					navigationArrowPosition === 'center'
+					navigationArrowPosition === 'center' &&
+					direction === 'vertical'
+						? `
+                    padding: ${ navigationArrowPositionOutsidePadding.Tablet }${ navigationArrowPositionOutsidePaddingUnits.Tablet } 0;
+
+                `
+						: ''
+				}
+
+                ${
+					navigationArrowPosition === 'center' &&
+					direction !== 'vertical'
 						? `
                     padding: 0 ${ navigationArrowPositionOutsidePadding.Tablet }${ navigationArrowPositionOutsidePaddingUnits.Tablet };
 
@@ -3307,14 +3321,11 @@ const generateBaseSliderStyle = ( attributes ) => {
 
             ${
 				direction === 'vertical' &&
-				Number( verticalHeight?.Mobile || layoutHeight.Mobile ) > 0 &&
-				( verticalHeightUnits?.Mobile || layoutHeightUnits.Mobile ) !==
-					'%'
+				Number( verticalHeight?.Mobile || '350' ) > 0 &&
+				( verticalHeightUnits?.Mobile || 'px' ) !== '%'
 					? `.${ blockId }.gslider-testimonial-wrapper > .swiper {
-                height: ${ verticalHeight?.Mobile || layoutHeight.Mobile }${
-					verticalHeightUnits?.Mobile ||
-					layoutHeightUnits.Mobile ||
-					'px'
+                height: ${ verticalHeight?.Mobile || '350' }${
+					verticalHeightUnits?.Mobile || 'px'
 				};
             }`
 					: ''
@@ -3791,7 +3802,18 @@ const generateBaseSliderStyle = ( attributes ) => {
 				}
         
                 ${
-					navigationArrowPosition === 'center'
+					navigationArrowPosition === 'center' &&
+					direction === 'vertical'
+						? `
+                    padding: ${ navigationArrowPositionOutsidePadding.Mobile }${ navigationArrowPositionOutsidePaddingUnits.Mobile } 0;
+
+                `
+						: ''
+				}
+
+                ${
+					navigationArrowPosition === 'center' &&
+					direction !== 'vertical'
 						? `
                     padding: 0 ${ navigationArrowPositionOutsidePadding.Mobile }${ navigationArrowPositionOutsidePaddingUnits.Mobile };
 

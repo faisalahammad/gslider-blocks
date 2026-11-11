@@ -28,15 +28,19 @@ function slideFor( slug ) {
 	return { url: 'https://example.com/slide.jpg', alt: 'Slide' };
 }
 
-function effectIn( markup ) {
-	const match = markup.match( /data-swiper-settings="([^"]*)"/ );
+function swiperSettingsIn( markup ) {
+	const match = markup.match( /data-swiper-settings="([^"]*)"[\s>]/ );
 	if ( ! match ) {
 		fail( 'markup has no data-swiper-settings attribute' );
 	}
 	const decoded = match[ 1 ]
 		.replace( /&quot;/g, '"' )
 		.replace( /&amp;/g, '&' );
-	return JSON.parse( decoded ).effect;
+	return JSON.parse( decoded );
+}
+
+function effectIn( markup ) {
+	return swiperSettingsIn( markup ).effect;
 }
 
 async function generate( input ) {
@@ -189,6 +193,54 @@ console.log(
 if ( new Set( blockIds ).size !== blockIds.length ) {
 	fail( 'generated block ids are not unique' );
 }
+
+// Testimonial vertical direction: the saved Swiper settings must keep the
+// horizontal default free of a direction key, and vertical mode must set
+// direction while dropping autoHeight (issue #648 backward compatibility).
+const testimonialHorizontal = await generate( {
+	blockSlug: 'testimonial',
+	slides: [ slideFor( 'testimonial' ) ],
+} );
+if ( 'direction' in swiperSettingsIn( testimonialHorizontal.markup ) ) {
+	fail( 'testimonial default markup must not include a direction key' );
+}
+const testimonialVertical = await generate( {
+	blockSlug: 'testimonial',
+	slides: [ slideFor( 'testimonial' ) ],
+	attributes: { direction: 'vertical' },
+} );
+const verticalSettings = swiperSettingsIn( testimonialVertical.markup );
+if ( verticalSettings.direction !== 'vertical' ) {
+	fail( 'testimonial vertical markup must set direction to vertical' );
+}
+if ( 'autoHeight' in verticalSettings ) {
+	fail( 'testimonial vertical markup must not include autoHeight' );
+}
+console.log( 'ok testimonial swiper settings direction handling' );
+
+// Testimonial vertical styling must use the dedicated verticalHeight
+// defaults and never fall back to the horizontal layoutHeight attributes.
+const testimonialBlock = loadBundledBlock( 'testimonial' );
+const testimonialDefaults = attributeDefaults( testimonialBlock.attributes );
+const verticalStyle = testimonialBlock.styling( {
+	...testimonialDefaults,
+	direction: 'vertical',
+	layoutHeight: { Desktop: '', Tablet: '', Mobile: '' },
+	layoutHeightUnits: { Desktop: 'px', Tablet: 'px', Mobile: 'px' },
+} );
+const verticalHeights = [
+	...verticalStyle.matchAll(
+		/gslider-testimonial-wrapper > \.swiper \{\s*height: ([^;]+);/g
+	),
+].map( ( match ) => match[ 1 ].trim() );
+if ( ! isDeepStrictEqual( verticalHeights, [ '500px', '420px', '350px' ] ) ) {
+	fail(
+		`testimonial vertical heights ${ JSON.stringify(
+			verticalHeights
+		) } do not use the dedicated verticalHeight defaults`
+	);
+}
+console.log( 'ok testimonial vertical height independence' );
 
 for ( const slug of slugs ) {
 	await rejects(

@@ -18,6 +18,16 @@ import { normalizeContentOrder } from './content-order';
 // Swiper is loaded globally via FrontendAssets.php (swiper-bundle.min.js)
 // We use vanilla JS Swiper in useEffect instead of swiper/react
 
+/**
+ * Testimonial Slider Gutenberg editor component.
+ *
+ * @param {Object}   props               Block editor component props.
+ * @param {Object}   props.attributes    Current block attributes.
+ * @param {Function} props.setAttributes Attribute setter callback.
+ * @param {string}   props.clientId      Unique block client ID.
+ * @param {boolean}  props.isSelected    Whether the block is selected in the editor.
+ * @return {Element} Rendered block editor element.
+ */
 export default function Edit( {
 	attributes,
 	setAttributes,

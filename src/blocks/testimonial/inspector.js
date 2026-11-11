@@ -67,6 +67,19 @@ import PresetSelector from '@Components/preset-selector';
 import { TESTIMONIAL_PRESETS } from './preset';
 import { normalizeContentOrder } from './content-order';
 
+/**
+ * Testimonial Slider inspector settings panel.
+ *
+ * @param {Object}   props                     Component props.
+ * @param {Object}   props.attributes          Current block attributes.
+ * @param {Function} props.setAttributes       Attribute setter callback.
+ * @param {Function} props.handleAddItem       Adds a new testimonial slide.
+ * @param {Function} props.handleChangeItem    Updates a testimonial slide.
+ * @param {Function} props.handleDuplicateItem Duplicates a testimonial slide.
+ * @param {Function} props.handleDragEnd       Persists slide reordering.
+ * @param {Function} props.handleDeleteItem    Removes a testimonial slide.
+ * @return {Element} Rendered inspector panel.
+ */
 const Inspector = ( {
 	attributes,
 	setAttributes,
@@ -1261,7 +1274,8 @@ const Inspector = ( {
 					} }
 				/>
 
-				{ layoutHeightSwitcher !== 'adapt' && (
+				{ ( layoutHeightSwitcher !== 'adapt' ||
+					direction === 'vertical' ) && (
 					<ResponsiveAlignmentControl
 						label={ __( 'Vertical Alignment', 'gslider-blocks' ) }
 						options={ VERTICAL_ALIGN }
