@@ -259,6 +259,7 @@ return [
 		],
 	],
 	'sliderType' => 'slider',
+	'direction' => 'horizontal',
 	'carouselPerColumn' => [
 		'Desktop' => 2,
 		'Tablet' => 2,
@@ -322,6 +323,16 @@ return [
 		'Mobile' => '260',
 	],
 	'layoutHeightUnits' => [
+		'Desktop' => 'px',
+		'Tablet' => 'px',
+		'Mobile' => 'px',
+	],
+	'verticalHeight' => [
+		'Desktop' => '500',
+		'Tablet' => '420',
+		'Mobile' => '350',
+	],
+	'verticalHeightUnits' => [
 		'Desktop' => 'px',
 		'Tablet' => 'px',
 		'Mobile' => 'px',

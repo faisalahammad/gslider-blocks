@@ -399,6 +399,10 @@ const attributes = {
 		type: 'string',
 		default: 'slider',
 	},
+	direction: {
+		type: 'string',
+		default: 'horizontal',
+	},
 	carouselPerColumn: {
 		type: 'object',
 		default: {
@@ -550,6 +554,22 @@ const attributes = {
 		},
 	},
 	layoutHeightUnits: {
+		type: 'object',
+		default: {
+			Desktop: 'px',
+			Tablet: 'px',
+			Mobile: 'px',
+		},
+	},
+	verticalHeight: {
+		type: 'object',
+		default: {
+			Desktop: '500',
+			Tablet: '420',
+			Mobile: '350',
+		},
+	},
+	verticalHeightUnits: {
 		type: 'object',
 		default: {
 			Desktop: 'px',

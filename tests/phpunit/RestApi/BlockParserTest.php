@@ -15,6 +15,7 @@
  * 10. Post Carousel defaults, Swiper config, sticky overflow cap, and queried post slides normalize cleanly.
  * 11. Post Carousel preserves enclosing host post context across multiple carousels and restores prior post state.
  * 12. Reusable block (synced pattern) expansion only happens for published, unprotected, or readable wp_block posts.
+ * 13. Testimonial vertical direction reaches swiperConfig and turns off autoHeight.
  *
  * @package GSlider\Tests\RestApi
  */
@@ -663,6 +664,7 @@ class BlockParserTest {
 		$this->test_css_sanitization();
 		$this->test_flexi_slide_css_in_rest_output();
 		$this->test_flexi_vertical_direction();
+		$this->test_testimonial_vertical_direction();
 		$this->test_swiper_dynamic_observers();
 		$this->test_flexi_grab_cursor();
 		$this->test_flexi_grab_cursor();
@@ -1004,6 +1006,27 @@ class BlockParserTest {
 		);
 		$this->assert_true( 'vertical' === $vertical['swiperConfig']['direction'], 'vertical flexi config sets direction' );
 		$this->assert_true( ! isset( $vertical['swiperConfig']['autoHeight'] ), 'vertical flexi config skips autoHeight' );
+	}
+
+	/**
+	 * Test 13: Testimonial Vertical Direction.
+	 *
+	 * @return void
+	 */
+	public function test_testimonial_vertical_direction(): void {
+		$horizontal = $this->normalize( [ 'layoutHeightSwitcher' => 'adapt' ], 'gslider-blocks/testimonial' );
+		$this->assert_true( ! isset( $horizontal['swiperConfig']['direction'] ), 'default testimonial config has no direction key' );
+		$this->assert_true( true === $horizontal['swiperConfig']['autoHeight'], 'horizontal adapt height keeps autoHeight' );
+
+		$vertical = $this->normalize(
+			[
+				'direction'            => 'vertical',
+				'layoutHeightSwitcher' => 'adapt',
+			],
+			'gslider-blocks/testimonial'
+		);
+		$this->assert_true( 'vertical' === $vertical['swiperConfig']['direction'], 'vertical testimonial config sets direction' );
+		$this->assert_true( ! isset( $vertical['swiperConfig']['autoHeight'] ), 'vertical testimonial config skips autoHeight' );
 	}
 
 	/**

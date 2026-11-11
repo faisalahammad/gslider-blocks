@@ -80,6 +80,7 @@ export default function Edit( {
 		navigationArrowsIconRight,
 		navigationArrowsIconRightImageUrl,
 
+		direction,
 		layoutHeightSwitcher,
 		contentOrder,
 		authorPlaceholderUrl,
@@ -221,9 +222,12 @@ export default function Edit( {
 					},
 				},
 			} ),
-			...( layoutHeightSwitcher === 'adapt' && {
-				autoHeight: true,
-			} ),
+			...( direction === 'vertical' && { direction: 'vertical' } ),
+			// Vertical slides use the fixed height, autoHeight does not work with it
+			...( layoutHeightSwitcher === 'adapt' &&
+				direction !== 'vertical' && {
+					autoHeight: true,
+				} ),
 			loop: infiniteLoop,
 			autoplay: autoplay
 				? {
@@ -267,7 +271,12 @@ export default function Edit( {
 			...( slideEffect === 'creative' && {
 				creativeEffect: {
 					prev: { shadow: true, translate: [ 0, 0, -400 ] },
-					next: { translate: [ '100%', 0, 0 ] },
+					next: {
+						translate:
+							direction === 'vertical'
+								? [ 0, '100%', 0 ]
+								: [ '100%', 0, 0 ],
+					},
 				},
 			} ),
 			on: {
@@ -319,6 +328,7 @@ export default function Edit( {
 		navigationArrowsIconSwitcher,
 		navigationArrowsIconLeft,
 		navigationArrowsIconRight,
+		direction,
 		layoutHeightSwitcher,
 	] );
 
