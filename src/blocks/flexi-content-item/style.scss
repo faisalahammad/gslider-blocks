@@ -1,1 +1,9 @@
 // Styles for the Flexi Content Item block
+
+// Draft slides removed by flexi-content view.js stay out of sight if the
+// script never runs. The editor keeps hidden slides editable, so this
+// fallback applies only outside the block editor (iframe canvas sets the
+// class on the iframe html, the classic admin editor sets it on body).
+html:not(.block-editor-iframe__html) body:not(.block-editor-page) .flexi-content-item.is-slide-hidden {
+	display: none;
+}

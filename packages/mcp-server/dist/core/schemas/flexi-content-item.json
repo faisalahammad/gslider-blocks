@@ -7,7 +7,7 @@
   "slideField": "",
   "presets": [],
   "allowedEffects": {},
-  "totalAttributes": 23,
+  "totalAttributes": 24,
   "slideItemSchema": {
     "type": "childBlock",
     "name": "gslider-blocks/flexi-content-item",
@@ -28,6 +28,10 @@
     "blockStyle": {
       "type": "string",
       "default": ""
+    },
+    "isSlideHidden": {
+      "type": "boolean",
+      "default": false
     },
     "sliderItemNormalBackgroundType": {
       "type": "string",

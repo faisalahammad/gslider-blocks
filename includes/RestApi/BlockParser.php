@@ -823,11 +823,12 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 					: render_block( $inner_block );
 
 				$slides[] = [
-					'id'          => $slide_id,
-					'blockName'   => $inner_name,
-					'innerHtml'   => $inner_html,
-					'css'         => self::collect_inner_block_styles( $inner_block ),
-					'innerBlocks' => $inner_block['innerBlocks'] ?? [],
+					'id'            => $slide_id,
+					'blockName'     => $inner_name,
+					'isSlideHidden' => self::base_flag( $inner_attrs, 'isSlideHidden', false ),
+					'innerHtml'     => $inner_html,
+					'css'           => self::collect_inner_block_styles( $inner_block ),
+					'innerBlocks'   => $inner_block['innerBlocks'] ?? [],
 				];
 			}
 

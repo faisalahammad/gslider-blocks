@@ -1,10 +1,12 @@
 import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 
 export default function Save( { attributes } ) {
-	const { blockId } = attributes;
+	const { blockId, isSlideHidden } = attributes;
 
 	const blockProps = useBlockProps.save( {
-		className: `flexi-content-item swiper-slide ${ blockId }`,
+		className: `flexi-content-item swiper-slide ${ blockId }${
+			isSlideHidden ? ' is-slide-hidden' : ''
+		}`,
 	} );
 
 	return (

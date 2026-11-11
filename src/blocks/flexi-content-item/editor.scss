@@ -1,1 +1,25 @@
 // Editor-specific styles for the Flexi Content Item block
+
+// Dimmed preview for slides hidden with the Hide Slide (Draft) toggle
+.flexi-content-item.is-slide-hidden {
+	opacity: 0.55;
+	filter: grayscale(30%);
+}
+
+// Draft badge pinned to the top right corner of a hidden slide
+.gslider-flexi-item-draft-badge {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 10;
+	padding: 2px 8px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.6;
+	letter-spacing: 0.3px;
+	color: #fff;
+	background: #d63638;
+	pointer-events: none;
+	text-transform: uppercase;
+}

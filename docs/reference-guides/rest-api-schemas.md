@@ -135,6 +135,7 @@ For block-based sliders such as `gslider-blocks/flexi-content`, each element in 
 | :--- | :---: | :--- |
 | `id` | `string` | Slide identifier: the slide's sanitized block ID, or a `slide-<N>` fallback (e.g. `'slide-1'`) when no block ID is set. Not guaranteed to be unique. |
 | `blockName` | `string` | Canonical block name of the slide item (e.g. `'gslider-blocks/flexi-content-item'`). |
+| `isSlideHidden` | `boolean` | Whether the slide is drafted as hidden through the item's "Hide Slide (Draft)" toggle. Hidden slides stay in this array so consumers can filter them by this flag. |
 | `innerHtml` | `string` | Fully rendered HTML markup of the slide. For backward compatibility, the slide's scoped `<style>` tags are also retained inside `innerHtml`. |
 | `css` | `string` | The slide's own scoped CSS plus its nested blocks' CSS. Headless consumers can apply this CSS directly without having to parse `innerHtml`. |
 | `innerBlocks` | `array` | Nested Gutenberg block nodes contained within this slide. |

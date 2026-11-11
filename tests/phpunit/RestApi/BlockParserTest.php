@@ -12,9 +12,10 @@
  * 7. Flexi Content vertical direction reaches swiperConfig and turns off autoHeight.
  * 8. Dynamic observers (observer, observeParents, resizeObserver) are passed in swiperConfig.
  * 9. Flexi Content grabCursor propagates only when enableGrabCursor and allowTouchMove are enabled.
- * 10. Post Carousel defaults, Swiper config, sticky overflow cap, and queried post slides normalize cleanly.
- * 11. Post Carousel preserves enclosing host post context across multiple carousels and restores prior post state.
- * 12. Reusable block (synced pattern) expansion only happens for published, unprotected, or readable wp_block posts.
+ * 10. Flexi Content hidden slide flag (isSlideHidden) is exposed per slide for headless consumers.
+ * 11. Post Carousel defaults, Swiper config, sticky overflow cap, and queried post slides normalize cleanly.
+ * 12. Post Carousel preserves enclosing host post context across multiple carousels and restores prior post state.
+ * 13. Reusable block (synced pattern) expansion only happens for published, unprotected, or readable wp_block posts.
  *
  * @package GSlider\Tests\RestApi
  */
@@ -665,7 +666,7 @@ class BlockParserTest {
 		$this->test_flexi_vertical_direction();
 		$this->test_swiper_dynamic_observers();
 		$this->test_flexi_grab_cursor();
-		$this->test_flexi_grab_cursor();
+		$this->test_flexi_hidden_slide_flag();
 		$this->test_post_carousel_normalization();
 		$this->test_post_carousel_host_post_context_and_restoration();
 		$this->test_reusable_block_expansion_gating();
@@ -1076,7 +1077,53 @@ class BlockParserTest {
 		}
 	}
 	/**
-	 * Test 10: Post Carousel defaults, Swiper configuration, sticky slice cap, and post slides.
+	 * Test 10: Flexi Content hidden slide flag in REST payloads.
+	 *
+	 * Verifies that isSlideHidden is exposed per slide and defaults to
+	 * false so headless consumers can filter drafted slides.
+	 *
+	 * @return void
+	 */
+	public function test_flexi_hidden_slide_flag(): void {
+		$flexi = BlockParser::normalize_block(
+			[
+				'blockName'   => 'gslider-blocks/flexi-content',
+				'attrs'       => [],
+				'innerBlocks' => [
+					[
+						'blockName'   => 'gslider-blocks/flexi-content-item',
+						'attrs'       => [ 'blockId' => 'slide-visible' ],
+						'innerBlocks' => [],
+					],
+					[
+						'blockName'   => 'gslider-blocks/flexi-content-item',
+						'attrs'       => [
+							'blockId'       => 'slide-hidden',
+							'isSlideHidden' => true,
+						],
+						'innerBlocks' => [],
+					],
+					[
+						'blockName'   => 'gslider-blocks/flexi-content-item',
+						'attrs'       => [
+							'blockId'       => 'slide-bad',
+							'isSlideHidden' => 'yes',
+						],
+						'innerBlocks' => [],
+					],
+				],
+			]
+		);
+
+		$slides = $flexi['slides'];
+		$this->assert_true( 3 === count( $slides ), 'flexi normalization keeps every stored slide' );
+		$this->assert_true( false === $slides[0]['isSlideHidden'], 'flexi slide without the flag defaults isSlideHidden to false' );
+		$this->assert_true( true === $slides[1]['isSlideHidden'], 'flexi hidden slide exposes isSlideHidden true' );
+		$this->assert_true( true === $slides[2]['isSlideHidden'], 'flexi isSlideHidden is cast to boolean' );
+	}
+
+	/**
+	 * Test 11: Post Carousel Normalization.
 	 *
 	 * @return void
 	 */
@@ -1227,7 +1274,7 @@ class BlockParserTest {
 	}
 
 	/**
-	 * Test 11: Host post propagation and global post/postdata restoration across REST Post Carousel queries.
+	 * Test 12: Host post propagation and global post/postdata restoration across REST Post Carousel queries.
 	 *
 	 * @return void
 	 */
@@ -1364,7 +1411,7 @@ class BlockParserTest {
 	}
 
 	/**
-	 * Test 12: Reusable block (synced pattern) expansion is gated by status, password, and capability.
+	 * Test 13: Reusable block (synced pattern) expansion is gated by status, password, and capability.
 	 *
 	 * @return void
 	 */

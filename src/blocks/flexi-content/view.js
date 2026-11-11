@@ -415,6 +415,28 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			'.gslider-flexi-content-wrapper'
 		);
 
+		// Draft slides hidden through the item toggle leave the DOM before
+		// lightbox binding and Swiper init, so slide counts, pagination and
+		// loop duplicates match the visible slides
+		sliders.forEach( ( sliderContainer ) => {
+			const swiperElement = sliderContainer.querySelector( '.swiper' );
+			if (
+				! swiperElement ||
+				swiperElement.classList.contains( 'swiper-initialized' )
+			) {
+				return;
+			}
+
+			swiperElement
+				.querySelectorAll( '.swiper-slide.is-slide-hidden' )
+				.forEach( ( hiddenSlide ) => {
+					// A slide inside a nested slider is pruned by that slider
+					if ( hiddenSlide.closest( '.swiper' ) === swiperElement ) {
+						hiddenSlide.remove();
+					}
+				} );
+		} );
+
 		// Bind and refresh before Swiper init, loop mode reorders the slides in the DOM
 		const lightboxSliders = [ ...sliders ].filter( ( sliderContainer ) => {
 			const swiperElement = sliderContainer.querySelector( '.swiper' );
@@ -451,6 +473,14 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 				// Get the Swiper settings from the data attribute
 				const swiperSettings = sliderContainer.dataset.swiperSettings;
+
+				// Nothing to slide when every draft slide is hidden
+				if (
+					! swiperElement.querySelector( '.swiper-slide' ) ||
+					! swiperSettings
+				) {
+					return;
+				}
 
 				if ( swiperSettings ) {
 					const settings = JSON.parse( swiperSettings );
