@@ -1,0 +1,138 @@
+/* Post Carousel - Card Base, Equal Height, Placeholder & Clickable Card */
+
+:where(.gslider-post-carousel-wrapper) {
+
+	/* Strict Equal-Height Row & CTA Alignment */
+	&.has-equal-height {
+
+		.swiper-wrapper {
+			align-items: stretch;
+		}
+
+		.swiper-slide {
+			height: auto;
+			display: flex;
+			align-items: stretch;
+		}
+
+		.gslider-post-carousel-content-wrapper {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			justify-content: flex-start;
+		}
+	}
+
+	.gslider-post-carousel-body {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-width: 0;
+		box-sizing: border-box;
+	}
+
+	.gslider-post-carousel-image {
+		position: relative;
+		overflow: hidden;
+		flex-shrink: 0;
+		border-radius: 12px;
+		aspect-ratio: 16 / 9;
+		margin: 0 0 24px 0;
+		background-color: #f1f5f9;
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+		transition: box-shadow 0.5s ease-in-out;
+
+		.gslider-post-thumb-link,
+		> a {
+			display: block;
+			width: 100%;
+			height: 100%;
+		}
+
+		img,
+		.gslider-post-carousel-placeholder-svg {
+			display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			will-change: transform, filter;
+			transition:
+				transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+				filter 0.4s ease,
+				opacity 0.4s ease;
+		}
+	}
+
+	.gslider-post-carousel-card {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		overflow: hidden;
+		background: transparent;
+		border: none;
+		box-shadow: none;
+		padding: 0;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+		&.has-equal-height {
+			height: 100%;
+
+			.gslider-post-carousel-image {
+				flex-shrink: 0;
+			}
+
+			.gslider-post-carousel-body {
+				display: flex;
+				flex-direction: column;
+				flex: 1 1 auto;
+
+				> .gslider-post-carousel-readmore {
+					margin-top: auto;
+					padding-top: 24px;
+				}
+			}
+		}
+
+		/* Accessible Stretched Whole-Card Click (no nested <a> tags) */
+		&.is-clickable {
+			position: relative;
+			cursor: pointer;
+
+			.gslider-post-carousel-title-link::after,
+			.gslider-post-carousel-card-link::after {
+				content: "";
+				position: absolute;
+				inset: 0;
+				z-index: 1;
+				cursor: pointer;
+			}
+
+			.gslider-post-carousel-card-link {
+				position: static;
+				width: 0;
+				height: 0;
+				overflow: hidden;
+				pointer-events: auto;
+
+				&:focus-visible::after {
+					outline: 2px solid #007cba;
+					outline-offset: -2px;
+				}
+			}
+
+			/* Elevate inner interactive links above stretched overlay */
+			.gslider-post-carousel-categories a,
+			.gslider-post-carousel-tags a,
+			.gslider-post-carousel-readmore-btn {
+				position: relative;
+				z-index: 2;
+			}
+
+			.gslider-taxonomy-badge-overlay {
+				z-index: 10;
+			}
+		}
+	}
+}

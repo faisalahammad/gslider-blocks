@@ -265,6 +265,7 @@ Thank you to all the amazing people who contribute to GSlider Blocks!
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mahender9390"><img src="https://avatars.githubusercontent.com/u/190497135?v=4" width="100px;" alt="Vennapuredd..."/></a><br /><sub><b>Vennapuredd...</b></sub></td>
       <td align="center" valign="top" width="14.28%"><a href="https://pralav-singh-portfolio.vercel.app/"><img src="https://avatars.githubusercontent.com/u/174412353?v=4" width="100px;" alt="Pralav&nbsp..."/></a><br /><sub><b>Pralav&nbsp...</b></sub></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/riteshyadav33302111-cell"><img src="https://avatars.githubusercontent.com/u/258157346?v=4" width="100px;" alt="Ritesh&nbsp..."/></a><br /><sub><b>Ritesh&nbsp...</b></sub></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://shigoto-el-portfolio.vercel.app/"><img src="https://avatars.githubusercontent.com/u/162464326?v=4" width="100px;" alt="L"/></a><br /><sub><b>L</b></sub></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Sinkleberg"><img src="https://avatars.githubusercontent.com/u/1676751?v=4" width="100px;" alt="Sgt_Sinky"/></a><br /><sub><b>Sgt_Sinky</b></sub></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/tu-lasizzzz"><img src="https://avatars.githubusercontent.com/u/172914448?v=4" width="100px;" alt="Tulasi&nbsp..."/></a><br /><sub><b>Tulasi&nbsp...</b></sub></td>
     </tr>

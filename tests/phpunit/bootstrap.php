@@ -810,6 +810,7 @@ if ( ! function_exists( 'get_queried_object_id' ) ) {
 if ( ! class_exists( 'WP_Post' ) ) {
 	class WP_Post {
 		public $ID;
+		public $post_author;
 		public $post_status;
 		public $post_password;
 		public $post_type;
@@ -904,8 +905,59 @@ if ( ! function_exists( 'parse_blocks' ) ) {
 }
 
 if ( ! function_exists( 'current_time' ) ) {
-	function current_time( $type ) {
+	function current_time( $type, $gmt = 0 ) {
+		if ( 'timestamp' === $type || 'U' === $type ) {
+			return 1792087200;
+		}
 		return '2026-10-15 18:00:00';
+	}
+}
+
+if ( ! function_exists( 'human_time_diff' ) ) {
+	function human_time_diff( $from, $to = 0 ) {
+		if ( empty( $to ) ) {
+			$to = time();
+		}
+		$diff = (int) abs( $to - $from );
+		if ( $diff < 3600 ) {
+			$mins = (int) round( $diff / 60 );
+			return $mins <= 1 ? '1 min' : "$mins mins";
+		} elseif ( $diff < 86400 ) {
+			$hours = (int) round( $diff / 3600 );
+			return $hours <= 1 ? '1 hour' : "$hours hours";
+		}
+		$days = (int) round( $diff / 86400 );
+		return $days <= 1 ? '1 day' : "$days days";
+	}
+}
+
+if ( ! function_exists( 'get_post_time' ) ) {
+	function get_post_time( $format = 'U', $gmt = false, $post = null ) {
+		return 1792000000;
+	}
+}
+
+if ( ! function_exists( 'get_comments_number' ) ) {
+	function get_comments_number( $post = 0 ) {
+		return 3;
+	}
+}
+
+if ( ! function_exists( 'get_comments_link' ) ) {
+	function get_comments_link( $post = 0 ) {
+		return 'http://example.org/test-post/#comments';
+	}
+}
+
+if ( ! function_exists( 'number_format_i18n' ) ) {
+	function number_format_i18n( $number, $decimals = 0 ) {
+		return (string) $number;
+	}
+}
+
+if ( ! function_exists( 'strip_shortcodes' ) ) {
+	function strip_shortcodes( $content ) {
+		return preg_replace( '/\[[^\]]+\]/', '', (string) $content );
 	}
 }
 

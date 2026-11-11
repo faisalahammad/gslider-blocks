@@ -1,19 +1,18 @@
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, memo } from '@wordpress/element';
 import { BaseControl, Button, Dashicon, Tooltip } from '@wordpress/components';
-import { select } from '@wordpress/data';
 
 /**
  * PresetSelector — Reusable visual preset picker for all GSlider blocks.
  *
  * Applies attribute overrides on preset selection.
- * Uses dashicons + text labels (no SVG images).
+ * Uses optional miniature preview thumbnails or dashicons + text labels.
  *
- * Styles: admin/scss/components/_preset-selector.scss
+ * Styles: admin/scss/block-controls/_preset-selector.scss
  *
  * @param {Object}   props
  * @param {string}   props.label              - Control label
- * @param {Array}    props.presets            - Array of { value, label, icon, attributes?, isPro?, description?, isDefault? }
+ * @param {Array}    props.presets            - Array of { value, label, icon?, preview?, attributes?, isPro?, description?, isDefault? } (preview: optional ReactNode)
  * @param {string}   props.value              - Currently selected preset value
  * @param {Function} props.onChange           - Callback when preset changes (for presetStyle attribute)
  * @param {Function} props.setAttributes      - Block setAttributes function for attribute overrides
@@ -290,8 +289,20 @@ const PresetSelector = ( {
 									</span>
 								) }
 
+								{ /* Active Badge — outside button, on wrapper */ }
+								{ isActive && ! isLocked && (
+									<span
+										className="gslider-preset-active-badge"
+										aria-hidden="true"
+									>
+										✓
+									</span>
+								) }
+
 								<Button
-									className="gslider-preset-selector-card"
+									className={ `gslider-preset-selector-card${
+										preset.preview ? ' has-preview' : ''
+									}` }
 									onClick={ () => {
 										if ( ! isLocked ) {
 											applyPreset( preset.value );
@@ -299,9 +310,15 @@ const PresetSelector = ( {
 									} }
 									aria-pressed={ isActive }
 								>
-									{ /* Dashicon */ }
-									{ preset.icon && (
-										<Dashicon icon={ preset.icon } />
+									{ /* Preview Slot or Dashicon fallback */ }
+									{ preset.preview ? (
+										<div className="gslider-preset-preview-slot">
+											{ preset.preview }
+										</div>
+									) : (
+										preset.icon && (
+											<Dashicon icon={ preset.icon } />
+										)
 									) }
 
 									{ /* Label */ }

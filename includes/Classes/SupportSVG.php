@@ -34,6 +34,136 @@ if ( ! class_exists( SupportSVG::class, false ) ) {
         use SingletonTrait;
 
         /**
+         * Strict geometric SVG allowlist (lowercase keys for wp_kses).
+         *
+         * @since 1.2.3
+         *
+         * @var array<string, array<string, bool>>
+         */
+        private const INLINE_SVG_ALLOWED_TAGS = [
+            'svg'      => [
+                'class'               => true,
+                'id'                  => true,
+                'aria-hidden'         => true,
+                'aria-labelledby'     => true,
+                'role'                => true,
+                'focusable'           => true,
+                'xmlns'               => true,
+                'width'               => true,
+                'height'              => true,
+                'viewbox'             => true,
+                'preserveaspectratio' => true,
+                'fill'                => true,
+                'stroke'              => true,
+                'stroke-width'        => true,
+                'stroke-linecap'      => true,
+                'stroke-linejoin'     => true,
+            ],
+            'g'        => [
+                'id'           => true,
+                'class'        => true,
+                'fill'         => true,
+                'stroke'       => true,
+                'stroke-width' => true,
+                'transform'    => true,
+                'opacity'      => true,
+                'clip-path'    => true,
+            ],
+            'path'     => [
+                'd'                 => true,
+                'id'                => true,
+                'class'             => true,
+                'fill'              => true,
+                'fill-rule'         => true,
+                'clip-rule'         => true,
+                'fill-opacity'      => true,
+                'stroke'            => true,
+                'stroke-width'      => true,
+                'stroke-linecap'    => true,
+                'stroke-linejoin'   => true,
+                'stroke-miterlimit' => true,
+                'stroke-opacity'    => true,
+                'opacity'           => true,
+                'transform'         => true,
+            ],
+            'circle'   => [
+                'cx'           => true,
+                'cy'           => true,
+                'r'            => true,
+                'id'           => true,
+                'class'        => true,
+                'fill'         => true,
+                'fill-opacity' => true,
+                'stroke'       => true,
+                'stroke-width' => true,
+                'opacity'      => true,
+                'transform'    => true,
+            ],
+            'ellipse'  => [
+                'cx'           => true,
+                'cy'           => true,
+                'rx'           => true,
+                'ry'           => true,
+                'id'           => true,
+                'class'        => true,
+                'fill'         => true,
+                'stroke'       => true,
+                'stroke-width' => true,
+                'opacity'      => true,
+                'transform'    => true,
+            ],
+            'rect'     => [
+                'x'            => true,
+                'y'            => true,
+                'width'        => true,
+                'height'       => true,
+                'rx'           => true,
+                'ry'           => true,
+                'id'           => true,
+                'class'        => true,
+                'fill'         => true,
+                'stroke'       => true,
+                'stroke-width' => true,
+                'opacity'      => true,
+                'transform'    => true,
+            ],
+            'polygon'  => [
+                'points'       => true,
+                'id'           => true,
+                'class'        => true,
+                'fill'         => true,
+                'fill-rule'    => true,
+                'stroke'       => true,
+                'stroke-width' => true,
+                'opacity'      => true,
+                'transform'    => true,
+            ],
+            'polyline' => [
+                'points'       => true,
+                'id'           => true,
+                'class'        => true,
+                'fill'         => true,
+                'stroke'       => true,
+                'stroke-width' => true,
+                'opacity'      => true,
+                'transform'    => true,
+            ],
+            'line'     => [
+                'x1'             => true,
+                'y1'             => true,
+                'x2'             => true,
+                'y2'             => true,
+                'id'             => true,
+                'class'          => true,
+                'stroke'         => true,
+                'stroke-width'   => true,
+                'stroke-linecap' => true,
+                'opacity'        => true,
+                'transform'      => true,
+            ],
+        ];
+
+        /**
          * WordPress filesystem instance.
          *
          * @since 1.0.0
@@ -216,6 +346,101 @@ if ( ! class_exists( SupportSVG::class, false ) ) {
                 'type'            => $filetype['type'],
                 'proper_filename' => $data['proper_filename'],
             ];
+        }
+
+        /**
+         * Sanitizes inline SVG markup for safe frontend rendering.
+         *
+         * Strips dangerous subtrees (including inner text), XML declarations,
+         * DOCTYPE declarations, and comments prior to applying a strict
+         * wp_kses() allowlist covering geometric SVG vector elements.
+         *
+         * @since 1.2.3
+         *
+         * @param mixed $svg_content Raw inline SVG markup.
+         * @return string Sanitized SVG markup, or an empty string if unsafe/empty.
+         */
+        public static function sanitize_inline_svg( $svg_content ): string {
+            if ( ! is_string( $svg_content ) || '' === trim( $svg_content ) ) {
+                return '';
+            }
+
+            $clean_svg = str_replace( "\0", '', $svg_content );
+
+            // Remove XML processing instructions, DOCTYPE declarations, dangerous
+            // subtrees (plus inner script/style text), and HTML/XML comments
+            // iteratively so nested or comment-split payloads cannot re-form.
+            $strip_patterns = [
+                '/<\?(?:xml\b)?[\s\S]*?\?>/i',
+                '/<!DOCTYPE\b(?>\[[\s\S]*?\]|[^>\[]+)*>/i',
+                '/<((?:[a-z0-9_-]+:)?(?:script|style|iframe|object|embed|foreignobject))(?=[\s>\/])[^>]*>[\s\S]*?<\/\1\s*>/i',
+                '/<!--[\s\S]*?-->/',
+            ];
+
+            $stabilized = false;
+            for ( $pass = 0; $pass < 10; $pass++ ) {
+                $next_svg = preg_replace( $strip_patterns, '', $clean_svg );
+                if ( ! is_string( $next_svg ) ) {
+                    return '';
+                }
+                if ( $next_svg === $clean_svg ) {
+                    $stabilized = true;
+                    break;
+                }
+                $clean_svg = $next_svg;
+            }
+
+            if ( ! $stabilized ) {
+                return '';
+            }
+
+            // Strip any unclosed dangerous subtree opening tags through end of input.
+            $clean_svg = preg_replace( '/<(?:[a-z0-9_-]+:)?(?:script|style|iframe|object|embed|foreignobject)(?=[\s>\/])[^>]*>[\s\S]*$/i', '', $clean_svg );
+            if ( ! is_string( $clean_svg ) ) {
+                return '';
+            }
+
+            $sanitized = trim( (string) wp_kses( $clean_svg, self::INLINE_SVG_ALLOWED_TAGS ) );
+            if ( '' === $sanitized || 1 !== preg_match( '/^<svg(?=[\s>])/i', $sanitized ) ) {
+                return '';
+            }
+
+            // Reject dangerous URI protocols inside any remaining allowlisted attributes
+            // (e.g., xmlns, fill, clip-path) that WordPress wp_kses() does not classify as URLs.
+            $sanitized = preg_replace_callback(
+                '/\s+[a-z0-9_:-]+\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))/i',
+                static function ( array $matches ): string {
+                    $raw_value = '';
+                    if ( isset( $matches[1] ) && '' !== $matches[1] ) {
+                        $raw_value = $matches[1];
+                    } elseif ( isset( $matches[2] ) && '' !== $matches[2] ) {
+                        $raw_value = $matches[2];
+                    } elseif ( isset( $matches[3] ) ) {
+                        $raw_value = $matches[3];
+                    }
+
+                    $normalized = preg_replace_callback(
+                        '/&#(?:0*([0-9]+)|x0*([0-9a-f]+));?/i',
+                        static function ( array $entity ): string {
+                            $codepoint = ! empty( $entity[2] ) ? hexdec( $entity[2] ) : intval( $entity[1] );
+                            if ( $codepoint <= 0 || $codepoint > 0x10FFFF ) {
+                                return '';
+                            }
+                            return '&#' . $codepoint . ';';
+                        },
+                        $raw_value
+                    );
+                    $decoded    = html_entity_decode( is_string( $normalized ) ? $normalized : $raw_value, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+                    $compact    = strtolower( (string) preg_replace( '/[\s\x00-\x1F\x7F-\x9F]+/', '', $decoded ) );
+                    if ( 1 === preg_match( '/(?:^|url\([\'"]?)(?:javascript|vbscript|data):/', $compact ) ) {
+                        return '';
+                    }
+                    return $matches[0];
+                },
+                $sanitized
+            );
+
+            return is_string( $sanitized ) ? trim( $sanitized ) : '';
         }
 
         /**

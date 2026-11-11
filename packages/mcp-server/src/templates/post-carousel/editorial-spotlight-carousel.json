@@ -1,0 +1,64 @@
+{
+  "uri": "gslider://templates/editorial-spotlight-carousel",
+  "name": "Editorial Featured Post Showcase",
+  "description": "Autoplay two-column editorial post showcase with coverflow transition, trimmed excerpts, progressbar pagination, and tag/category badges.",
+  "mimeType": "application/json",
+  "blockSlug": "post-carousel",
+  "blockName": "gslider-blocks/post-carousel",
+  "data": {
+    "blockId": "",
+    "blockStyle": "",
+    "postType": "post",
+    "postsPerPage": {
+      "Desktop": 4,
+      "Tablet": 4,
+      "Mobile": 4
+    },
+    "orderBy": "date",
+    "order": "desc",
+    "carouselPerColumn": {
+      "Desktop": 2,
+      "Tablet": 2,
+      "Mobile": 1
+    },
+    "carouselPerColumnGap": {
+      "Desktop": 28,
+      "Tablet": 20,
+      "Mobile": 12
+    },
+    "carouselEffect": "coverflow",
+    "speed": {
+      "Desktop": 850,
+      "Tablet": 850,
+      "Mobile": 850
+    },
+    "autoplay": true,
+    "autoplayDelay": {
+      "Desktop": 4500,
+      "Tablet": 4500,
+      "Mobile": 4500
+    },
+    "pauseOnHover": true,
+    "infiniteLoop": true,
+    "showNavigation": {
+      "Desktop": true,
+      "Tablet": true,
+      "Mobile": true
+    },
+    "showPagination": {
+      "Desktop": true,
+      "Tablet": true,
+      "Mobile": true
+    },
+    "paginationType": "progressbar",
+    "postTaxonomyDisplay": "both",
+    "enablePostExcerptLimit": true,
+    "postExcerptLimit": {
+      "Desktop": 18,
+      "Tablet": 16,
+      "Mobile": 14
+    },
+    "readMoreButtonText": "Read Article",
+    "enableLazyLoad": true
+  }
+}

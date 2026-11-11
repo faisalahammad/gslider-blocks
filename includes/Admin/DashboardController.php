@@ -204,6 +204,7 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 						'gslider-blocks/flexi-content-item',
 						'gslider-blocks/image-slider',
 						'gslider-blocks/logo-carousel',
+						'gslider-blocks/post-carousel',
 						'gslider-blocks/testimonial',
 					];
 				}
@@ -254,7 +255,7 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 		 *
 		 * Queries published posts and pages containing GSlider block markup and
 		 * counts each individual slider block instance (image-slider, testimonial,
-		 * logo-carousel, flexi-content, base) while excluding child slide items.
+		 * logo-carousel, flexi-content, post-carousel, base) while excluding child slide items.
 		 *
 		 * To avoid expensive table scans on high-traffic sites, the count is
 		 * cached in a transient and flushed automatically on save_post and deleted_post.
@@ -298,7 +299,7 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 					// Count every top-level GSlider slider block instance (excluding child items).
 					$matches = null;
 					$matched = preg_match_all(
-						'/<!--\s+wp:gslider-blocks\/(image-slider|testimonial|logo-carousel|flexi-content|base)(?![-\w])/i',
+						'/<!--\s+wp:gslider-blocks\/(image-slider|testimonial|logo-carousel|flexi-content|post-carousel|base)(?![-\w])/i',
 						$content,
 						$matches
 					);
@@ -378,6 +379,11 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 					'slug'    => 'logo-carousel',
 					'name'    => __( 'Logo Carousel', 'gslider-blocks' ),
 					'enabled' => $this->is_block_enabled( 'logo-carousel', $disabled_blocks ),
+				],
+				[
+					'slug'    => 'post-carousel',
+					'name'    => __( 'Post Carousel', 'gslider-blocks' ),
+					'enabled' => $this->is_block_enabled( 'post-carousel', $disabled_blocks ),
 				],
 				[
 					'slug'    => 'testimonial',

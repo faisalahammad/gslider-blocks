@@ -1,7 +1,7 @@
 /**
  * BlocksTab component for the GSlider Blocks React Admin Dashboard SPA.
  *
- * Provides live enable/disable toggles for all 5 core slider blocks,
+ * Provides live enable/disable toggles for all 6 core slider blocks,
  * updating the WordPress Gutenberg inserter filter via REST API.
  *
  * @since 1.2.0
@@ -16,6 +16,7 @@ import {
 	FlexiSliderIcon,
 	ImageSliderIcon,
 	LogoCarouselIcon,
+	PostCarouselIcon,
 	TestimonialSliderIcon,
 	ActiveStatusDotIcon,
 	ToastSuccessIcon,
@@ -23,7 +24,7 @@ import {
 } from '../icons';
 
 /**
- * Returns metadata for all 5 top-level GSlider blocks in alphabetical order.
+ * Returns metadata for all 6 top-level GSlider blocks in alphabetical order.
  *
  * Evaluated lazily at call time so the `__()` name and description lookups
  * run after WordPress has injected the script translations locale data.
@@ -66,6 +67,15 @@ const getBlocksMetadata = () => [
 			'gslider-blocks'
 		),
 		icon: <LogoCarouselIcon />,
+	},
+	{
+		slug: 'post-carousel',
+		name: __( 'Post Carousel', 'gslider-blocks' ),
+		description: __(
+			'Dynamic WordPress post query carousel with custom layouts, metadata, and hover animations.',
+			'gslider-blocks'
+		),
+		icon: <PostCarouselIcon />,
 	},
 	{
 		slug: 'testimonial',

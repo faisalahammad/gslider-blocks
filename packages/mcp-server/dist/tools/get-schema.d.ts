@@ -1,14 +1,11 @@
 import { z } from 'zod';
 export declare const getBlockSchemaInputZod: z.ZodObject<{
-    blockSlug: z.ZodEnum<{
-        base: "base";
-        "flexi-content": "flexi-content";
-        "flexi-content-item": "flexi-content-item";
-        "image-slider": "image-slider";
-        "logo-carousel": "logo-carousel";
-        testimonial: "testimonial";
-    }>;
-}, z.core.$strip>;
+    blockSlug: z.ZodEnum<["image-slider", "testimonial", "logo-carousel", "flexi-content", "flexi-content-item", "post-carousel", "base"]>;
+}, "strip", z.ZodTypeAny, {
+    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "flexi-content-item" | "post-carousel" | "base";
+}, {
+    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "flexi-content-item" | "post-carousel" | "base";
+}>;
 export declare const getBlockSchemaToolDefinition: {
     name: string;
     description: string;
@@ -17,7 +14,7 @@ export declare const getBlockSchemaToolDefinition: {
         properties: {
             blockSlug: {
                 type: string;
-                enum: readonly ["image-slider", "testimonial", "logo-carousel", "flexi-content", "flexi-content-item", "base"];
+                enum: readonly ["image-slider", "testimonial", "logo-carousel", "flexi-content", "flexi-content-item", "post-carousel", "base"];
                 description: string;
             };
         };
@@ -38,10 +35,10 @@ export declare function handleGetBlockSchema(args: unknown): Promise<{
         text: string;
     }[];
 } | {
-    isError?: undefined;
     content: {
         type: string;
         text: string;
     }[];
+    isError?: undefined;
 }>;
 //# sourceMappingURL=get-schema.d.ts.map

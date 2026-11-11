@@ -341,6 +341,132 @@ if ( ! flexi.validation.isValid ) {
 }
 console.log( 'ok flexi-content' );
 
+// Post Carousel (dynamic SSR block with save() => null and WP_Query attributes).
+await rejects(
+	{
+		blockSlug: 'post-carousel',
+		slides: [ { title: 'Static slide not allowed' } ],
+	},
+	'WP_Query'
+);
+await rejects(
+	{
+		blockSlug: 'post-carousel',
+		layout: { mode: 'slider' },
+	},
+	'no slider mode'
+);
+await rejects(
+	{
+		blockSlug: 'post-carousel',
+		layout: { effect: 'fade' },
+	},
+	'fade'
+);
+await rejects(
+	{
+		blockSlug: 'base',
+	},
+	'slides'
+);
+
+const postCarousel = await generate( {
+	blockSlug: 'post-carousel',
+	layout: {
+		columns: { Desktop: 3, Tablet: 2, Mobile: 1 },
+		gap: 20,
+		effect: 'coverflow',
+		autoplay: true,
+		navigation: true,
+		pagination: true,
+	},
+	attributes: {
+		postType: 'post',
+		postsPerPage: { Desktop: 6, Tablet: 6, Mobile: 6 },
+		postTaxonomyDisplay: 'both',
+	},
+} );
+if (
+	! postCarousel.markup.startsWith( '<!-- wp:gslider-blocks/post-carousel ' )
+) {
+	fail( `post-carousel comment mismatch: ${ postCarousel.markup }` );
+}
+if ( ! postCarousel.markup.endsWith( '/-->' ) ) {
+	fail(
+		`dynamic post-carousel save() => null should serialize as self-closing block delimiter: ${ postCarousel.markup }`
+	);
+}
+if ( ! /^gslider-post-carousel-[a-f0-9]{8}$/.test( postCarousel.blockId ) ) {
+	fail( `post-carousel blockId ${ postCarousel.blockId }` );
+}
+if (
+	! postCarousel.validation.isValid ||
+	postCarousel.validation.issues.length !== 0
+) {
+	fail( 'post-carousel validation failed' );
+}
+const postCarouselBundled = loadBundledBlock( 'post-carousel' );
+const postCarouselDefaults = attributeDefaults(
+	postCarouselBundled.attributes
+);
+if (
+	postCarousel.attributes.blockStyle !==
+	postCarouselBundled.styling( {
+		...postCarouselDefaults,
+		...postCarousel.attributes,
+	} )
+) {
+	fail( 'post-carousel blockStyle does not match styling()' );
+}
+const postValid = await handleValidateBlock( { markup: postCarousel.markup } );
+const postValidReport = JSON.parse( postValid.content[ 0 ].text );
+if (
+	postValid.isError ||
+	! postValidReport.isValid ||
+	postValidReport.warnings.length !== 0
+) {
+	fail(
+		`post-carousel markup did not validate cleanly: ${ postValid.content[ 0 ].text }`
+	);
+}
+const postBadEffect = await handleValidateBlock( {
+	blockSlug: 'post-carousel',
+	attributes: {
+		blockId: 'gslider-post-carousel-abcd1234',
+		carouselEffect: 'cube',
+	},
+} );
+if ( ! postBadEffect.content[ 0 ].text.includes( 'cube' ) ) {
+	fail(
+		`post-carousel validate did not report cube effect: ${ postBadEffect.content[ 0 ].text }`
+	);
+}
+
+const postTemplates = listTemplates().filter(
+	( tpl ) => tpl.blockSlug === 'post-carousel'
+);
+if ( postTemplates.length < 2 ) {
+	fail(
+		`expected at least 2 post-carousel templates, found ${ postTemplates.length }`
+	);
+}
+for ( const tpl of postTemplates ) {
+	const tplValid = await handleValidateBlock( {
+		blockSlug: 'post-carousel',
+		attributes: {
+			...tpl.data,
+			blockId: 'gslider-post-carousel-1234abcd',
+		},
+	} );
+	const tplReport = JSON.parse( tplValid.content[ 0 ].text );
+	if ( ! tplReport.isValid || tplReport.errors.length !== 0 ) {
+		fail(
+			`post-carousel template ${ tpl.uri } failed attribute validation: ${ tplValid.content[ 0 ].text }`
+		);
+	}
+}
+console.log( 'ok post-carousel' );
+
 if ( failed ) {
 	process.exit( 1 );
 }

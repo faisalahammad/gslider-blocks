@@ -11,6 +11,7 @@
  * and saved in the block editor.
  */
 
+import fs from 'fs';
 import { BLOCK_ID_PREFIX, getBlockSchema } from '../core/registry.js';
 
 export interface SliderTemplate {
@@ -22,6 +23,28 @@ export interface SliderTemplate {
 	blockName: string;
 	blockIdPrefix: string;
 	data: Record< string, unknown >;
+}
+
+function loadTemplateFixtures( folder: string ): SliderTemplate[] {
+	const dirUrl = new URL( `../templates/${ folder }/`, import.meta.url );
+	if ( ! fs.existsSync( dirUrl ) ) {
+		return [];
+	}
+	return fs
+		.readdirSync( dirUrl )
+		.filter( ( file ) => file.endsWith( '.json' ) )
+		.sort()
+		.map( ( file ) => {
+			const raw = JSON.parse(
+				fs.readFileSync( new URL( file, dirUrl ), 'utf8' )
+			) as Omit< SliderTemplate, 'blockIdPrefix' > & {
+				blockSlug: keyof typeof BLOCK_ID_PREFIX;
+			};
+			return {
+				...raw,
+				blockIdPrefix: BLOCK_ID_PREFIX[ raw.blockSlug ],
+			};
+		} );
 }
 
 /**
@@ -369,6 +392,7 @@ export const SLIDER_TEMPLATES: SliderTemplate[] = [
 			paginationType: 'bullets',
 		},
 	},
+	...loadTemplateFixtures( 'post-carousel' ),
 ];
 
 /**

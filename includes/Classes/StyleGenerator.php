@@ -230,7 +230,9 @@ if ( ! class_exists( StyleGenerator::class, false ) ) {
          *
          * Uses WP_HTML_Tag_Processor so attribute values are never rewritten as raw text.
          * Sets fetchpriority="high" and decoding="async", and switches loading="lazy" to
-         * loading="eager". Images outside a slide and testimonial rating icons are skipped.
+         * loading="eager" exclusively on the first slide (index === 0). Images outside a
+         * slide, UI icons (rating/readmore/navigation), author avatars, and secondary
+         * slides are skipped so they retain lazy loading.
          *
          * @since 1.2.0
          *
@@ -270,10 +272,12 @@ if ( ! class_exists( StyleGenerator::class, false ) ) {
                 return $block_content;
             }
 
-            $processor    = new \WP_HTML_Tag_Processor( $block_content );
-            $in_slide     = false;
-            $after_rating = false;
-            $optimized    = false;
+            $processor             = new \WP_HTML_Tag_Processor( $block_content );
+            $has_slide             = false;
+            $in_slide              = false;
+            $slide_index           = -1;
+            $after_ignored_wrapper = false;
+            $optimized             = false;
 
             while ( $processor->next_tag() ) {
                 if ( $processor->is_tag_closer() ) {
@@ -285,15 +289,36 @@ if ( ! class_exists( StyleGenerator::class, false ) ) {
 
                 if ( 'IMG' !== $processor->get_tag() ) {
                     if ( false !== strpos( $classes, ' swiper-slide ' ) ) {
-                        $in_slide = true;
+                        $has_slide   = true;
+                        $in_slide    = true;
+                        ++$slide_index;
+                    } elseif (
+                        false !== strpos( $classes, ' gslider-navigation-custom-icon-wrapper ' ) ||
+                        false !== strpos( $classes, ' gslider-navigation-default-icon-wrapper ' ) ||
+                        false !== strpos( $classes, ' swiper-pagination ' ) ||
+                        false !== strpos( $classes, ' gslider-nav ' )
+                    ) {
+                        $in_slide = false;
                     }
-                    // Testimonial rating images sit directly inside .gslider-testimonial-rating-icon.
-                    $after_rating = false !== strpos( $classes, 'rating-icon' );
+
+                    // Ignored inner icon/avatar wrappers hold a non-LCP <img> as their next tag.
+                    $after_ignored_wrapper = (
+                        false !== strpos( $classes, 'rating-icon' ) ||
+                        false !== strpos( $classes, ' gslider-post-author-avatar-wrapper ' ) ||
+                        false !== strpos( $classes, ' gslider-readmore-icon-wrap ' )
+                    );
                     continue;
                 }
 
-                if ( ! $in_slide || $after_rating || false !== strpos( $classes, 'rating' ) ) {
-                    $after_rating = false;
+                if (
+                    ! $in_slide ||
+                    0 !== $slide_index ||
+                    $after_ignored_wrapper ||
+                    false !== strpos( $classes, 'rating' ) ||
+                    false !== strpos( $classes, ' gslider-post-author-avatar ' ) ||
+                    false !== strpos( $classes, ' nav-icon ' )
+                ) {
+                    $after_ignored_wrapper = false;
                     continue;
                 }
 
@@ -313,7 +338,7 @@ if ( ! class_exists( StyleGenerator::class, false ) ) {
                 break;
             }
 
-            if ( ! $in_slide ) {
+            if ( ! $has_slide ) {
                 return $block_content;
             }
 

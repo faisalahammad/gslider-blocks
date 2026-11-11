@@ -56,7 +56,9 @@ function typeMatches(type, value) {
 function checkAttributes(slug, raw) {
     const schema = prepareBlock(slug).schema;
     const errors = [];
-    const carouselOnly = slug === 'image-slider' || slug === 'logo-carousel';
+    const carouselOnly = slug === 'image-slider' ||
+        slug === 'logo-carousel' ||
+        slug === 'post-carousel';
     for (const [key, value] of Object.entries(raw)) {
         const definition = schema.attributes[key];
         if (!definition) {

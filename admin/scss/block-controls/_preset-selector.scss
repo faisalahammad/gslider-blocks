@@ -35,7 +35,50 @@
 			border-radius: 0;
 			background: transparent !important;
 			box-shadow: none !important;
-			outline: none !important;
+
+			&:focus:not(:focus-visible) {
+				outline: none !important;
+				box-shadow: none !important;
+			}
+
+			&:focus-visible {
+				outline: 2px solid $primary_color !important;
+				outline-offset: -2px;
+				box-shadow: inset 0 0 0 1px $primary_color !important;
+			}
+
+			&.has-preview {
+				flex-direction: column;
+				align-items: stretch;
+				justify-content: flex-start;
+				gap: 6px;
+				height: auto;
+				padding: 6px;
+
+				.gslider-preset-preview-slot {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 100%;
+					aspect-ratio: 4 / 3;
+					border-radius: 3px;
+					background: #f8fafc;
+					overflow: hidden;
+
+					svg {
+						display: block;
+						width: 100%;
+						height: 100%;
+					}
+				}
+
+				.gslider-preset-selector-label {
+					display: block;
+					width: 100%;
+					text-align: center;
+					padding: 0 2px 2px;
+				}
+			}
 
 			// Icon
 			.dashicon,
@@ -54,6 +97,7 @@
 				font-weight: $font_weight_400;
 				color: $secondary_color;
 				line-height: normal;
+				min-width: 0;
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
@@ -63,7 +107,7 @@
 		// Hover
 		&:hover:not(.is-pro-locked) {
 			border-color: $primary_color;
-			background: rgba($primary_color, 0.02);
+			background: $primary_subtle;
 
 			.dashicon,
 			.dashicons {
@@ -74,16 +118,27 @@
 		// Active State
 		&.is-active {
 			border-color: $primary_color;
-			background: rgba($primary_color, 0.06);
+			background: $primary_subtle;
 
-			.dashicon,
-			.dashicons {
-				color: $primary_color;
-			}
+			.components-button.gslider-preset-selector-card {
 
-			.gslider-preset-selector-label {
-				font-weight: $font_weight_600;
-				color: $primary_color;
+				&:not(.has-preview) {
+					padding-right: 24px;
+				}
+
+				&.has-preview .gslider-preset-preview-slot {
+					background: $white_color;
+				}
+
+				.dashicon,
+				.dashicons {
+					color: $primary_color;
+				}
+
+				.gslider-preset-selector-label {
+					font-weight: $font_weight_600;
+					color: $primary_hover;
+				}
 			}
 		}
 
@@ -95,6 +150,26 @@
 			.components-button {
 				cursor: default !important;
 			}
+		}
+
+		// Active Badge — positioned top-right on wrapper when active & unlocked
+		.gslider-preset-active-badge {
+			position: absolute;
+			top: 4px;
+			right: 4px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background: $primary_color;
+			color: $white_color;
+			font-size: 10px;
+			font-weight: $font_weight_700;
+			line-height: 1;
+			pointer-events: none;
+			z-index: 1;
 		}
 
 		// Pro Badge — positioned on the wrapper div, not the button

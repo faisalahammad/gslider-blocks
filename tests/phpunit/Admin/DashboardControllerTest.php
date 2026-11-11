@@ -219,21 +219,21 @@ class DashboardControllerTest {
 		$controller    = DashboardController::getInstance();
 		$wp_transients = [];
 
-		// Mock 2 posts: Post 1 has 2 image sliders and 1 child item; Post 2 has 1 testimonial and 1 base slider.
-		// Total actual slider instances = 4 (excluding child items).
+		// Mock 2 posts: Post 1 has 2 image sliders and 1 child item; Post 2 has 1 testimonial, 1 base slider, and 1 post carousel.
+		// Total actual slider instances = 5 (excluding child items).
 		$wpdb->return_col = [
 			'<!-- wp:gslider-blocks/image-slider {"blockId":"img-1"} /--> <p>Hello</p> <!-- wp:gslider-blocks/flexi-content-item /--> <!-- wp:gslider-blocks/image-slider {"blockId":"img-2"} /-->',
-			'<!-- wp:gslider-blocks/testimonial {"blockId":"testi-1"} /--> <!-- wp:gslider-blocks/base {"blockId":"base-1"} /-->',
+			'<!-- wp:gslider-blocks/testimonial {"blockId":"testi-1"} /--> <!-- wp:gslider-blocks/base {"blockId":"base-1"} /--> <!-- wp:gslider-blocks/post-carousel {"blockId":"post-1"} /-->',
 		];
 
 		// Fetch count when transient is empty (triggers DB query).
 		$count = $controller->get_sliders_count();
 
-		if ( 4 !== $count ) {
-			fwrite( STDERR, "FAIL: get_sliders_count expected 4, got {$count}\n" );
+		if ( 5 !== $count ) {
+			fwrite( STDERR, "FAIL: get_sliders_count expected 5, got {$count}\n" );
 			exit( 1 );
 		}
-		echo "OK: get_sliders_count accurately counts total published slider blocks (4 instances across 2 posts)\n";
+		echo "OK: get_sliders_count accurately counts total published slider blocks (5 instances across 2 posts)\n";
 
 		if ( false === strpos( $wpdb->last_query, "post_status = 'publish'" ) ) {
 			fwrite( STDERR, "FAIL: Query does not filter by publish status\n" );
@@ -259,7 +259,7 @@ class DashboardControllerTest {
 		}
 		echo "OK: Slider count is cached in gslider_slider_count_cache transient\n";
 
-		if ( 4 !== $wp_transients['gslider_slider_count_cache'] ) {
+		if ( 5 !== $wp_transients['gslider_slider_count_cache'] ) {
 			fwrite( STDERR, "FAIL: Transient does not hold correct count value\n" );
 			exit( 1 );
 		}
@@ -269,7 +269,7 @@ class DashboardControllerTest {
 		$wpdb->return_col = [ '<!-- wp:gslider-blocks/base /-->' ];
 		$cached_count     = $controller->get_sliders_count();
 
-		if ( 4 !== $cached_count ) {
+		if ( 5 !== $cached_count ) {
 			fwrite( STDERR, "FAIL: get_sliders_count did not return cached transient value\n" );
 			exit( 1 );
 		}
@@ -305,7 +305,7 @@ class DashboardControllerTest {
 		$controller     = DashboardController::getInstance();
 		$wp_options     = [];
 		$blocks         = $controller->get_blocks_status();
-		$expected_slugs = [ 'base', 'flexi-content', 'image-slider', 'logo-carousel', 'testimonial' ];
+		$expected_slugs = [ 'base', 'flexi-content', 'image-slider', 'logo-carousel', 'post-carousel', 'testimonial' ];
 		$actual_slugs   = array_column( $blocks, 'slug' );
 
 		if ( $expected_slugs !== $actual_slugs ) {
@@ -415,11 +415,11 @@ class DashboardControllerTest {
 		}
 		echo "OK: Response sliders_count matches cached value\n";
 
-		if ( ! is_array( $data['blocks'] ) || 5 !== count( $data['blocks'] ) ) {
+		if ( ! is_array( $data['blocks'] ) || 6 !== count( $data['blocks'] ) ) {
 			fwrite( STDERR, "FAIL: Response blocks array mismatch\n" );
 			exit( 1 );
 		}
-		echo "OK: Response blocks has 5 block items\n";
+		echo "OK: Response blocks has 6 block items\n";
 
 		if ( ! is_array( $data['system'] ) || 3 !== count( $data['system'] ) ) {
 			fwrite( STDERR, "FAIL: Response system array mismatch\n" );
@@ -518,10 +518,11 @@ class DashboardControllerTest {
 			'gslider-blocks/flexi-content-item',
 			'gslider-blocks/image-slider',
 			'gslider-blocks/logo-carousel',
+			'gslider-blocks/post-carousel',
 			'gslider-blocks/testimonial',
 		];
 		if ( $expected_all_disabled !== $data_all_off['disabled_blocks'] ) {
-			fwrite( STDERR, "FAIL: toggle 'all' off expected exact 6 disabled slugs, got: " . json_encode( $data_all_off['disabled_blocks'] ) . "\n" );
+			fwrite( STDERR, "FAIL: toggle 'all' off expected exact 7 disabled slugs, got: " . json_encode( $data_all_off['disabled_blocks'] ) . "\n" );
 			exit( 1 );
 		}
 		if ( $expected_all_disabled !== get_option( 'gslider_disabled_blocks' ) ) {

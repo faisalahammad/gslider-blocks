@@ -17,6 +17,42 @@
 @use "responsive-range-control";
 @use "responsive-spacing-control";
 @use "responsive-typography-control";
+@use "select2-control";
 @use "switcher-control";
 @use "unit-control";
 @use "url-control";
+
+// Autocomplete Block Search selected state icon colors
+.components-autocomplete__result.is-selected {
+
+	svg.gslider-editor-icons {
+
+		rect,
+		path {
+			stroke: #fff !important;
+		}
+
+		circle {
+			fill: #fff !important;
+		}
+	}
+}
+
+// List View sidebar selected/active block icon colors
+// Covers: tr.is-selected, td[aria-selected="true"], and focused button state
+.block-editor-list-view-leaf.is-selected,
+.block-editor-list-view-block__contents-cell[aria-selected="true"],
+.block-editor-list-view-block__contents.is-selected {
+
+	svg.gslider-editor-icons {
+
+		rect,
+		path {
+			stroke: #fff !important;
+		}
+
+		circle {
+			fill: #fff !important;
+		}
+	}
+}

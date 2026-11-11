@@ -971,23 +971,11 @@ const Inspector = ( {
 	/** end if have default padding then set the css style */
 
 	/** Load Google Font */
-	if ( authorNameFontFamily !== 'Default' ) {
-		LoadGoogleFont( authorNameFontFamily );
-	}
-
-	if ( authorDesignationFontFamily !== 'Default' ) {
-		LoadGoogleFont( authorDesignationFontFamily );
-	}
-
-	if ( testimonialTextFontFamily !== 'Default' ) {
-		LoadGoogleFont( testimonialTextFontFamily );
-	}
-	if ( testimonialTitleFontFamily !== 'Default' ) {
-		LoadGoogleFont( testimonialTitleFontFamily );
-	}
-	if ( ratingNumberFontFamily !== 'Default' ) {
-		LoadGoogleFont( ratingNumberFontFamily );
-	}
+	LoadGoogleFont( authorNameFontFamily );
+	LoadGoogleFont( authorDesignationFontFamily );
+	LoadGoogleFont( testimonialTextFontFamily );
+	LoadGoogleFont( testimonialTitleFontFamily );
+	LoadGoogleFont( ratingNumberFontFamily );
 	/** End Load Google Font */
 
 	/** Quote Icon Handler */

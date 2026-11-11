@@ -932,25 +932,11 @@ const Inspector = ( {
 	/** end if have default padding then set the css style */
 
 	/** Load Google Font */
-	if ( subtitleFontFamily !== 'Default' ) {
-		LoadGoogleFont( subtitleFontFamily );
-	}
-
-	if ( titleFontFamily !== 'Default' ) {
-		LoadGoogleFont( titleFontFamily );
-	}
-
-	if ( descriptionFontFamily !== 'Default' ) {
-		LoadGoogleFont( descriptionFontFamily );
-	}
-
-	if ( primaryButtonFontFamily !== 'Default' ) {
-		LoadGoogleFont( primaryButtonFontFamily );
-	}
-
-	if ( secondaryButtonFontFamily !== 'Default' ) {
-		LoadGoogleFont( secondaryButtonFontFamily );
-	}
+	LoadGoogleFont( subtitleFontFamily );
+	LoadGoogleFont( titleFontFamily );
+	LoadGoogleFont( descriptionFontFamily );
+	LoadGoogleFont( primaryButtonFontFamily );
+	LoadGoogleFont( secondaryButtonFontFamily );
 	/** End Load Google Font */
 
 	/** Show Secondary Button Style if have secondary button enabled in slider items */

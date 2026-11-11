@@ -11,6 +11,8 @@
 
 namespace GSlider\RestApi;
 
+use GSlider\Blocks\PostCarousel\CardMarkupBuilder;
+use GSlider\Blocks\PostCarousel\PostCarouselRenderer;
 use GSlider\Classes\StyleGenerator;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -59,6 +61,9 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			'reverseDirection',
 			'direction',
 			'layoutHeightSwitcher',
+			'enableCardTilt',
+			'cardHoverAnimation',
+			'enableSpotlight',
 		];
 
 		/**
@@ -88,16 +93,19 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 		 * @return array Array of normalized GSlider block structures.
 		 */
 		public static function parse_post_blocks( $post_or_id ): array {
-			$content = '';
+			$content   = '';
+			$host_post = null;
 
 			if ( $post_or_id instanceof \WP_Post ) {
-				$content = $post_or_id->post_content;
+				$host_post = $post_or_id;
+				$content   = $post_or_id->post_content;
 			} elseif ( is_numeric( $post_or_id ) ) {
 				$post = get_post( (int) $post_or_id );
 				if ( ! $post ) {
 					return [];
 				}
-				$content = $post->post_content;
+				$host_post = $post;
+				$content   = $post->post_content;
 			} elseif ( is_string( $post_or_id ) ) {
 				$content = $post_or_id;
 			}
@@ -106,9 +114,27 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				return [];
 			}
 
-			self::$reusable_refs = [];
-			$raw_blocks          = parse_blocks( $content );
-			return self::extract_and_normalize_blocks( $raw_blocks );
+			$host_post_id  = $host_post instanceof \WP_Post ? (int) $host_post->ID : 0;
+			$previous_post = $GLOBALS['post'] ?? null;
+			$switched_post = false;
+
+			if ( $host_post instanceof \WP_Post ) {
+				$GLOBALS['post'] = $host_post;
+				if ( function_exists( 'setup_postdata' ) ) {
+					setup_postdata( $host_post );
+				}
+				$switched_post = true;
+			}
+
+			try {
+				self::$reusable_refs = [];
+				$raw_blocks          = parse_blocks( $content );
+				return self::extract_and_normalize_blocks( $raw_blocks, $host_post_id );
+			} finally {
+				if ( $switched_post ) {
+					self::restore_post_context( $previous_post );
+				}
+			}
 		}
 
 		/**
@@ -118,10 +144,11 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 		 *
 		 * @since 1.1.9
 		 *
-		 * @param array $blocks Array of parsed block structures from parse_blocks().
+		 * @param array $blocks       Array of parsed block structures from parse_blocks().
+		 * @param int   $host_post_id Optional enclosing host post ID for dynamic block queries.
 		 * @return array Array of normalized GSlider blocks.
 		 */
-		public static function extract_and_normalize_blocks( array $blocks ): array {
+		public static function extract_and_normalize_blocks( array $blocks, int $host_post_id = 0 ): array {
 			$sliders = [];
 
 			foreach ( $blocks as $block ) {
@@ -130,7 +157,7 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 				}
 
 				if ( 'core/block' === $block['blockName'] ) {
-					$reusable_sliders = self::sliders_from_reusable_block( $block );
+					$reusable_sliders = self::sliders_from_reusable_block( $block, $host_post_id );
 					if ( ! empty( $reusable_sliders ) ) {
 						$sliders = array_merge( $sliders, $reusable_sliders );
 					}
@@ -139,14 +166,14 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 
 				// Only process top-level GSlider parent blocks (flexi-content-item is handled as a child slide).
 				if ( 0 === strpos( $block['blockName'], 'gslider-blocks/' ) && 'gslider-blocks/flexi-content-item' !== $block['blockName'] ) {
-					$sliders[] = self::normalize_block( $block );
+					$sliders[] = self::normalize_block( $block, $host_post_id );
 				}
 
 				// Recursively inspect inner blocks for nested sliders (e.g. inside core/columns).
 				if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
 					// If this is flexi-content, its innerBlocks are slides and already handled in normalize_block.
 					if ( 'gslider-blocks/flexi-content' !== $block['blockName'] ) {
-						$nested_sliders = self::extract_and_normalize_blocks( $block['innerBlocks'] );
+						$nested_sliders = self::extract_and_normalize_blocks( $block['innerBlocks'], $host_post_id );
 						if ( ! empty( $nested_sliders ) ) {
 							$sliders = array_merge( $sliders, $nested_sliders );
 						}
@@ -165,10 +192,11 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 		 *
 		 * @since 1.1.9
 		 *
-		 * @param array $block Parsed core/block.
+		 * @param array $block        Parsed core/block.
+		 * @param int   $host_post_id Optional enclosing host post ID for dynamic block queries.
 		 * @return array Normalized sliders from the referenced content.
 		 */
-		private static function sliders_from_reusable_block( array $block ): array {
+		private static function sliders_from_reusable_block( array $block, int $host_post_id = 0 ): array {
 			$ref = isset( $block['attrs']['ref'] ) ? (int) $block['attrs']['ref'] : 0;
 			if ( $ref < 1 || ! empty( self::$reusable_refs[ $ref ] ) || ! function_exists( 'get_post' ) ) {
 				return [];
@@ -179,7 +207,7 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			$sliders                      = [];
 
 			if ( $reusable instanceof \WP_Post && 'wp_block' === $reusable->post_type && is_string( $reusable->post_content ) && '' !== $reusable->post_content ) {
-				$sliders = self::extract_and_normalize_blocks( parse_blocks( $reusable->post_content ) );
+				$sliders = self::extract_and_normalize_blocks( parse_blocks( $reusable->post_content ), $host_post_id );
 			}
 
 			unset( self::$reusable_refs[ $ref ] );
@@ -191,10 +219,11 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 		 *
 		 * @since 1.1.9
 		 *
-		 * @param array $block Raw block data from parse_blocks().
+		 * @param array $block        Raw block data from parse_blocks().
+		 * @param int   $host_post_id Optional enclosing host post ID for dynamic block queries.
 		 * @return array Normalized block payload.
 		 */
-		public static function normalize_block( array $block ): array {
+		public static function normalize_block( array $block, int $host_post_id = 0 ): array {
 			$block_name   = sanitize_text_field( $block['blockName'] ?? '' );
 			$attrs        = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : [];
 			$attrs        = self::with_attribute_defaults( $block_name, $attrs );
@@ -223,6 +252,10 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 
 				case 'gslider-blocks/flexi-content':
 					$slides = self::normalize_flexi_content( $inner_blocks );
+					break;
+
+				case 'gslider-blocks/post-carousel':
+					$slides = self::normalize_post_carousel( $attrs, $host_post_id );
 					break;
 
 				default:
@@ -459,8 +492,14 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			];
 
 			if ( $autoplay ) {
+				$pause_on_hover = ! empty( $attrs['pauseOnHover'] );
+				if ( 'gslider-blocks/post-carousel' === $block_name ) {
+					$card_hover     = isset( $attrs['cardHoverAnimation'] ) && is_string( $attrs['cardHoverAnimation'] ) ? $attrs['cardHoverAnimation'] : 'none';
+					$pause_on_hover = $pause_on_hover || ! empty( $attrs['enableCardTilt'] ) || 'none' !== $card_hover;
+				}
+
 				$config['autoplay'] = [
-					'pauseOnMouseEnter'    => ! empty( $attrs['pauseOnHover'] ),
+					'pauseOnMouseEnter'    => $pause_on_hover,
 					'disableOnInteraction' => false,
 					'stopOnLastSlide'      => ! empty( $attrs['stopOnLastSlide'] ),
 					'reverseDirection'     => ! empty( $attrs['reverseDirection'] ),
@@ -500,6 +539,10 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 
 			if ( $grab_cursor ) {
 				$config['grabCursor'] = true;
+			}
+
+			if ( 'gslider-blocks/post-carousel' === $block_name && ! empty( $attrs['enableSpotlight'] ) ) {
+				$config['centeredSlides'] = true;
 			}
 
 			return $config;
@@ -761,6 +804,225 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 			}
 
 			return $slides;
+		}
+
+		/**
+		 * Normalizes Post Carousel slides by executing the configured WP_Query.
+		 *
+		 * Delegates query sanitization and excerpt resolution to PostCarouselRenderer
+		 * and CardMarkupBuilder while returning structured JSON-safe post objects
+		 * for headless frontends. Preserves and restores any prior global post and
+		 * postdata context around each carousel query.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @param array $attrs        Block attributes merged with defaults.
+		 * @param int   $host_post_id Optional enclosing host post ID for related/exclude queries.
+		 * @return array Normalized array of post slide objects.
+		 */
+		public static function normalize_post_carousel( array $attrs, int $host_post_id = 0 ): array {
+			if (
+				! class_exists( '\WP_Query' ) ||
+				! class_exists( PostCarouselRenderer::class ) ||
+				! function_exists( 'post_type_exists' ) ||
+				! function_exists( 'is_post_type_viewable' )
+			) {
+				return [];
+			}
+
+			$previous_post = $GLOBALS['post'] ?? null;
+
+			try {
+				if ( $host_post_id > 0 && ( ! ( $previous_post instanceof \WP_Post ) || (int) $previous_post->ID !== $host_post_id ) && function_exists( 'get_post' ) ) {
+					$host_post = get_post( $host_post_id );
+					if ( $host_post instanceof \WP_Post ) {
+						$GLOBALS['post'] = $host_post;
+						if ( function_exists( 'setup_postdata' ) ) {
+							setup_postdata( $host_post );
+						}
+					}
+				}
+
+				$query_options = PostCarouselRenderer::parse_query_options( $attrs );
+				$query_args    = PostCarouselRenderer::build_query_args( $query_options, $host_post_id );
+				$context       = PostCarouselRenderer::build_render_context( $attrs );
+				$posts_query   = new \WP_Query( $query_args );
+
+				// Enforce the 1-30 cap even when WP_Query prepends sticky posts beyond posts_per_page.
+				$posts_per_page = (int) $query_options['posts_per_page'];
+				if ( is_array( $posts_query->posts ) && count( $posts_query->posts ) > $posts_per_page ) {
+					$posts_query->posts      = array_slice( $posts_query->posts, 0, $posts_per_page );
+					$posts_query->post_count = count( $posts_query->posts );
+				}
+
+				if ( ! $posts_query->have_posts() ) {
+					return [];
+				}
+
+				$can_build_excerpt = class_exists( CardMarkupBuilder::class )
+					&& function_exists( 'has_excerpt' )
+					&& function_exists( 'get_the_excerpt' )
+					&& function_exists( 'get_the_content' )
+					&& function_exists( 'strip_shortcodes' )
+					&& function_exists( 'wp_trim_words' );
+
+				$slides = [];
+
+				while ( $posts_query->have_posts() ) {
+					$posts_query->the_post();
+					$post_id = function_exists( 'get_the_ID' ) ? (int) get_the_ID() : 0;
+					if ( $post_id <= 0 ) {
+						continue;
+					}
+
+					$title = function_exists( 'get_the_title' )
+						? sanitize_text_field( (string) get_the_title( $post_id ) )
+						: '';
+
+					if ( $can_build_excerpt ) {
+						$excerpt = sanitize_text_field( CardMarkupBuilder::build_excerpt( $post_id, $context ) );
+					} elseif ( function_exists( 'get_the_excerpt' ) ) {
+						$excerpt = sanitize_text_field( (string) get_the_excerpt( $post_id ) );
+					} else {
+						$excerpt = '';
+					}
+
+					$link = function_exists( 'get_permalink' )
+						? esc_url_raw( (string) get_permalink( $post_id ) )
+						: '';
+
+					$date = function_exists( 'get_the_date' )
+						? sanitize_text_field( (string) get_the_date( '', $post_id ) )
+						: '';
+
+					$featured_image = null;
+					if ( function_exists( 'has_post_thumbnail' ) && has_post_thumbnail( $post_id ) ) {
+						$thumb_id  = function_exists( 'get_post_thumbnail_id' ) ? (int) get_post_thumbnail_id( $post_id ) : 0;
+						$thumb_url = '';
+						if ( function_exists( 'get_the_post_thumbnail_url' ) ) {
+							$thumb_url = (string) get_the_post_thumbnail_url( $post_id, 'medium_large' );
+						} elseif ( $thumb_id > 0 && function_exists( 'wp_get_attachment_image_src' ) ) {
+							$thumb_src = wp_get_attachment_image_src( $thumb_id, 'medium_large' );
+							$thumb_url = is_array( $thumb_src ) && ! empty( $thumb_src[0] ) ? (string) $thumb_src[0] : '';
+						}
+
+						$thumb_alt = '';
+						if ( $thumb_id > 0 && function_exists( 'get_post_meta' ) ) {
+							$thumb_alt = (string) get_post_meta( $thumb_id, '_wp_attachment_image_alt', true );
+						}
+
+						if ( '' !== $thumb_url ) {
+							$featured_image = [
+								'id'  => $thumb_id,
+								'url' => esc_url_raw( $thumb_url ),
+								'alt' => sanitize_text_field( '' !== $thumb_alt ? $thumb_alt : $title ),
+							];
+						}
+					}
+
+					$author_id   = function_exists( 'get_the_author_meta' ) ? (int) get_the_author_meta( 'ID' ) : 0;
+					$author_name = function_exists( 'get_the_author' ) ? sanitize_text_field( (string) get_the_author() ) : '';
+					$avatar_raw  = ( $author_id > 0 && function_exists( 'get_avatar_url' ) ) ? get_avatar_url( $author_id, [ 'size' => 96 ] ) : '';
+					$author      = [
+						'id'     => $author_id,
+						'name'   => $author_name,
+						'avatar' => is_string( $avatar_raw ) && '' !== $avatar_raw ? esc_url_raw( $avatar_raw ) : '',
+					];
+
+					$categories = function_exists( 'get_the_category' )
+						? self::normalize_post_terms( get_the_category( $post_id ), 'category' )
+						: [];
+					$tags       = function_exists( 'get_the_tags' )
+						? self::normalize_post_terms( get_the_tags( $post_id ), 'post_tag' )
+						: [];
+
+					$slides[] = [
+						'id'            => $post_id,
+						'title'         => $title,
+						'excerpt'       => $excerpt,
+						'link'          => $link,
+						'date'          => $date,
+						'featuredImage' => $featured_image,
+						'author'        => $author,
+						'categories'    => $categories,
+						'tags'          => $tags,
+					];
+				}
+
+				return $slides;
+			} finally {
+				self::restore_post_context( $previous_post );
+			}
+		}
+
+		/**
+		 * Restores the prior global post object and postdata state after nested queries.
+		 *
+		 * Calls `wp_reset_postdata()` first and then reinstates `$GLOBALS['post']`
+		 * (and its `setup_postdata()` globals when `$previous_post` is a `WP_Post`)
+		 * so REST and secondary-loop callers keep their original post context.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @param mixed $previous_post Prior `$GLOBALS['post']` value saved before query execution.
+		 * @return void
+		 */
+		private static function restore_post_context( $previous_post ): void {
+			if ( function_exists( 'wp_reset_postdata' ) ) {
+				wp_reset_postdata();
+			}
+
+			if ( $previous_post instanceof \WP_Post ) {
+				$GLOBALS['post'] = $previous_post;
+				if ( function_exists( 'setup_postdata' ) ) {
+					setup_postdata( $previous_post );
+				}
+				return;
+			}
+
+			$GLOBALS['post'] = $previous_post;
+		}
+
+		/**
+		 * Normalizes taxonomy term objects for a queried Post Carousel slide.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @param mixed  $terms    Raw term list returned by WordPress taxonomy APIs.
+		 * @param string $taxonomy Taxonomy slug ('category' or 'post_tag').
+		 * @return array Normalized taxonomy term arrays.
+		 */
+		private static function normalize_post_terms( $terms, string $taxonomy ): array {
+			if ( ! is_array( $terms ) || empty( $terms ) ) {
+				return [];
+			}
+
+			$normalized = [];
+			foreach ( $terms as $term ) {
+				if ( ! is_object( $term ) || ! isset( $term->term_id, $term->name ) ) {
+					continue;
+				}
+
+				$term_id  = (int) $term->term_id;
+				$raw_slug = isset( $term->slug ) ? (string) $term->slug : (string) $term->name;
+				$slug     = function_exists( 'sanitize_title' ) ? sanitize_title( $raw_slug ) : sanitize_key( $raw_slug );
+				$link     = '';
+
+				if ( 'category' === $taxonomy && function_exists( 'get_category_link' ) ) {
+					$link = (string) get_category_link( $term_id );
+				} elseif ( 'post_tag' === $taxonomy && function_exists( 'get_tag_link' ) ) {
+					$link = (string) get_tag_link( $term_id );
+				}
+
+				$normalized[] = [
+					'id'   => $term_id,
+					'name' => sanitize_text_field( (string) $term->name ),
+					'slug' => $slug,
+					'link' => esc_url_raw( $link ),
+				];
+			}
+
+			return $normalized;
 		}
 
 		/**

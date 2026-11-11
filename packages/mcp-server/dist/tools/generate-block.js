@@ -9,6 +9,7 @@ export const GENERATABLE_SLUGS = [
     'image-slider',
     'logo-carousel',
     'flexi-content',
+    'post-carousel',
 ];
 const SLIDE_FIELDS = {
     base: [
@@ -34,6 +35,7 @@ const SLIDE_FIELDS = {
     'image-slider': ['url', 'alt', 'link', 'caption', 'tooltipText'],
     'logo-carousel': ['url', 'alt', 'link', 'caption', 'tooltipText'],
     'flexi-content': ['blocks'],
+    'post-carousel': [],
 };
 const RESERVED_ATTRIBUTES = ['blockId', 'blockStyle', 'deviceType'];
 const deviceNumber = z.union([
@@ -101,7 +103,7 @@ const slideSchema = z
 export const generateBlockInputZod = z
     .object({
     blockSlug: z.enum(GENERATABLE_SLUGS),
-    slides: z.array(slideSchema).min(1),
+    slides: z.array(slideSchema).optional(),
     layout: z
         .object({
         mode: z.enum(['slider', 'carousel']).optional(),
@@ -121,24 +123,43 @@ export const generateBlockInputZod = z
         .optional(),
     attributes: z.record(z.string(), z.unknown()).optional(),
 })
-    .strict();
+    .strict()
+    .superRefine((data, ctx) => {
+    if (data.blockSlug === 'post-carousel') {
+        if (data.slides !== undefined) {
+            ctx.addIssue({
+                code: 'custom',
+                path: ['slides'],
+                message: 'post-carousel queries posts dynamically via WP_Query; omit slides and configure query/carousel options via layout and attributes.',
+            });
+        }
+        return;
+    }
+    if (!data.slides || data.slides.length === 0) {
+        ctx.addIssue({
+            code: 'custom',
+            path: ['slides'],
+            message: 'slides is required and must contain at least 1 item.',
+        });
+    }
+});
 export class GeneratorInputError extends Error {
 }
 export const generateBlockToolDefinition = {
     name: 'gslider_generate_block',
-    description: "Generates paste-ready Gutenberg markup for a GSlider block. The markup is produced by the block's own save function and checked with validateBlock before it is returned. Flexi Content slides are child flexi-content-item blocks.",
+    description: "Generates paste-ready Gutenberg markup for a GSlider block. The markup is produced by the block's own save function and checked with validateBlock before it is returned. Flexi Content slides are child flexi-content-item blocks; Post Carousel is a dynamic server-rendered block (save returns null) configured without slides.",
     inputSchema: {
         type: 'object',
         properties: {
             blockSlug: {
                 type: 'string',
                 enum: GENERATABLE_SLUGS,
-                description: 'Block to generate: base, testimonial, image-slider, logo-carousel, or flexi-content.',
+                description: 'Block to generate: base, testimonial, image-slider, logo-carousel, flexi-content, or post-carousel.',
             },
             slides: {
                 type: 'array',
                 minItems: 1,
-                description: 'One object per slide. Fields must belong to the chosen block.',
+                description: 'One object per slide for static blocks (required for base, testimonial, image-slider, logo-carousel, flexi-content; omit for dynamic post-carousel). Fields must belong to the chosen block.',
                 items: { type: 'object' },
             },
             layout: {
@@ -150,7 +171,7 @@ export const generateBlockToolDefinition = {
                 description: 'Raw attribute overrides by their real attribute names. These win over layout. Unknown names are rejected.',
             },
         },
-        required: ['blockSlug', 'slides'],
+        required: ['blockSlug'],
     },
 };
 function toolError(text) {
@@ -298,7 +319,10 @@ function generate(input) {
     const slug = input.blockSlug;
     const { blocks, bundled, schema } = prepareBlock(slug);
     const defaults = attributeDefaults(bundled.attributes);
-    const carouselOnly = slug === 'image-slider' || slug === 'logo-carousel';
+    const isDynamic = slug === 'post-carousel';
+    const carouselOnly = slug === 'image-slider' ||
+        slug === 'logo-carousel' ||
+        slug === 'post-carousel';
     const layout = input.layout ?? {};
     const overrides = input.attributes ?? {};
     if (layout.mode && carouselOnly) {
@@ -323,6 +347,7 @@ function generate(input) {
         }
     }
     const isFlexi = slug === 'flexi-content';
+    const inputSlides = input.slides ?? [];
     let flexiItems = [];
     let slides = [];
     if (isFlexi) {
@@ -330,7 +355,7 @@ function generate(input) {
         prepareBlock('flexi-content-item');
         const itemBundled = loadBundledBlock('flexi-content-item');
         const itemDefaults = attributeDefaults(itemBundled.attributes);
-        flexiItems = input.slides.map((slide) => {
+        flexiItems = inputSlides.map((slide) => {
             const foreign = Object.keys(slide).filter((key) => key !== 'blocks');
             if (foreign.length > 0) {
                 throw new GeneratorInputError(`Slide field "${foreign[0]}" is not valid for flexi-content. Each slide needs a blocks array.`);
@@ -347,7 +372,7 @@ function generate(input) {
             return blocks.createBlock('gslider-blocks/flexi-content-item', { ...itemChanged, blockStyle: itemStyle }, slide.blocks.map((inner) => coreBlock(blocks, inner)));
         });
     }
-    else {
+    else if (!isDynamic) {
         const fallbackItems = defaults[schema.slideField];
         const fallbackItem = Array.isArray(fallbackItems) && fallbackItems.length > 0
             ? fallbackItems[0]
@@ -355,12 +380,12 @@ function generate(input) {
         if (!carouselOnly && !fallbackItem) {
             throw new GeneratorInputError(`${slug} has no default slide item to build from.`);
         }
-        slides = input.slides.map((slide, index) => buildSlide(slug, slide, index, fallbackItem));
+        slides = inputSlides.map((slide, index) => buildSlide(slug, slide, index, fallbackItem));
     }
     const changed = {
         blockId: `${BLOCK_ID_PREFIX[slug]}-${randomBytes(4).toString('hex')}`,
     };
-    if (!isFlexi) {
+    if (!isFlexi && !isDynamic && schema.slideField) {
         changed[schema.slideField] = slides;
     }
     if (layout.mode) {

@@ -25,6 +25,7 @@ const BLOCK_SLUGS = [
 	'image-slider',
 	'logo-carousel',
 	'flexi-content',
+	'post-carousel',
 ];
 
 const phpString = ( value ) =>

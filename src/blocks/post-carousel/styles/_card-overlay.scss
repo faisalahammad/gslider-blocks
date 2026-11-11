@@ -1,0 +1,100 @@
+/* Post Carousel - Modern Dark Overlay Layout Archetype & Preset */
+
+:where(.gslider-post-carousel-wrapper.is-layout-overlay) {
+	--gslider-meta-color: rgba(255, 255, 255, 0.85);
+	--gslider-meta-sep-color: rgba(255, 255, 255, 0.55);
+
+	.gslider-post-carousel-image {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		border-radius: 0;
+		aspect-ratio: auto;
+		z-index: 0;
+
+		img,
+		.gslider-post-carousel-placeholder-svg {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+
+	.gslider-post-carousel-title {
+		color: #fff;
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+
+		a {
+			color: #fff;
+		}
+	}
+
+	.gslider-post-carousel-categories span,
+	.gslider-post-carousel-tags span {
+		background-color: rgba(255, 255, 255, 0.18);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		color: #fff;
+		border: 1px solid rgba(255, 255, 255, 0.22);
+
+		a {
+			color: #fff;
+		}
+	}
+
+	.gslider-post-carousel-body {
+		position: relative;
+		z-index: 1;
+		margin-top: auto;
+		min-height: var(--gslider-overlay-scrim-height, 75%);
+		justify-content: flex-end;
+		padding: 24px;
+		background: var(--gslider-overlay-scrim, linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%));
+		color: #fff;
+		pointer-events: none;
+
+		.gslider-post-carousel-title a,
+		.gslider-post-carousel-categories a,
+		.gslider-post-carousel-tags a,
+		.gslider-post-carousel-readmore-btn {
+			pointer-events: auto;
+		}
+	}
+
+	.gslider-post-carousel-card {
+		position: relative;
+		overflow: hidden;
+		min-height: 360px;
+		border-radius: 14px;
+
+		&:where(.is-clickable) {
+
+			.gslider-post-carousel-title-link::after,
+			.gslider-post-carousel-card-link::after {
+				z-index: 2;
+			}
+
+			.gslider-post-carousel-categories a,
+			.gslider-post-carousel-tags a,
+			.gslider-post-carousel-readmore-btn {
+				z-index: 3;
+			}
+		}
+	}
+
+	.gslider-post-carousel-excerpt {
+		color: rgba(255, 255, 255, 0.88);
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+	}
+
+	.gslider-post-author,
+	.gslider-post-date {
+		color: rgba(255, 255, 255, 0.85);
+	}
+}
+
+:where(.gslider-post-carousel-wrapper.is-layout-overlay .gslider-post-carousel-card:hover) .gslider-post-carousel-title-wrapper .gslider-post-carousel-title a {
+	color: #e2e8f0;
+}

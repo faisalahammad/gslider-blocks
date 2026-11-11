@@ -44,7 +44,7 @@
   "scripts": {
     "generate-schemas": "node scripts/extract-schemas.js",
     "test": "node scripts/test-drift.js",
-    "build": "node scripts/bundle-core-saves.js && node scripts/bundle-blocks.js && node scripts/extract-schemas.js && tsc && mkdir -p dist/core/schemas && cp src/core/schemas/*.json dist/core/schemas/",
+    "build": "node scripts/bundle-core-saves.js && node scripts/bundle-blocks.js && node scripts/extract-schemas.js && tsc && mkdir -p dist/core/schemas dist/templates/post-carousel && cp src/core/schemas/*.json dist/core/schemas/ && cp src/templates/post-carousel/*.json dist/templates/post-carousel/",
     "watch": "tsc --watch",
     "start": "node dist/index.js",
     "prepare": "npm run build",

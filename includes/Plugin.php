@@ -23,6 +23,7 @@ use GSlider\Classes\FontLoader;
 use GSlider\Classes\SupportSVG;
 use GSlider\Utils\Utils;
 use GSlider\RestApi\BlocksController;
+use GSlider\RestApi\QueryManager;
 use GSlider\Admin\Dashboard;
 use GSlider\Admin\DashboardController;
 
@@ -61,6 +62,7 @@ if ( ! class_exists( Plugin::class, false ) ) {
 			FontLoader::class,
 			Utils::class,
 			BlocksController::class,
+			QueryManager::class,
 			Dashboard::class,
 			DashboardController::class,
 		];
@@ -105,4 +107,3 @@ if ( ! class_exists( Plugin::class, false ) ) {
 }
 
 Plugin::getInstance();
-

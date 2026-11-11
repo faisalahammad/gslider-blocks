@@ -72,6 +72,7 @@ if ( ! class_exists( Dashboard::class, false ) ) {
 			add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_dashboard_assets' ] );
 			add_filter( 'allowed_block_types_all', [ $this, 'filter_allowed_block_types' ], 10, 2 );
+			add_filter( 'register_block_type_args', [ $this, 'hide_disabled_from_inserter' ], 10, 2 );
 		}
 
 		/**
@@ -186,9 +187,11 @@ if ( ! class_exists( Dashboard::class, false ) ) {
 		/**
 		 * Filters the allowed block types in the Gutenberg block editor.
 		 *
-		 * Safely hides disabled GSlider blocks from the Gutenberg inserter without
-		 * unregistering them, ensuring existing published content renders without
-		 * block invalidation errors. Preserves all core WordPress blocks.
+		 * Hides disabled GSlider blocks from explicit allow lists. When
+		 * everything is allowed (true), the value is returned unchanged so
+		 * JS-only third-party blocks stay available. Disabled GSlider blocks
+		 * are hidden from the inserter via register_block_type_args instead,
+		 * which never unregisters them and keeps existing content valid.
 		 *
 		 * @since 1.2.0
 		 *
@@ -197,12 +200,71 @@ if ( ! class_exists( Dashboard::class, false ) ) {
 		 * @return bool|string[] Filtered list of allowed block types.
 		 */
 		public function filter_allowed_block_types( $allowed_block_types, $block_editor_context = null ) {
-			$disabled_blocks = get_option( 'gslider_disabled_blocks', [] );
-			if ( empty( $disabled_blocks ) || ! is_array( $disabled_blocks ) ) {
+			$disabled_names = $this->get_disabled_block_names();
+			if ( empty( $disabled_names ) ) {
 				return $allowed_block_types;
 			}
 
-			// Ensure full block names in disabled list.
+			// When all blocks are allowed (default WordPress behavior: $allowed_block_types === true).
+			if ( true === $allowed_block_types ) {
+				return $allowed_block_types;
+			}
+
+			// When $allowed_block_types is an explicit array of allowed block names.
+			if ( is_array( $allowed_block_types ) ) {
+				return array_values( array_diff( $allowed_block_types, $disabled_names ) );
+			}
+
+			return $allowed_block_types;
+		}
+
+		/**
+		 * Hides disabled GSlider blocks from the inserter at registration time.
+		 *
+		 * Setting the inserter support to false keeps the block type registered,
+		 * so existing published content renders without block invalidation
+		 * errors while the block no longer appears in the inserter. GSlider's
+		 * client-side registrations pass no supports key, so server-side
+		 * supports (including inserter) reach the editor.
+		 *
+		 * @since 1.2.2
+		 *
+		 * @param array  $args       Array of arguments for registering a block type.
+		 * @param string $block_type Block type name including namespace.
+		 * @return array Filtered registration arguments.
+		 */
+		public function hide_disabled_from_inserter( array $args, string $block_type ): array {
+			$disabled_names = $this->get_disabled_block_names();
+			if ( empty( $disabled_names ) ) {
+				return $args;
+			}
+
+			if ( ! in_array( $block_type, $disabled_names, true ) ) {
+				return $args;
+			}
+
+			if ( ! isset( $args['supports'] ) || ! is_array( $args['supports'] ) ) {
+				$args['supports'] = [];
+			}
+
+			$args['supports']['inserter'] = false;
+
+			return $args;
+		}
+
+		/**
+		 * Normalizes the disabled blocks option into full block names.
+		 *
+		 * @since 1.2.2
+		 *
+		 * @return string[] Full gslider-blocks/ names of disabled blocks.
+		 */
+		private function get_disabled_block_names(): array {
+			$disabled_blocks = get_option( 'gslider_disabled_blocks', [] );
+			if ( empty( $disabled_blocks ) || ! is_array( $disabled_blocks ) ) {
+				return [];
+			}
+
 			$disabled_names = [];
 			foreach ( $disabled_blocks as $block ) {
 				if ( ! is_string( $block ) || '' === $block ) {
@@ -215,26 +277,8 @@ if ( ! class_exists( Dashboard::class, false ) ) {
 					$disabled_names[] = 'gslider-blocks/flexi-content-item';
 				}
 			}
-			$disabled_names = array_unique( $disabled_names );
 
-			// When all blocks are allowed (default WordPress behavior: $allowed_block_types === true).
-			if ( true === $allowed_block_types ) {
-				if ( class_exists( '\WP_Block_Type_Registry' ) ) {
-					$registry = \WP_Block_Type_Registry::get_instance();
-					if ( is_object( $registry ) && method_exists( $registry, 'get_all_registered' ) ) {
-						$registered_blocks = array_keys( $registry->get_all_registered() );
-						return array_values( array_diff( $registered_blocks, $disabled_names ) );
-					}
-				}
-				return $allowed_block_types;
-			}
-
-			// When $allowed_block_types is an explicit array of allowed block names.
-			if ( is_array( $allowed_block_types ) ) {
-				return array_values( array_diff( $allowed_block_types, $disabled_names ) );
-			}
-
-			return $allowed_block_types;
+			return array_values( array_unique( $disabled_names ) );
 		}
 
 		/**

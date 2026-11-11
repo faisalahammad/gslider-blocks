@@ -15,8 +15,19 @@ const BLOCK_SLUGS = [
 	'logo-carousel',
 	'flexi-content',
 	'flexi-content-item',
+	'post-carousel',
 	'base',
 ];
+
+const aliases = {
+	'@Components': path.join( rootDir, 'src/components' ),
+	'@Utils': path.join( rootDir, 'src/utils' ),
+	'@Constants': path.join( rootDir, 'src/constants' ),
+	'@Blocks': path.join( rootDir, 'src/blocks' ),
+	'@Controls': path.join( rootDir, 'blocks-config/gslider-controls' ),
+	'@Store': path.join( rootDir, 'src/store' ),
+	'@Attributes': path.join( rootDir, 'blocks-config/blocks-attributes' ),
+};
 
 async function extractBlockAttributes( slug ) {
 	const attrPath = path.resolve(
@@ -32,6 +43,7 @@ async function extractBlockAttributes( slug ) {
 		format: 'cjs',
 		platform: 'node',
 		loader: { '.js': 'jsx' },
+		alias: aliases,
 		external: [ '@wordpress/*' ],
 	} );
 
@@ -79,6 +91,19 @@ export function slideSchemaProblems( slug, block ) {
 		if ( block?.slideField ) {
 			problems.push(
 				`"${ slug }" is a child block and has no slide field`
+			);
+		}
+		return problems;
+	}
+	if ( slug === 'post-carousel' ) {
+		if ( block?.slideItemSchema?.type !== 'dynamicQuery' ) {
+			problems.push(
+				`"${ slug }" slideItemSchema must have type "dynamicQuery"`
+			);
+		}
+		if ( block?.slideField ) {
+			problems.push(
+				`"${ slug }" is a dynamic block and has no static slide field`
 			);
 		}
 		return problems;
