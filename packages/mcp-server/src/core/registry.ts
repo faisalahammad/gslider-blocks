@@ -6,6 +6,7 @@ export interface BlockSummary {
 	title: string;
 	description: string;
 	category: string;
+	isDynamic?: boolean;
 	slideField: string;
 	totalAttributes: number;
 	presets: string[];
@@ -36,6 +37,7 @@ export const SUPPORTED_BLOCK_SLUGS = [
 	'logo-carousel',
 	'flexi-content',
 	'flexi-content-item',
+	'post-carousel',
 	'base',
 ] as const;
 
@@ -53,6 +55,7 @@ export const BLOCK_ID_PREFIX: Record< SupportedBlockSlug, string > = {
 	'logo-carousel': 'gslider-logo-carousel',
 	'flexi-content': 'gslider-flexi-content',
 	'flexi-content-item': 'gslider-flexi-content-item',
+	'post-carousel': 'gslider-post-carousel',
 };
 
 function loadBlockSchema( slug: string ): BlockDetail {
@@ -78,6 +81,7 @@ export function listBlocks(): BlockSummary[] {
 			title: block.title,
 			description: block.description,
 			category: block.category,
+			...( block.isDynamic ? { isDynamic: true } : {} ),
 			slideField: block.slideField,
 			totalAttributes: block.totalAttributes,
 			presets: block.presets,

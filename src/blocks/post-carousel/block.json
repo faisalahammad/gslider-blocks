@@ -1,0 +1,38 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "gslider-blocks/post-carousel",
+	"version": "1.1.6",
+	"title": "Post Carousel",
+	"category": "gslider-blocks",
+	"description": "Display blog posts in a beautiful carousel slider.",
+	"keywords": [
+		"post",
+		"blog",
+		"carousel",
+		"slider",
+		"post carousel",
+		"post slider",
+		"blog carousel",
+		"blog slider",
+		"article"
+	],
+	"example": {
+		"attributes": {
+			"preview": true
+		},
+		"viewportWidth": 410
+	},
+	"supports": {
+		"html": false,
+		"anchor": false,
+		"customClassName": false,
+		"align": [ "wide", "full" ]
+	},
+	"textdomain": "gslider-blocks",
+	"editorScript": [ "file:./index.js", "gslider-blocks-swiper-script" ],
+	"editorStyle": [ "file:./index.css", "gslider-blocks-swiper-style" ],
+	"style": [ "file:./style-index.css", "gslider-blocks-swiper-style" ],
+	"viewScript": [ "file:./view.js", "gslider-blocks-swiper-script" ],
+	"render": "file:./render.php"
+}

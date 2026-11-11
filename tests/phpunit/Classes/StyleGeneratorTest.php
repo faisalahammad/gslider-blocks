@@ -63,6 +63,7 @@ class StyleGeneratorTest {
 		$this->test_lcp_preserves_existing_fetchpriority_and_decoding();
 		$this->test_lcp_xss_payload_creates_no_attribute();
 		$this->test_lcp_skips_rating_icon();
+		$this->test_lcp_post_carousel_skips_avatars_icons_and_secondary_slides();
 		$this->test_lcp_skips_non_slide_markup();
 		$this->test_gslider_lcp_optimize_filter();
 		$this->test_ensure_image_dimensions();
@@ -855,6 +856,99 @@ class StyleGeneratorTest {
 			exit( 1 );
 		}
 		echo "OK: Rating icon untouched, first real slide image optimized\n";
+	}
+
+	/**
+	 * Verify post-carousel skips author avatars, readmore icons, nav icons, and secondary slides.
+	 *
+	 * @return void
+	 */
+	public function test_lcp_post_carousel_skips_avatars_icons_and_secondary_slides(): void {
+		global $is_admin_mock, $is_feed_mock, $is_rest_mock;
+		$is_admin_mock = false;
+		$is_feed_mock  = false;
+		$is_rest_mock  = false;
+
+		$generator = StyleGenerator::getInstance();
+
+		// Case 1: Custom contentOrder puts avatar and readmore icon BEFORE first featured image.
+		StyleGenerator::reset_styles();
+		$content_first_slide_thumb = '<div class="gslider-post-carousel-wrapper gslider-pc-lcp">' .
+			'<div class="swiper"><div class="swiper-wrapper">' .
+			'<div class="swiper-slide"><article class="gslider-post-carousel-card">' .
+			'<div class="gslider-post-carousel-meta"><div class="gslider-post-author-wrapper"><div class="gslider-post-author-avatar-wrapper">' .
+			'<img class="gslider-post-author-avatar" src="http://localhost/wp-content/uploads/avatar1.jpg" alt="Author" loading="lazy" />' .
+			'</div></div></div>' .
+			'<div class="gslider-post-carousel-readmore"><a class="gslider-post-carousel-readmore-btn" href="#"><span class="gslider-readmore-icon-wrap"><img src="http://localhost/wp-content/uploads/arrow.png" alt="Arrow" /></span></a></div>' .
+			'<div class="gslider-post-carousel-image"><a href="#"><img src="http://localhost/wp-content/uploads/post1-thumb.jpg" alt="Post 1" loading="lazy" /></a></div>' .
+			'</article></div>' .
+			'<div class="swiper-slide"><article class="gslider-post-carousel-card">' .
+			'<div class="gslider-post-carousel-image"><a href="#"><img src="http://localhost/wp-content/uploads/post2-thumb.jpg" alt="Post 2" loading="lazy" /></a></div>' .
+			'</article></div>' .
+			'</div></div></div>';
+
+		$output_1 = $generator->collect_and_render_dynamic_styles(
+			$content_first_slide_thumb,
+			[
+				'blockName' => 'gslider-blocks/post-carousel',
+				'attrs'     => [ 'blockId' => 'gslider-pc-lcp' ],
+			]
+		);
+
+		$processor = new WP_HTML_Tag_Processor( $output_1 );
+		$processor->next_tag( 'img' ); // Author avatar.
+		if ( null !== $processor->get_attribute( 'fetchpriority' ) || 'lazy' !== $processor->get_attribute( 'loading' ) ) {
+			fwrite( STDERR, "FAIL: Post carousel author avatar was improperly promoted for LCP: $output_1\n" );
+			exit( 1 );
+		}
+		$processor->next_tag( 'img' ); // Readmore button image icon.
+		if ( null !== $processor->get_attribute( 'fetchpriority' ) ) {
+			fwrite( STDERR, "FAIL: Post carousel readmore image icon was improperly promoted for LCP: $output_1\n" );
+			exit( 1 );
+		}
+		$processor->next_tag( 'img' ); // Slide 0 featured thumbnail.
+		if ( 'high' !== $processor->get_attribute( 'fetchpriority' ) || 'eager' !== $processor->get_attribute( 'loading' ) || 'async' !== $processor->get_attribute( 'decoding' ) ) {
+			fwrite( STDERR, "FAIL: Slide 0 post thumbnail was not optimized for LCP: $output_1\n" );
+			exit( 1 );
+		}
+		$processor->next_tag( 'img' ); // Slide 1 featured thumbnail.
+		if ( null !== $processor->get_attribute( 'fetchpriority' ) || 'lazy' !== $processor->get_attribute( 'loading' ) ) {
+			fwrite( STDERR, "FAIL: Slide 1 post thumbnail lost loading=\"lazy\" or got fetchpriority: $output_1\n" );
+			exit( 1 );
+		}
+		echo "OK: Post carousel skips avatar/readmore icon and optimizes only slide 0 featured image\n";
+
+		// Case 2: Slide 0 has NO featured thumbnail, Slide 1 HAS featured thumbnail, plus custom image navigation inside .swiper.
+		StyleGenerator::reset_styles();
+		$content_no_first_thumb = '<div class="gslider-post-carousel-wrapper gslider-pc-nothumb">' .
+			'<div class="swiper"><div class="swiper-wrapper">' .
+			'<div class="swiper-slide"><article class="gslider-post-carousel-card">' .
+			'<div class="gslider-post-carousel-meta"><div class="gslider-post-author-wrapper"><div class="gslider-post-author-avatar-wrapper">' .
+			'<img class="gslider-post-author-avatar" src="http://localhost/wp-content/uploads/avatar1.jpg" alt="Author" loading="lazy" />' .
+			'</div></div></div>' .
+			'</article></div>' .
+			'<div class="swiper-slide"><article class="gslider-post-carousel-card">' .
+			'<div class="gslider-post-carousel-image"><a href="#"><img src="http://localhost/wp-content/uploads/post2-thumb.jpg" alt="Post 2" loading="lazy" /></a></div>' .
+			'</article></div>' .
+			'</div>' .
+			'<div class="gslider-navigation-custom-icon-wrapper inside center">' .
+			'<div class="swiper-button-prev" role="button"><img src="http://localhost/wp-content/uploads/prev.png" alt="Prev" /></div>' .
+			'</div>' .
+			'</div></div>';
+
+		$output_2 = $generator->collect_and_render_dynamic_styles(
+			$content_no_first_thumb,
+			[
+				'blockName' => 'gslider-blocks/post-carousel',
+				'attrs'     => [ 'blockId' => 'gslider-pc-nothumb' ],
+			]
+		);
+
+		if ( false !== strpos( $output_2, 'fetchpriority' ) ) {
+			fwrite( STDERR, "FAIL: Secondary slide thumbnail or nav icon received fetchpriority when slide 0 had no featured image: $output_2\n" );
+			exit( 1 );
+		}
+		echo "OK: Secondary slide thumbnail and navigation icon images remain untouched when slide 0 has no featured thumbnail\n";
 	}
 
 	/**

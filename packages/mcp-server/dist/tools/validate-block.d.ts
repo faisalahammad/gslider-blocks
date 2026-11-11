@@ -10,7 +10,7 @@ export declare const validateBlockToolDefinition: {
             };
             blockSlug: {
                 type: string;
-                enum: readonly ["base", "testimonial", "image-slider", "logo-carousel", "flexi-content"];
+                enum: readonly ["base", "testimonial", "image-slider", "logo-carousel", "flexi-content", "post-carousel"];
                 description: string;
             };
             attributes: {

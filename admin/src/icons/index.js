@@ -28,6 +28,7 @@ export { default as BaseSliderIcon } from './BaseSliderIcon';
 export { default as FlexiSliderIcon } from './FlexiSliderIcon';
 export { default as ImageSliderIcon } from './ImageSliderIcon';
 export { default as LogoCarouselIcon } from './LogoCarouselIcon';
+export { default as PostCarouselIcon } from './PostCarouselIcon';
 export { default as TestimonialSliderIcon } from './TestimonialSliderIcon';
 export { default as ActiveStatusDotIcon } from './ActiveStatusDotIcon';
 export { default as ToastSuccessIcon } from './ToastSuccessIcon';

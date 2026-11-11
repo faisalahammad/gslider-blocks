@@ -1,0 +1,54 @@
+{
+  "uri": "gslider://templates/latest-posts-carousel",
+  "name": "Latest Blog Posts Carousel",
+  "description": "Responsive 3-column dynamic WordPress post carousel displaying featured images with category badge overlays, excerpts, author meta, and Read More links.",
+  "mimeType": "application/json",
+  "blockSlug": "post-carousel",
+  "blockName": "gslider-blocks/post-carousel",
+  "data": {
+    "blockId": "",
+    "blockStyle": "",
+    "postType": "post",
+    "postsPerPage": {
+      "Desktop": 6,
+      "Tablet": 6,
+      "Mobile": 6
+    },
+    "orderBy": "date",
+    "order": "desc",
+    "carouselPerColumn": {
+      "Desktop": 3,
+      "Tablet": 2,
+      "Mobile": 1
+    },
+    "carouselPerColumnGap": {
+      "Desktop": 24,
+      "Tablet": 16,
+      "Mobile": 12
+    },
+    "carouselEffect": "slide",
+    "speed": {
+      "Desktop": 700,
+      "Tablet": 700,
+      "Mobile": 700
+    },
+    "autoplay": false,
+    "infiniteLoop": true,
+    "showNavigation": {
+      "Desktop": true,
+      "Tablet": true,
+      "Mobile": false
+    },
+    "showPagination": {
+      "Desktop": true,
+      "Tablet": true,
+      "Mobile": true
+    },
+    "paginationType": "bullets",
+    "postTaxonomyDisplay": "category",
+    "enableTaxonomyBadgeOverlay": true,
+    "taxonomyBadgeOverlayPosition": "top-left",
+    "taxonomyBadgeOverlayVisibility": "always",
+    "enableLazyLoad": true
+  }
+}

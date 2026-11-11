@@ -7,7 +7,7 @@
  * @since   1.2.0
  */
 
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import Header from './components/Header';
 import Navigation from './components/Navigation';
@@ -43,6 +43,22 @@ const App = () => {
 	const [ dashboardData, setDashboardData ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ hasError, setHasError ] = useState( false );
+	const isMountedRef = useRef( true );
+
+	/**
+	 * Slugs with a pending toggle request, held in App because it never
+	 * unmounts. The per-slug guard must survive tab switches: BlocksTab
+	 * unmounts on a tab change and would otherwise forget a toggle that is
+	 * still in flight (issue #329, duplicate overlapping toggle).
+	 */
+	const inFlightTogglesRef = useRef( new Set() );
+
+	useEffect( () => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, [] );
 
 	/**
 	 * Sets the active tab and synchronizes the browser URL hash.
@@ -65,15 +81,22 @@ const App = () => {
 
 		try {
 			const data = await apiFetch( { path: '/gslider/v1/dashboard' } );
+			if ( ! isMountedRef.current ) {
+				return;
+			}
 			if ( data && data.status === 'success' ) {
 				setDashboardData( data );
 			} else {
 				setHasError( true );
 			}
 		} catch ( err ) {
-			setHasError( true );
+			if ( isMountedRef.current ) {
+				setHasError( true );
+			}
 		} finally {
-			setIsLoading( false );
+			if ( isMountedRef.current ) {
+				setIsLoading( false );
+			}
 		}
 	}, [] );
 
@@ -134,6 +157,10 @@ const App = () => {
 						<BlocksTab
 							dashboardData={ dashboardData }
 							setDashboardData={ setDashboardData }
+							inFlightTogglesRef={ inFlightTogglesRef }
+							isLoading={ isLoading }
+							hasError={ hasError }
+							onRetry={ fetchDashboardData }
 						/>
 					) }
 				</div>

@@ -351,7 +351,7 @@ export default function Edit( {
 
 			normalItemBackgroundType: 'classic',
 			normalItemClassicColor: '#EDEDED',
-			normalItemGradientColor: null,
+			normalItemGradientColor: '',
 			normalItemCustomGradientSwitcher: false,
 			normalItemCustomGradientInputValue: '',
 
@@ -394,7 +394,7 @@ export default function Edit( {
 			itemBackgroundOverlaySwitcher: false,
 			itemBackgroundOverlayType: 'classic',
 			itemBackgroundOverlayClassicColor: '#000',
-			itemBackgroundOverlayGradientColor: null,
+			itemBackgroundOverlayGradientColor: '',
 			itemBackgroundOverlayCustomGradientSwitcher: false,
 			itemBackgroundOverlayCustomGradientInputValue: '',
 			itemBackgroundOverlayOpacity: 0.5,

@@ -1,0 +1,368 @@
+// Editor-specific styles for Post Carousel
+
+/* Keyframe for shimmer animation */
+@keyframes gsliderShimmer {
+
+	0% {
+		background-position: -468px 0;
+	}
+
+	100% {
+		background-position: 468px 0;
+	}
+}
+
+@keyframes gsliderSkeletonShimmer {
+
+	0% {
+		background-position: 200% 0;
+	}
+
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+.gslider-skeleton-pulse {
+	background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+	background-size: 200% 100%;
+	animation: gsliderSkeletonShimmer 1.5s infinite;
+}
+
+.gslider-post-carousel-skeleton {
+
+	&-wrapper {
+		display: grid;
+		width: 100%;
+		margin-bottom: 20px;
+	}
+
+	&-card {
+		background: #fff;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		overflow: hidden;
+		padding: 16px;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	}
+}
+
+.gslider-skeleton {
+
+	&-content {
+		margin-top: 16px;
+	}
+
+	&-item {
+		background: #f6f7f8;
+		background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+		background-repeat: no-repeat;
+		background-size: 800px 104px;
+		animation: gsliderShimmer 1.5s linear infinite;
+		border-radius: 4px;
+	}
+
+	&-image {
+		height: 180px;
+		width: 100%;
+		border-radius: 6px;
+	}
+
+	&-category {
+		height: 16px;
+		width: 30%;
+		margin-bottom: 12px;
+	}
+
+	&-title {
+		height: 24px;
+		width: 80%;
+		margin-bottom: 12px;
+	}
+
+	&-text {
+		height: 12px;
+		width: 100%;
+		margin-bottom: 8px;
+
+		&.short {
+			width: 60%;
+			margin-bottom: 16px;
+		}
+	}
+
+	&-meta {
+		height: 14px;
+		width: 45%;
+	}
+}
+
+/* Layout-Aware Skeleton Shimmers */
+
+/* 1. Horizontal Split Layout */
+.gslider-post-carousel-skeleton-wrapper.is-skeleton-horizontal {
+
+	.is-horizontal-card {
+		display: flex;
+		flex-direction: row;
+		align-items: stretch;
+		gap: 16px;
+		padding: 16px;
+
+		.gslider-skeleton-split-image {
+			flex: 0 0 45%;
+			min-height: 160px;
+			border-radius: 6px;
+		}
+
+		.gslider-skeleton-content {
+			flex: 1;
+			margin-top: 0;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+	}
+}
+
+/* 2. Cinematic Hero Layout */
+.gslider-post-carousel-skeleton-wrapper.is-skeleton-hero {
+	width: 100%;
+	border-radius: 12px;
+	overflow: hidden;
+	position: relative;
+	background: #1e293b;
+
+	.gslider-skeleton-hero-overlay {
+		position: absolute;
+		inset: 0;
+		padding: 40px;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+	}
+
+	.gslider-skeleton-hero-title {
+		height: 38px;
+		width: 70%;
+		margin-bottom: 16px;
+		background-color: rgba(255, 255, 255, 0.18);
+		background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.25) 20%, rgba(255, 255, 255, 0.1) 40%);
+	}
+
+	.gslider-skeleton-hero-bottom {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-top: 16px;
+	}
+
+	.gslider-skeleton-button {
+		height: 36px;
+		width: 120px;
+		border-radius: 20px;
+		background-color: rgba(255, 255, 255, 0.2);
+	}
+}
+
+/* 3. Newsroom Stage Layout */
+.gslider-post-carousel-skeleton-wrapper.is-skeleton-newsroom {
+
+	.is-newsroom-main-card {
+		padding: 16px;
+
+		.gslider-skeleton-newsroom-image {
+			height: 240px;
+			width: 100%;
+			border-radius: 6px;
+		}
+	}
+
+	.gslider-skeleton-newsroom-queue {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.gslider-skeleton-newsroom-queue-item {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 12px;
+		background: #fff;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+		.gslider-skeleton-queue-thumb {
+			width: 64px;
+			height: 48px;
+			border-radius: 4px;
+			flex-shrink: 0;
+		}
+
+		.gslider-skeleton-queue-content {
+			flex: 1;
+		}
+
+		.gslider-skeleton-queue-title {
+			height: 14px;
+			width: 85%;
+			margin-bottom: 6px;
+		}
+
+		.gslider-skeleton-queue-meta {
+			height: 10px;
+			width: 50%;
+		}
+	}
+}
+
+/* 4. Changelog Timeline Layout */
+.gslider-post-carousel-skeleton-wrapper.is-skeleton-timeline {
+	position: relative;
+	padding: 24px 0;
+
+	.gslider-skeleton-timeline-track {
+		position: relative;
+	}
+
+	.gslider-skeleton-timeline-rail {
+		position: absolute;
+		top: 44px;
+		left: 0;
+		right: 0;
+		height: 3px;
+		background: #e2e8f0;
+		border-radius: 2px;
+	}
+
+	.gslider-skeleton-timeline-grid {
+		position: relative;
+		z-index: 1;
+	}
+
+	.gslider-skeleton-timeline-node {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.gslider-skeleton-timeline-date {
+		height: 14px;
+		width: 60px;
+		margin-bottom: 10px;
+	}
+
+	.gslider-skeleton-timeline-dot-wrapper {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin-bottom: 14px;
+
+		.gslider-skeleton-timeline-stem {
+			width: 2px;
+			height: 8px;
+			background: #e2e8f0;
+		}
+
+		.gslider-skeleton-timeline-dot {
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			background: #3b82f6;
+			border: 3px solid #fff;
+			box-shadow: 0 0 0 1px #cbd5e1;
+		}
+	}
+
+	.is-timeline-card {
+		width: 100%;
+		padding: 14px;
+
+		.gslider-skeleton-timeline-title {
+			height: 16px;
+			width: 85%;
+			margin-bottom: 8px;
+		}
+	}
+}
+
+/* Actionable Empty Query State */
+.gslider-empty-posts-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 48px 24px;
+	background: #f8fafc;
+	border: 2px dashed #cbd5e1;
+	border-radius: 12px;
+	text-align: center;
+	margin: 20px 0;
+
+	.gslider-empty-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 64px;
+		height: 64px;
+		border-radius: 50%;
+		background: #e2e8f0;
+		color: #64748b;
+		margin-bottom: 16px;
+
+		svg {
+			display: block;
+		}
+	}
+
+	.gslider-empty-title {
+		margin: 0 0 8px;
+		font-size: 16px;
+		font-weight: 600;
+		color: #1e293b;
+		line-height: 1.4;
+	}
+
+	.gslider-empty-description {
+		margin: 0 0 20px;
+		font-size: 13px;
+		color: #64748b;
+		max-width: 440px;
+		line-height: 1.5;
+	}
+
+	.gslider-empty-reset-button {
+		font-size: 13px;
+		padding: 6px 16px;
+		border-radius: 6px;
+	}
+}
+
+/* Canvas Block Toolbar Post Count Stepper */
+.gslider-toolbar-post-count-label {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 6px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #1e293b;
+	user-select: none;
+	min-width: 22px;
+	line-height: 1;
+}
+
+/* Reduced Motion Support for Skeleton Shimmers */
+@media (prefers-reduced-motion: reduce) {
+
+	.gslider-skeleton-item,
+	.gslider-skeleton-pulse {
+		animation: none !important;
+		background-image: none !important;
+		background-color: #f1f5f9 !important;
+	}
+}

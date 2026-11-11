@@ -1,0 +1,9 @@
+/* Post Carousel - Classic Card Layout Archetype & Preset */
+
+:where(.gslider-post-carousel-wrapper.is-layout-classic) {
+
+	.gslider-post-carousel-card {
+		display: flex;
+		flex-direction: column;
+	}
+}

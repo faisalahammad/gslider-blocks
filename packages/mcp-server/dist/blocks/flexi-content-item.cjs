@@ -85,7 +85,7 @@ var attributes = {
   },
   sliderItemNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   sliderItemNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -145,7 +145,7 @@ var attributes = {
   },
   sliderItemHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   sliderItemHoverCustomGradientSwitcher: {
     type: "boolean",

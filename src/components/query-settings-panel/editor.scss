@@ -1,0 +1,198 @@
+/**
+ * Query Settings Panel — Editor Styles
+ * Styles for react-select inside Gutenberg sidebar
+ */
+
+@use "../../../admin/scss/block-controls/variables" as *;
+
+.gslider-query-settings-panel {
+
+	.gslider-query-select2-control {
+		margin-bottom: 12px;
+
+		/* Container & Control */
+		.gslider-select2__control {
+			min-height: 32px;
+			border: 1px solid #f0f0f0;
+			border-radius: 4px;
+			background-color: #fff;
+			box-shadow: none;
+			transition: border-color 0.15s ease-in-out;
+
+			&:hover {
+				border-color: #f0f0f0;
+			}
+
+			&.gslider-select2__control--is-focused {
+				border-color: $primary_color;
+				box-shadow: 0 0 0 1px $primary_color;
+			}
+		}
+
+		/* Value Container */
+		.gslider-select2__value-container {
+			padding: 2px 8px;
+			min-height: 32px;
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 2px;
+		}
+
+		/* Single Value text styling */
+		.gslider-select2__single-value {
+			font-size: 12px;
+			font-family:
+				-apple-system,
+				BlinkMacSystemFont,
+				"Segoe UI",
+				Roboto,
+				Oxygen-Sans,
+				Ubuntu,
+				Cantarell,
+				"Helvetica Neue",
+				sans-serif;
+			color: #1e1e1e;
+			line-height: normal;
+		}
+
+		/* Multi Value tag styling */
+		.gslider-select2__multi-value {
+			background-color: #f0f0f0;
+			border: 1px solid #f0f0f0;
+			border-radius: 4px;
+			margin: 2px;
+
+			.gslider-select2__multi-value__label {
+				font-size: 11px;
+				color: #1e1e1e;
+				padding: 2px 6px;
+			}
+
+			.gslider-select2__multi-value__remove {
+				cursor: pointer;
+				border-radius: 0 3px 3px 0;
+				padding: 0 4px;
+
+				&:hover {
+					background-color: #cc1818;
+					color: #fff;
+				}
+			}
+		}
+
+		/* Placeholder text */
+		.gslider-select2__placeholder {
+			color: #757575;
+			font-size: 12px;
+		}
+
+		/* Indicators */
+		.gslider-select2__indicator-separator {
+			display: none;
+		}
+
+		.gslider-select2__indicators {
+			padding-right: 6px;
+			min-height: 32px;
+		}
+
+		.gslider-select2__dropdown-indicator,
+		.gslider-select2__clear-indicator {
+			padding: 6px;
+			color: #1e1e1e;
+			transition: all 0.2s ease;
+
+			&:hover {
+				color: $primary_color;
+			}
+
+			svg {
+				width: 16px;
+				height: 16px;
+				fill: currentcolor;
+			}
+		}
+
+		/* Dropdown Menu styling */
+		.gslider-select2__menu {
+			z-index: 999;
+			border: 1px solid #f0f0f0;
+			border-radius: 4px;
+			box-shadow: none;
+			background-color: #fff;
+			margin-top: 2px;
+		}
+
+		/* Menu list */
+		.gslider-select2__menu-list {
+			padding: 0;
+			border-radius: 4px;
+		}
+
+		/* Menu Options */
+		.gslider-select2__option {
+			padding: 8px 12px;
+			font-size: 12px;
+			cursor: pointer;
+			transition: background-color 0.1s ease;
+
+			&.gslider-select2__option--is-focused {
+				background-color: #f0f0f0;
+				color: #1e1e1e;
+			}
+
+			&.gslider-select2__option--is-selected {
+				background-color: $primary_color;
+				color: #fff;
+			}
+		}
+
+		/* Input search inside select */
+		.gslider-select2__input-container {
+			margin: 0;
+			padding: 0;
+			height: 32px;
+			line-height: normal;
+			outline: none;
+			box-shadow: none;
+
+			input {
+				font-size: 12px !important;
+				box-shadow: none !important;
+				border: none !important;
+				outline: none !important;
+				background: transparent !important;
+				height: 32px !important;
+				padding: 0 !important;
+				margin: 0 !important;
+
+				&:focus {
+					box-shadow: none !important;
+					outline: none !important;
+				}
+			}
+		}
+	}
+
+	/* Meta query nested section styling */
+	.gslider-meta-query-settings {
+		padding-left: 15px;
+		border-left: 2px solid #ccc;
+		margin-bottom: 15px;
+	}
+
+	/* Taxonomy section spacing */
+	.gslider-query-taxonomy-section {
+		margin-bottom: 16px;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	/* Switcher spacing and alignment */
+	.gslider-setting-switcher-panel-btn {
+		margin-bottom: 8px;
+	}
+}

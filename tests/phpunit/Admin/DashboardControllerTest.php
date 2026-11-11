@@ -13,6 +13,11 @@
  * 8. get_item() returns complete structured JSON payload.
  * 9. get_item_schema() provides valid JSON schema definition.
  * 10. Plugin::$services array contains DashboardController::class.
+ * 11. toggle_block() serializes on an advisory lock, reads the stored option
+ *     (not a stale request-local cache) inside the critical section, rejects
+ *     contention with 409, rejects unknown slugs with 400, guards the
+ *     unsupported-driver per-request fallback, and wraps the 'all' toggle
+ *     in a lock pair (#329).
  *
  * @package GSlider\Tests\Admin
  */
@@ -43,6 +48,12 @@ class DashboardControllerTest {
 		$this->test_system_metrics_payload();
 		$this->test_endpoint_response_payload_structure();
 		$this->test_toggle_block_action();
+		$this->test_toggle_block_sequential_updates_persist();
+		$this->test_toggle_block_lock_unavailable_rejects_without_writing();
+		$this->test_toggle_block_reads_fresh_option_after_stale_cache();
+		$this->test_toggle_block_unsupported_driver_fallback_is_guarded();
+		$this->test_toggle_block_rejects_unknown_slug();
+		$this->test_toggle_all_runs_inside_lock_pair();
 		$this->test_rest_schema_definition();
 		$this->test_plugin_service_registration();
 
@@ -219,21 +230,21 @@ class DashboardControllerTest {
 		$controller    = DashboardController::getInstance();
 		$wp_transients = [];
 
-		// Mock 2 posts: Post 1 has 2 image sliders and 1 child item; Post 2 has 1 testimonial and 1 base slider.
-		// Total actual slider instances = 4 (excluding child items).
+		// Mock 2 posts: Post 1 has 2 image sliders and 1 child item; Post 2 has 1 testimonial, 1 base slider, and 1 post carousel.
+		// Total actual slider instances = 5 (excluding child items).
 		$wpdb->return_col = [
 			'<!-- wp:gslider-blocks/image-slider {"blockId":"img-1"} /--> <p>Hello</p> <!-- wp:gslider-blocks/flexi-content-item /--> <!-- wp:gslider-blocks/image-slider {"blockId":"img-2"} /-->',
-			'<!-- wp:gslider-blocks/testimonial {"blockId":"testi-1"} /--> <!-- wp:gslider-blocks/base {"blockId":"base-1"} /-->',
+			'<!-- wp:gslider-blocks/testimonial {"blockId":"testi-1"} /--> <!-- wp:gslider-blocks/base {"blockId":"base-1"} /--> <!-- wp:gslider-blocks/post-carousel {"blockId":"post-1"} /-->',
 		];
 
 		// Fetch count when transient is empty (triggers DB query).
 		$count = $controller->get_sliders_count();
 
-		if ( 4 !== $count ) {
-			fwrite( STDERR, "FAIL: get_sliders_count expected 4, got {$count}\n" );
+		if ( 5 !== $count ) {
+			fwrite( STDERR, "FAIL: get_sliders_count expected 5, got {$count}\n" );
 			exit( 1 );
 		}
-		echo "OK: get_sliders_count accurately counts total published slider blocks (4 instances across 2 posts)\n";
+		echo "OK: get_sliders_count accurately counts total published slider blocks (5 instances across 2 posts)\n";
 
 		if ( false === strpos( $wpdb->last_query, "post_status = 'publish'" ) ) {
 			fwrite( STDERR, "FAIL: Query does not filter by publish status\n" );
@@ -259,7 +270,7 @@ class DashboardControllerTest {
 		}
 		echo "OK: Slider count is cached in gslider_slider_count_cache transient\n";
 
-		if ( 4 !== $wp_transients['gslider_slider_count_cache'] ) {
+		if ( 5 !== $wp_transients['gslider_slider_count_cache'] ) {
 			fwrite( STDERR, "FAIL: Transient does not hold correct count value\n" );
 			exit( 1 );
 		}
@@ -269,7 +280,7 @@ class DashboardControllerTest {
 		$wpdb->return_col = [ '<!-- wp:gslider-blocks/base /-->' ];
 		$cached_count     = $controller->get_sliders_count();
 
-		if ( 4 !== $cached_count ) {
+		if ( 5 !== $cached_count ) {
 			fwrite( STDERR, "FAIL: get_sliders_count did not return cached transient value\n" );
 			exit( 1 );
 		}
@@ -305,7 +316,7 @@ class DashboardControllerTest {
 		$controller     = DashboardController::getInstance();
 		$wp_options     = [];
 		$blocks         = $controller->get_blocks_status();
-		$expected_slugs = [ 'base', 'flexi-content', 'image-slider', 'logo-carousel', 'testimonial' ];
+		$expected_slugs = [ 'base', 'flexi-content', 'image-slider', 'logo-carousel', 'post-carousel', 'testimonial' ];
 		$actual_slugs   = array_column( $blocks, 'slug' );
 
 		if ( $expected_slugs !== $actual_slugs ) {
@@ -415,11 +426,11 @@ class DashboardControllerTest {
 		}
 		echo "OK: Response sliders_count matches cached value\n";
 
-		if ( ! is_array( $data['blocks'] ) || 5 !== count( $data['blocks'] ) ) {
+		if ( ! is_array( $data['blocks'] ) || 6 !== count( $data['blocks'] ) ) {
 			fwrite( STDERR, "FAIL: Response blocks array mismatch\n" );
 			exit( 1 );
 		}
-		echo "OK: Response blocks has 5 block items\n";
+		echo "OK: Response blocks has 6 block items\n";
 
 		if ( ! is_array( $data['system'] ) || 3 !== count( $data['system'] ) ) {
 			fwrite( STDERR, "FAIL: Response system array mismatch\n" );
@@ -518,10 +529,11 @@ class DashboardControllerTest {
 			'gslider-blocks/flexi-content-item',
 			'gslider-blocks/image-slider',
 			'gslider-blocks/logo-carousel',
+			'gslider-blocks/post-carousel',
 			'gslider-blocks/testimonial',
 		];
 		if ( $expected_all_disabled !== $data_all_off['disabled_blocks'] ) {
-			fwrite( STDERR, "FAIL: toggle 'all' off expected exact 6 disabled slugs, got: " . json_encode( $data_all_off['disabled_blocks'] ) . "\n" );
+			fwrite( STDERR, "FAIL: toggle 'all' off expected exact 7 disabled slugs, got: " . json_encode( $data_all_off['disabled_blocks'] ) . "\n" );
 			exit( 1 );
 		}
 		if ( $expected_all_disabled !== get_option( 'gslider_disabled_blocks' ) ) {
@@ -548,6 +560,371 @@ class DashboardControllerTest {
 		echo "OK: Toggling all on enables all blocks\n";
 
 		delete_option( 'gslider_disabled_blocks' );
+	}
+
+	/**
+	 * Test 8c: Sequential toggles of different slugs both persist (#329).
+	 *
+	 * Sequential stand-in for the race the lock now serializes: each toggle
+	 * re-reads the option inside the lock, so the second toggle builds on the
+	 * first one's write instead of dropping it. Also verifies the lock is
+	 * acquired before each write and released after every exit path.
+	 *
+	 * @return void
+	 */
+	public function test_toggle_block_sequential_updates_persist(): void {
+		global $current_caps, $wp_options;
+		$controller = DashboardController::getInstance();
+
+		$current_caps['manage_options'] = true;
+		$wp_options['gslider_disabled_blocks'] = [];
+		$GLOBALS['wpdb']->query_log = [];
+
+		// First request disables base (same unlocked read both requests used to share).
+		$request_base = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request_base->set_param( 'slug', 'base' );
+		$request_base->set_param( 'enabled', false );
+		$response_base = $controller->toggle_block( $request_base );
+		$data_base     = $response_base->get_data();
+
+		if ( ! in_array( 'gslider-blocks/base', $data_base['disabled_blocks'], true ) ) {
+			fwrite( STDERR, "FAIL: first toggle did not disable base, expected slug in: " . json_encode( $data_base['disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+
+		// Second request disables testimonial; must still see base disabled.
+		$request_testimonial = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request_testimonial->set_param( 'slug', 'testimonial' );
+		$request_testimonial->set_param( 'enabled', false );
+		$response_testimonial = $controller->toggle_block( $request_testimonial );
+		$data_testimonial     = $response_testimonial->get_data();
+
+		if ( ! in_array( 'gslider-blocks/base', $data_testimonial['disabled_blocks'], true ) ) {
+			fwrite( STDERR, "FAIL: second toggle lost the first toggle's change, expected gslider-blocks/base in: " . json_encode( $data_testimonial['disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+		if ( ! in_array( 'gslider-blocks/testimonial', $data_testimonial['disabled_blocks'], true ) ) {
+			fwrite( STDERR, "FAIL: second toggle did not disable testimonial, expected slug in: " . json_encode( $data_testimonial['disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+		if ( ! in_array( 'gslider-blocks/base', (array) get_option( 'gslider_disabled_blocks' ), true ) ) {
+			fwrite( STDERR, "FAIL: persisted option lost the first toggle's change, expected gslider-blocks/base in: " . json_encode( get_option( 'gslider_disabled_blocks' ) ) . "\n" );
+			exit( 1 );
+		}
+
+		// Each toggle acquires the lock before writing and releases after: the
+		// query log for the second toggle must contain GET_LOCK and end with
+		// RELEASE_LOCK.
+		$query_log = $GLOBALS['wpdb']->query_log;
+		$lock_queries = array_filter(
+			(array) $query_log,
+			static function ( $q ) {
+				return (bool) preg_match( '/GET_LOCK|RELEASE_LOCK/i', (string) $q );
+			}
+		);
+		$lock_sequence = array_values( $lock_queries );
+		$lock_count = count( $lock_sequence );
+		if ( $lock_count < 4 ) {
+			fwrite( STDERR, "FAIL: expected at least 2 acquire/release lock pairs, got: " . $lock_count . "\n" );
+			exit( 1 );
+		}
+		if ( 0 !== $lock_count % 2 || ! preg_match( '/GET_LOCK/i', $lock_sequence[ $lock_count - 2 ] ) || ! preg_match( '/RELEASE_LOCK/i', $lock_sequence[ $lock_count - 1 ] ) ) {
+			fwrite( STDERR, "FAIL: toggle lock acquire/release did not alternate as pairs; log: " . json_encode( $lock_sequence ) . "\n" );
+			exit( 1 );
+		}
+
+		echo "OK: Sequential toggles of two slugs both persist\n";
+
+		$wp_options['gslider_disabled_blocks'] = [];
+	}
+
+	/**
+	 * Test 8d: Toggle rejected when the lock is held elsewhere (#329).
+	 *
+	 * @return void
+	 */
+	public function test_toggle_block_lock_unavailable_rejects_without_writing(): void {
+		global $current_caps, $wp_options, $gslider_mock_lock_available;
+		$controller = DashboardController::getInstance();
+
+		$current_caps['manage_options']    = true;
+		$wp_options['gslider_disabled_blocks'] = [ 'gslider-blocks/testimonial' ];
+		$gslider_mock_lock_available       = 0;
+
+		$request = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request->set_param( 'slug', 'base' );
+		$request->set_param( 'enabled', false );
+
+		$response = $controller->toggle_block( $request );
+
+		if ( ! ( $response instanceof WP_Error ) ) {
+			fwrite( STDERR, "FAIL: lock-unavailable toggle did not return WP_Error, got: " . get_class( $response ) . "\n" );
+			exit( 1 );
+		}
+		if ( 'gslider_toggle_busy' !== $response->get_error_code() ) {
+			fwrite( STDERR, "FAIL: lock-unavailable error code is not gslider_toggle_busy, got: " . $response->get_error_code() . "\n" );
+			exit( 1 );
+		}
+		$error_data = $response->get_error_data();
+		if ( ! isset( $error_data['status'] ) || 409 !== $error_data['status'] ) {
+			fwrite( STDERR, "FAIL: lock-unavailable error status is not 409, got: " . ( isset( $error_data['status'] ) ? $error_data['status'] : 'none' ) . "\n" );
+			exit( 1 );
+		}
+		if ( [ 'gslider-blocks/testimonial' ] !== $wp_options['gslider_disabled_blocks'] ) {
+			fwrite( STDERR, "FAIL: rejected toggle modified the disabled blocks option, expected: " . json_encode( [ 'gslider-blocks/testimonial' ] ) . ", got: " . json_encode( $wp_options['gslider_disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+
+		echo "OK: Toggle with lock held elsewhere returns 409 and leaves option untouched\n";
+
+		$gslider_mock_lock_available = null;
+		$wp_options['gslider_disabled_blocks'] = [];
+	}
+
+	/**
+	 * Test 8e: Toggle inside the lock reads the stored option, not a stale
+	 * request-local cache (#329).
+	 *
+	 * get_option() serves the request's cached copy while this request waits
+	 * on the lock, so the toggle must drop the cached copies first. Seeds a
+	 * cached value that is older than the stored value and asserts the
+	 * toggle builds on the newer stored value.
+	 *
+	 * @return void
+	 */
+	public function test_toggle_block_reads_fresh_option_after_stale_cache(): void {
+		global $current_caps, $wp_options, $wp_option_cache;
+		$controller = DashboardController::getInstance();
+
+		$current_caps['manage_options'] = true;
+
+		// Simulate the race: this request cached the option at bootstrap
+		// (empty array), then a concurrent request disabled testimonial
+		// and wrote it to the database while this request waited.
+		$wp_options['gslider_disabled_blocks'] = [ 'gslider-blocks/testimonial' ];
+		$wp_option_cache['alloptions']         = [ 'gslider_disabled_blocks' => [] ];
+
+		$request = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request->set_param( 'slug', 'base' );
+		$request->set_param( 'enabled', false );
+
+		$response = $controller->toggle_block( $request );
+		$data     = $response->get_data();
+
+		$expected = [ 'gslider-blocks/testimonial', 'gslider-blocks/base' ];
+		if ( $expected !== $data['disabled_blocks'] ) {
+			fwrite( STDERR, "FAIL: stale-cache toggle lost a concurrent write, expected: " . json_encode( $expected ) . ", got: " . json_encode( $data['disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+		if ( $expected !== $wp_options['gslider_disabled_blocks'] ) {
+			fwrite( STDERR, "FAIL: persisted option lost a concurrent write, expected: " . json_encode( $expected ) . ", got: " . json_encode( $wp_options['gslider_disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: Toggle inside the lock sees the stored option, not the stale cache\n";
+
+		unset( $wp_option_cache['alloptions'] );
+		$wp_options['gslider_disabled_blocks'] = [];
+	}
+
+	/**
+	 * Test 8f: Unsafe per-request fallback (GET_LOCK unsupported) lets one
+	 * toggle through and rejects the next (#329).
+	 *
+	 * The fallback only serializes inside one PHP process and gives no
+	 * cross-request guarantee; this pins the documented behavior: first
+	 * call acquires the 'request' token, the second concurrent call within
+	 * the same request gets 409, and release resets the flag.
+	 *
+	 * @return void
+	 */
+	public function test_toggle_block_unsupported_driver_fallback_is_guarded(): void {
+		global $current_caps, $wp_options, $gslider_mock_lock_available;
+		$controller = DashboardController::getInstance();
+
+		$current_caps['manage_options']        = true;
+		$wp_options['gslider_disabled_blocks'] = [];
+		$gslider_mock_lock_available           = 'unsupported_driver';
+
+		$request = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request->set_param( 'slug', 'base' );
+		$request->set_param( 'enabled', false );
+
+		// First toggle: fallback admits exactly one toggle per request.
+		$response_first = $controller->toggle_block( $request );
+		if ( ! ( $response_first instanceof WP_REST_Response ) ) {
+			fwrite( STDERR, "FAIL: fallback toggle did not succeed, got: " . ( is_wp_error( $response_first ) ? $response_first->get_error_code() : get_class( $response_first ) ) . "\n" );
+			exit( 1 );
+		}
+		if ( ! in_array( 'gslider-blocks/base', $response_first->get_data()['disabled_blocks'], true ) ) {
+			fwrite( STDERR, "FAIL: fallback toggle did not disable base, got: " . json_encode( $response_first->get_data()['disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: Unsupported driver fallback admits the first toggle\n";
+
+		// Second acquisition while the per-request guard is held: simulate
+		// the overlapping call by acquiring the lock directly. The guard
+		// must reject the nested acquisition with 409 instead of letting
+		// both through.
+		$acquire = new ReflectionMethod( $controller, 'acquire_toggle_lock' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$acquire->setAccessible( true );
+		}
+		$held_token = $acquire->invoke( $controller );
+		if ( 'request' !== $held_token ) {
+			fwrite( STDERR, "FAIL: fallback acquire returned token other than 'request', got: " . var_export( $held_token, true ) . "\n" );
+			exit( 1 );
+		}
+
+		$request_second = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request_second->set_param( 'slug', 'testimonial' );
+		$request_second->set_param( 'enabled', false );
+
+		$response_second = $controller->toggle_block( $request_second );
+		if ( ! ( $response_second instanceof WP_Error ) ) {
+			fwrite( STDERR, "FAIL: guarded second toggle did not return WP_Error, got: " . get_class( $response_second ) . "\n" );
+			exit( 1 );
+		}
+		if ( 'gslider_toggle_busy' !== $response_second->get_error_code() ) {
+			fwrite( STDERR, "FAIL: guarded second toggle error code is not gslider_toggle_busy, got: " . $response_second->get_error_code() . "\n" );
+			exit( 1 );
+		}
+		$second_error_data = $response_second->get_error_data();
+		if ( ! isset( $second_error_data['status'] ) || 409 !== $second_error_data['status'] ) {
+			fwrite( STDERR, "FAIL: guarded second toggle status is not 409, got: " . ( isset( $second_error_data['status'] ) ? $second_error_data['status'] : 'none' ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: Second acquisition under held fallback guard is rejected with 409\n";
+
+		// release_toggle_lock('request') resets the flag, so the next
+		// acquisition is admitted again.
+		$release = new ReflectionMethod( $controller, 'release_toggle_lock' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$release->setAccessible( true );
+		}
+		$release->invoke( $controller, $held_token );
+
+		$token_after_release = $acquire->invoke( $controller );
+		if ( 'request' !== $token_after_release ) {
+			fwrite( STDERR, "FAIL: release_toggle_lock did not reset the fallback flag, got: " . var_export( $token_after_release, true ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: release_toggle_lock resets the fallback guard flag\n";
+
+		// Release the re-acquired token so the singleton's fallback flag is
+		// clean for any later test in the same process.
+		$release->invoke( $controller, $token_after_release );
+
+		$gslider_mock_lock_available = null;
+		$wp_options['gslider_disabled_blocks'] = [];
+	}
+
+	/**
+	 * Test 8g: Invalid slug is rejected before the lock (#329 acceptance).
+	 *
+	 * @return void
+	 */
+	public function test_toggle_block_rejects_unknown_slug(): void {
+		global $current_caps, $wp_options;
+		$controller = DashboardController::getInstance();
+
+		$current_caps['manage_options']        = true;
+		$wp_options['gslider_disabled_blocks'] = [];
+
+		$request = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request->set_param( 'slug', 'not-a-block' );
+		$request->set_param( 'enabled', false );
+
+		$response = $controller->toggle_block( $request );
+
+		if ( ! ( $response instanceof WP_Error ) ) {
+			fwrite( STDERR, "FAIL: invalid slug toggle did not return WP_Error, got: " . get_class( $response ) . "\n" );
+			exit( 1 );
+		}
+		if ( 'gslider_toggle_invalid_slug' !== $response->get_error_code() ) {
+			fwrite( STDERR, "FAIL: invalid slug error code is not gslider_toggle_invalid_slug, got: " . $response->get_error_code() . "\n" );
+			exit( 1 );
+		}
+		$error_data = $response->get_error_data();
+		if ( ! isset( $error_data['status'] ) || 400 !== $error_data['status'] ) {
+			fwrite( STDERR, "FAIL: invalid slug status is not 400, got: " . ( isset( $error_data['status'] ) ? $error_data['status'] : 'none' ) . "\n" );
+			exit( 1 );
+		}
+		if ( [] !== $wp_options['gslider_disabled_blocks'] ) {
+			fwrite( STDERR, "FAIL: invalid slug toggle modified the option, got: " . json_encode( $wp_options['gslider_disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: Unknown slug returns 400 and leaves the option untouched\n";
+
+		// flexi-content-item has no own row in get_blocks_status() but stays a valid slug.
+		$request = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request->set_param( 'slug', 'flexi-content-item' );
+		$request->set_param( 'enabled', false );
+
+		$response = $controller->toggle_block( $request );
+
+		if ( $response instanceof WP_Error ) {
+			fwrite( STDERR, "FAIL: flexi-content-item toggle expected success, got WP_Error: " . $response->get_error_code() . "\n" );
+			exit( 1 );
+		}
+		if ( ! in_array( 'gslider-blocks/flexi-content-item', $wp_options['gslider_disabled_blocks'], true ) ) {
+			fwrite( STDERR, "FAIL: gslider-blocks/flexi-content-item expected in disabled blocks, got: " . json_encode( $wp_options['gslider_disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: flexi-content-item slug is still accepted\n";
+
+		$wp_options['gslider_disabled_blocks'] = [];
+	}
+
+	/**
+	 * Test 8h: Toggle 'all' under the lock disables every current block and
+	 * the GET_LOCK/RELEASE_LOCK pair wraps the write (#329).
+	 *
+	 * @return void
+	 */
+	public function test_toggle_all_runs_inside_lock_pair(): void {
+		global $current_caps, $wp_options;
+		$controller = DashboardController::getInstance();
+
+		$current_caps['manage_options']        = true;
+		$wp_options['gslider_disabled_blocks'] = [];
+		$GLOBALS['wpdb']->query_log            = [];
+
+		$request = new WP_REST_Request( 'POST', '/gslider/v1/dashboard/toggle-block' );
+		$request->set_param( 'slug', 'all' );
+		$request->set_param( 'enabled', false );
+
+		$response = $controller->toggle_block( $request );
+		$data     = $response->get_data();
+
+		$expected = [
+			'gslider-blocks/base',
+			'gslider-blocks/flexi-content',
+			'gslider-blocks/flexi-content-item',
+			'gslider-blocks/image-slider',
+			'gslider-blocks/logo-carousel',
+			'gslider-blocks/post-carousel',
+			'gslider-blocks/testimonial',
+		];
+		if ( $expected !== $data['disabled_blocks'] ) {
+			fwrite( STDERR, "FAIL: toggle 'all' under lock expected 7 slugs, got: " . json_encode( $data['disabled_blocks'] ) . "\n" );
+			exit( 1 );
+		}
+
+		$lock_queries = array_values(
+			array_filter(
+				(array) $GLOBALS['wpdb']->query_log,
+				static function ( $q ) {
+					return (bool) preg_match( '/GET_LOCK|RELEASE_LOCK/i', (string) $q );
+				}
+			)
+		);
+		if ( 2 !== count( $lock_queries ) || ! preg_match( '/GET_LOCK/i', $lock_queries[0] ) || ! preg_match( '/RELEASE_LOCK/i', $lock_queries[1] ) ) {
+			fwrite( STDERR, "FAIL: toggle 'all' lock pair malformed, log: " . json_encode( $lock_queries ) . "\n" );
+			exit( 1 );
+		}
+		echo "OK: Toggle 'all' persists all slugs inside one lock pair\n";
+
+		$wp_options['gslider_disabled_blocks'] = [];
 	}
 
 	/**

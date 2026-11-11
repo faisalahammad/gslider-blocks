@@ -65,6 +65,17 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 		protected $rest_base = 'dashboard';
 
 		/**
+		 * Whether the per-request fallback toggle lock is currently held.
+		 *
+		 * Used only when no database is reachable for GET_LOCK.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @var bool
+		 */
+		private $toggle_lock_fallback_held = false;
+
+		/**
 		 * Registers WordPress hooks for REST API routes and cache invalidation.
 		 *
 		 * @since 1.2.0
@@ -183,78 +194,215 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 		 * @since 1.2.0
 		 *
 		 * @param WP_REST_Request $request Full data about the request.
-		 * @return WP_REST_Response Response object with updated block status.
+		 * @return WP_REST_Response|WP_Error Response object with updated block status, or an error.
 		 */
 		public function toggle_block( $request ) {
 			$raw_slug = (string) $request->get_param( 'slug' );
 			$enabled  = (bool) $request->get_param( 'enabled' );
 
-			$disabled_blocks = get_option( 'gslider_disabled_blocks', [] );
-			if ( ! is_array( $disabled_blocks ) ) {
-				$disabled_blocks = [];
+			$short_slug = str_replace( 'gslider-blocks/', '', $raw_slug );
+			$full_slug  = 'gslider-blocks/' . $short_slug;
+
+			// Reject unknown slugs before taking the lock so a bad request
+			// can never hold the toggle serialization open, and so the
+			// endpoint returns an explicit error instead of writing an
+			// arbitrary slug into the option (issue #329 acceptance).
+			// flexi-content-item is not listed as its own block, but the
+			// endpoint accepted it before validation existed, so keep it valid.
+			$known_slugs   = array_column( $this->get_blocks_status(), 'slug' );
+			$known_slugs[] = 'flexi-content-item';
+			if ( 'all' !== $raw_slug && ! in_array( $short_slug, $known_slugs, true ) ) {
+				return new WP_Error(
+					'gslider_toggle_invalid_slug',
+					__( 'Unknown block slug.', 'gslider-blocks' ),
+					[ 'status' => 400 ]
+				);
 			}
 
-			if ( 'all' === $raw_slug ) {
-				if ( $enabled ) {
+			$lock = $this->acquire_toggle_lock();
+			if ( $lock instanceof WP_Error ) {
+				return $lock;
+			}
+
+			try {
+				// get_option() serves the request-local copy of the option that
+				// was cached at bootstrap, so it would hide writes made by
+				// concurrent requests while this request waited on the lock.
+				// Drop the cached copies first — the alloptions/notoptions
+				// invalidation core uses when option rows change — so the read
+				// inside the lock reflects the stored value, and the write
+				// builds on it instead of reverting a concurrent toggle.
+				wp_cache_delete( 'alloptions', 'options' );
+				wp_cache_delete( 'notoptions', 'options' );
+				wp_cache_delete( 'gslider_disabled_blocks', 'options' );
+				$disabled_blocks = get_option( 'gslider_disabled_blocks', [] );
+				if ( ! is_array( $disabled_blocks ) ) {
 					$disabled_blocks = [];
-				} else {
-					$disabled_blocks = [
-						'gslider-blocks/base',
-						'gslider-blocks/flexi-content',
-						'gslider-blocks/flexi-content-item',
-						'gslider-blocks/image-slider',
-						'gslider-blocks/logo-carousel',
-						'gslider-blocks/testimonial',
-					];
 				}
+
+				if ( 'all' === $raw_slug ) {
+					if ( $enabled ) {
+						$disabled_blocks = [];
+					} else {
+						$disabled_blocks = [
+							'gslider-blocks/base',
+							'gslider-blocks/flexi-content',
+							'gslider-blocks/flexi-content-item',
+							'gslider-blocks/image-slider',
+							'gslider-blocks/logo-carousel',
+							'gslider-blocks/post-carousel',
+							'gslider-blocks/testimonial',
+						];
+					}
+					update_option( 'gslider_disabled_blocks', $disabled_blocks );
+
+					return rest_ensure_response( [
+						'status'          => 'success',
+						'slug'            => 'all',
+						'enabled'         => $enabled,
+						'blocks'          => $this->get_blocks_status(),
+						'disabled_blocks' => $disabled_blocks,
+					] );
+				}
+
+				if ( $enabled ) {
+					$to_remove = [ $short_slug, $full_slug ];
+					if ( 'flexi-content' === $short_slug ) {
+						$to_remove[] = 'flexi-content-item';
+						$to_remove[] = 'gslider-blocks/flexi-content-item';
+					}
+					$disabled_blocks = array_diff( $disabled_blocks, $to_remove );
+				} else {
+					if ( ! in_array( $full_slug, $disabled_blocks, true ) ) {
+						$disabled_blocks[] = $full_slug;
+					}
+					if ( 'flexi-content' === $short_slug && ! in_array( 'gslider-blocks/flexi-content-item', $disabled_blocks, true ) ) {
+						$disabled_blocks[] = 'gslider-blocks/flexi-content-item';
+					}
+				}
+
+				$disabled_blocks = array_values( array_unique( $disabled_blocks ) );
 				update_option( 'gslider_disabled_blocks', $disabled_blocks );
 
 				return rest_ensure_response( [
 					'status'          => 'success',
-					'slug'            => 'all',
+					'slug'            => $full_slug,
 					'enabled'         => $enabled,
 					'blocks'          => $this->get_blocks_status(),
 					'disabled_blocks' => $disabled_blocks,
 				] );
+			} finally {
+				$this->release_toggle_lock( $lock );
 			}
-
-			$short_slug = str_replace( 'gslider-blocks/', '', $raw_slug );
-			$full_slug  = 'gslider-blocks/' . $short_slug;
-
-			if ( $enabled ) {
-				$to_remove = [ $short_slug, $full_slug ];
-				if ( 'flexi-content' === $short_slug ) {
-					$to_remove[] = 'flexi-content-item';
-					$to_remove[] = 'gslider-blocks/flexi-content-item';
-				}
-				$disabled_blocks = array_diff( $disabled_blocks, $to_remove );
-			} else {
-				if ( ! in_array( $full_slug, $disabled_blocks, true ) ) {
-					$disabled_blocks[] = $full_slug;
-				}
-				if ( 'flexi-content' === $short_slug && ! in_array( 'gslider-blocks/flexi-content-item', $disabled_blocks, true ) ) {
-					$disabled_blocks[] = 'gslider-blocks/flexi-content-item';
-				}
-			}
-
-			$disabled_blocks = array_values( array_unique( $disabled_blocks ) );
-			update_option( 'gslider_disabled_blocks', $disabled_blocks );
-
-			return rest_ensure_response( [
-				'status'          => 'success',
-				'slug'            => $full_slug,
-				'enabled'         => $enabled,
-				'blocks'          => $this->get_blocks_status(),
-				'disabled_blocks' => $disabled_blocks,
-			] );
 		}
+
+		/**
+		 * Acquires a named database lock so concurrent block toggles serialize
+		 * instead of racing on the read-modify-write of the option.
+		 *
+		 * Uses a MySQL advisory lock for the same isolation goal as the
+		 * options-row lock in WP_Upgrader::create_lock(), but scoped to this
+		 * toggle so a stuck upgrade lock can never block the dashboard.
+		 *
+		 * When no database is reachable, or when the storage driver reports
+		 * that it does not support advisory locks (GET_LOCK returns NULL),
+		 * this falls back to a per-request flag. That flag only serializes
+		 * calls inside the current PHP process; it gives no cross-request
+		 * protection, so concurrent requests on such hosts can still race.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @return string|WP_Error Lock token on success, WP_Error when the lock is held elsewhere.
+		 */
+		private function acquire_toggle_lock() {
+			global $wpdb;
+
+			$has_wpdb = isset( $wpdb ) && is_object( $wpdb ) && method_exists( $wpdb, 'get_var' );
+
+			if ( $has_wpdb ) {
+				// Key the lock to the options table so multisite sites sharing
+				// one database server never block each other's toggles. The
+				// hash keeps the name inside MySQL's 64-character lock-name
+				// limit for sites with long table prefixes; a longer name
+				// would error GET_LOCK into a NULL and lose the advisory
+				// locking entirely.
+				$lock_name = $this->get_toggle_lock_name();
+				$timeout   = 3;
+
+				// get_var() is required: GET_LOCK() always returns one row, so
+				// query() would report success even when the lock was not granted.
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Advisory lock; caching does not apply.
+				$lock_result = $wpdb->get_var(
+					$wpdb->prepare( 'SELECT GET_LOCK(%s, %d)', $lock_name, $timeout )
+				);
+
+				// NULL means the driver does not support advisory locks; degrade
+				// to the per-request guard, which only serializes within this
+				// request (no cross-request guarantee on such hosts).
+				if ( '1' === (string) $lock_result ) {
+					return 'db';
+				}
+
+				if ( null === $lock_result && ! $this->toggle_lock_fallback_held ) {
+					$this->toggle_lock_fallback_held = true;
+					return 'request';
+				}
+			} elseif ( ! $this->toggle_lock_fallback_held ) {
+				$this->toggle_lock_fallback_held = true;
+				return 'request';
+			}
+
+			return new WP_Error(
+				'gslider_toggle_busy',
+				__( 'Another block status update is in progress. Please try again in a moment.', 'gslider-blocks' ),
+				[ 'status' => 409 ]
+			);
+		}
+
+		/**
+		 * Builds the advisory lock name shared by GET_LOCK and RELEASE_LOCK.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @return string Fixed-length lock name keyed to the options table.
+		 */
+		private function get_toggle_lock_name(): string {
+			global $wpdb;
+
+			return 'gslider_toggle_' . md5( (string) $wpdb->options );
+		}
+
+		/**
+		 * Releases a lock acquired by acquire_toggle_lock().
+		 *
+		 * @since 1.2.3
+		 *
+		 * @param string $token Lock token returned by acquire_toggle_lock().
+		 * @return void
+		 */
+		private function release_toggle_lock( string $token ): void {
+			global $wpdb;
+
+			if ( 'db' !== $token ) {
+				if ( 'request' === $token ) {
+					$this->toggle_lock_fallback_held = false;
+				}
+				return;
+			}
+
+			if ( isset( $wpdb ) && is_object( $wpdb ) && method_exists( $wpdb, 'query' ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Advisory lock release; caching does not apply.
+				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $this->get_toggle_lock_name() ) );
+			}
+		}
+
 
 		/**
 		 * Counts total published sliders across posts and pages with transient caching.
 		 *
 		 * Queries published posts and pages containing GSlider block markup and
 		 * counts each individual slider block instance (image-slider, testimonial,
-		 * logo-carousel, flexi-content, base) while excluding child slide items.
+		 * logo-carousel, flexi-content, post-carousel, base) while excluding child slide items.
 		 *
 		 * To avoid expensive table scans on high-traffic sites, the count is
 		 * cached in a transient and flushed automatically on save_post and deleted_post.
@@ -298,7 +446,7 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 					// Count every top-level GSlider slider block instance (excluding child items).
 					$matches = null;
 					$matched = preg_match_all(
-						'/<!--\s+wp:gslider-blocks\/(image-slider|testimonial|logo-carousel|flexi-content|base)(?![-\w])/i',
+						'/<!--\s+wp:gslider-blocks\/(image-slider|testimonial|logo-carousel|flexi-content|post-carousel|base)(?![-\w])/i',
 						$content,
 						$matches
 					);
@@ -378,6 +526,11 @@ if ( ! class_exists( DashboardController::class, false ) ) {
 					'slug'    => 'logo-carousel',
 					'name'    => __( 'Logo Carousel', 'gslider-blocks' ),
 					'enabled' => $this->is_block_enabled( 'logo-carousel', $disabled_blocks ),
+				],
+				[
+					'slug'    => 'post-carousel',
+					'name'    => __( 'Post Carousel', 'gslider-blocks' ),
+					'enabled' => $this->is_block_enabled( 'post-carousel', $disabled_blocks ),
 				],
 				[
 					'slug'    => 'testimonial',

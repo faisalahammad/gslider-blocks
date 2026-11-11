@@ -4,6 +4,7 @@ export interface BlockSummary {
     title: string;
     description: string;
     category: string;
+    isDynamic?: boolean;
     slideField: string;
     totalAttributes: number;
     presets: string[];
@@ -23,7 +24,7 @@ export interface BlockDetail extends BlockSummary {
         properties?: Record<string, unknown>;
     }>;
 }
-export declare const SUPPORTED_BLOCK_SLUGS: readonly ["image-slider", "testimonial", "logo-carousel", "flexi-content", "flexi-content-item", "base"];
+export declare const SUPPORTED_BLOCK_SLUGS: readonly ["image-slider", "testimonial", "logo-carousel", "flexi-content", "flexi-content-item", "post-carousel", "base"];
 export type SupportedBlockSlug = (typeof SUPPORTED_BLOCK_SLUGS)[number];
 /**
  * The `blockPrefix` each block's `edit.js` passes to `useBlockIdGenerator`.

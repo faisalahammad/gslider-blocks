@@ -39,7 +39,7 @@
     },
     "sliderItemNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "sliderItemNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -108,7 +108,7 @@
     },
     "sliderItemHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "sliderItemHoverCustomGradientSwitcher": {
       "type": "boolean",

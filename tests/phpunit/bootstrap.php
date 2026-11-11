@@ -50,6 +50,20 @@ $wp_mock_posts         = [];
 $password_clear        = [];
 $can_read              = [];
 $registered_rest_fields = [];
+$gslider_mock_lock_available = null;
+
+/**
+ * Mock option cache backing the get_option()/wp_cache_delete() stubs.
+ *
+ * Empty in every pre-existing test, which keeps those tests on a direct
+ * $wp_options read. A test that seeds this array explicitly simulates the
+ * request-local options cache (alloptions) that real get_option() serves,
+ * so the cache invalidation in DashboardController::toggle_block() can be
+ * unit tested.
+ *
+ * @var array
+ */
+$wp_option_cache = [];
 
 if ( ! function_exists( 'add_action' ) ) {
 	function add_action( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
@@ -464,14 +478,23 @@ if ( ! class_exists( 'WP_Error' ) ) {
 	}
 }
 
+if ( ! function_exists( 'is_wp_error' ) ) {
+	function is_wp_error( $thing ) {
+		return ( $thing instanceof WP_Error );
+	}
+}
+
 if ( ! class_exists( 'MockWPDB' ) ) {
 	class MockWPDB {
 		public $posts      = 'wp_posts';
+		public $options    = 'wp_options';
 		public $last_query = '';
 		public $return_col = [];
+		public $query_log  = [];
 
 		public function get_col( $query ) {
-			$this->last_query = $query;
+			$this->last_query  = $query;
+			$this->query_log[] = $query;
 			return $this->return_col;
 		}
 
@@ -487,8 +510,30 @@ if ( ! class_exists( 'MockWPDB' ) ) {
 			return vsprintf( $query, $args );
 		}
 
+		public function query( $query ) {
+			$this->last_query    = $query;
+			$this->query_log[]   = $query;
+			return 1;
+		}
+
 		public function get_var( $query ) {
-			$this->last_query = $query;
+			$this->last_query  = $query;
+			$this->query_log[] = $query;
+
+			global $gslider_mock_lock_available;
+			if ( preg_match( '/GET_LOCK/i', (string) $query ) ) {
+				// 'unsupported_driver' simulates a storage driver without
+				// advisory locks: GET_LOCK() returns PHP null. Any other
+				// value maps to a string ('1' = acquired, '0' = timeout),
+				// and null means "acquired" for tests that do not care.
+				if ( 'unsupported_driver' === $gslider_mock_lock_available ) {
+					return null;
+				}
+				return null !== $gslider_mock_lock_available
+					? (string) $gslider_mock_lock_available
+					: '1';
+			}
+
 			return count( $this->return_col );
 		}
 	}
@@ -544,8 +589,26 @@ if ( ! function_exists( 'delete_transient' ) ) {
 }
 
 if ( ! function_exists( 'get_option' ) ) {
+	/**
+	 * Serves gslider_disabled_blocks from the mock option cache when a test
+	 * has seeded it, mirroring how wp_load_alloptions() hides concurrent
+	 * writes from a real request. Every other option reads $wp_options
+	 * directly, and reads never repopulate the cache.
+	 *
+	 * @param string $option  Option name.
+	 * @param mixed  $default Default value.
+	 * @return mixed
+	 */
 	function get_option( $option, $default = false ) {
-		global $wp_options;
+		global $wp_options, $wp_option_cache;
+
+		if ( 'gslider_disabled_blocks' === $option && array_key_exists( 'alloptions', $wp_option_cache ) ) {
+			$alloptions = $wp_option_cache['alloptions'];
+			if ( is_array( $alloptions ) && array_key_exists( $option, $alloptions ) ) {
+				return $alloptions[ $option ];
+			}
+		}
+
 		return isset( $wp_options[ $option ] ) ? $wp_options[ $option ] : $default;
 	}
 }
@@ -562,6 +625,29 @@ if ( ! function_exists( 'delete_option' ) ) {
 	function delete_option( $option ) {
 		global $wp_options;
 		unset( $wp_options[ $option ] );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_cache_delete' ) ) {
+	/**
+	 * Mock of wp_cache_delete() for the options group: removes the cached
+	 * key from the mock option cache so the next get_option() re-reads
+	 * $wp_options, like the real cache flush does.
+	 *
+	 * @param string $key   Cache key.
+	 * @param string $group Cache group.
+	 * @return bool True when a cached entry was removed.
+	 */
+	function wp_cache_delete( $key, $group = 'default' ) {
+		global $wp_option_cache;
+		if ( 'options' !== $group ) {
+			return false;
+		}
+		if ( ! array_key_exists( $key, $wp_option_cache ) ) {
+			return false;
+		}
+		unset( $wp_option_cache[ $key ] );
 		return true;
 	}
 }
@@ -810,6 +896,7 @@ if ( ! function_exists( 'get_queried_object_id' ) ) {
 if ( ! class_exists( 'WP_Post' ) ) {
 	class WP_Post {
 		public $ID;
+		public $post_author;
 		public $post_status;
 		public $post_password;
 		public $post_type;
@@ -918,8 +1005,59 @@ if ( ! function_exists( 'parse_blocks' ) ) {
 }
 
 if ( ! function_exists( 'current_time' ) ) {
-	function current_time( $type ) {
+	function current_time( $type, $gmt = 0 ) {
+		if ( 'timestamp' === $type || 'U' === $type ) {
+			return 1792087200;
+		}
 		return '2026-10-15 18:00:00';
+	}
+}
+
+if ( ! function_exists( 'human_time_diff' ) ) {
+	function human_time_diff( $from, $to = 0 ) {
+		if ( empty( $to ) ) {
+			$to = time();
+		}
+		$diff = (int) abs( $to - $from );
+		if ( $diff < 3600 ) {
+			$mins = (int) round( $diff / 60 );
+			return $mins <= 1 ? '1 min' : "$mins mins";
+		} elseif ( $diff < 86400 ) {
+			$hours = (int) round( $diff / 3600 );
+			return $hours <= 1 ? '1 hour' : "$hours hours";
+		}
+		$days = (int) round( $diff / 86400 );
+		return $days <= 1 ? '1 day' : "$days days";
+	}
+}
+
+if ( ! function_exists( 'get_post_time' ) ) {
+	function get_post_time( $format = 'U', $gmt = false, $post = null ) {
+		return 1792000000;
+	}
+}
+
+if ( ! function_exists( 'get_comments_number' ) ) {
+	function get_comments_number( $post = 0 ) {
+		return 3;
+	}
+}
+
+if ( ! function_exists( 'get_comments_link' ) ) {
+	function get_comments_link( $post = 0 ) {
+		return 'http://example.org/test-post/#comments';
+	}
+}
+
+if ( ! function_exists( 'number_format_i18n' ) ) {
+	function number_format_i18n( $number, $decimals = 0 ) {
+		return (string) $number;
+	}
+}
+
+if ( ! function_exists( 'strip_shortcodes' ) ) {
+	function strip_shortcodes( $content ) {
+		return preg_replace( '/\[[^\]]+\]/', '', (string) $content );
 	}
 }
 

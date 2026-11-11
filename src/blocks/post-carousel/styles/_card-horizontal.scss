@@ -1,0 +1,62 @@
+/* Post Carousel - Editorial Horizontal Split Layout Archetype & Preset */
+
+:where(.gslider-post-carousel-wrapper.is-layout-horizontal) {
+
+	.gslider-post-carousel-image {
+		margin: 0;
+		border-radius: 0;
+		aspect-ratio: auto;
+		height: 100%;
+		min-height: 220px;
+	}
+
+	.gslider-post-carousel-body {
+		padding: 24px;
+		justify-content: center;
+	}
+
+	.gslider-post-carousel-card {
+		display: grid;
+		grid-template-columns: var(--gslider-media-width, 45%) 1fr;
+		align-items: stretch;
+		overflow: hidden;
+
+		&.has-no-image {
+			grid-template-columns: 1fr;
+		}
+
+		&.media-position-right:not(.has-no-image) {
+			grid-template-columns: 1fr var(--gslider-media-width, 45%);
+
+			.gslider-post-carousel-image {
+				order: 2;
+			}
+
+			.gslider-post-carousel-body {
+				order: 1;
+			}
+		}
+	}
+
+	@media (max-width: 767px) {
+
+		.gslider-post-carousel-image {
+			aspect-ratio: 16 / 9;
+			min-height: 0;
+			height: auto;
+		}
+
+		.gslider-post-carousel-card {
+			display: flex !important;
+			flex-direction: column;
+
+			&.media-position-right:not(.has-no-image) {
+
+				.gslider-post-carousel-image,
+				.gslider-post-carousel-body {
+					order: 0;
+				}
+			}
+		}
+	}
+}

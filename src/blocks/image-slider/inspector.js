@@ -709,12 +709,8 @@ const Inspector = ( { attributes, setAttributes } ) => {
 	/** End Navigation Custom Arrows */
 
 	/** Start Load Google Font */
-	if ( imageCaptionFontFamily !== 'Default' ) {
-		LoadGoogleFont( imageCaptionFontFamily );
-	}
-	if ( imageTooltipFontFamily !== 'Default' ) {
-		LoadGoogleFont( imageTooltipFontFamily );
-	}
+	LoadGoogleFont( imageCaptionFontFamily );
+	LoadGoogleFont( imageTooltipFontFamily );
 	/** End Load Google Font */
 
 	/**

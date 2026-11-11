@@ -15,8 +15,19 @@ const BLOCK_SLUGS = [
 	'logo-carousel',
 	'flexi-content',
 	'flexi-content-item',
+	'post-carousel',
 	'base',
 ];
+
+const aliases = {
+	'@Components': path.join( rootDir, 'src/components' ),
+	'@Utils': path.join( rootDir, 'src/utils' ),
+	'@Constants': path.join( rootDir, 'src/constants' ),
+	'@Blocks': path.join( rootDir, 'src/blocks' ),
+	'@Controls': path.join( rootDir, 'blocks-config/gslider-controls' ),
+	'@Store': path.join( rootDir, 'src/store' ),
+	'@Attributes': path.join( rootDir, 'blocks-config/blocks-attributes' ),
+};
 
 async function extractBlockAttributes( slug ) {
 	const attrPath = path.resolve(
@@ -38,6 +49,7 @@ async function extractBlockAttributes( slug ) {
 		format: 'cjs',
 		platform: 'node',
 		loader: { '.js': 'jsx' },
+		alias: aliases,
 		external: [ '@wordpress/*' ],
 	} );
 
@@ -194,12 +206,84 @@ function findEnclosingTag( source, index ) {
 	return null;
 }
 
-function resolveOptions( expression, constants ) {
+function extractLocalOptionArrays( source ) {
+	const map = {};
+	const declRe =
+		/(?:^|\n)\s*(?:export\s+)?const\s+([A-Z][A-Z0-9_]*)\s*=\s*\[/g;
+	let m;
+	while ( ( m = declRe.exec( source ) ) ) {
+		const name = m[ 1 ];
+		const openBracket = m.index + m[ 0 ].length - 1;
+		let depth = 0;
+		let endIndex = source.length;
+		for ( let i = openBracket; i < source.length;  ) {
+			const skipped = skipNonCode( source, i );
+			if ( skipped !== -1 ) {
+				i = skipped;
+				continue;
+			}
+			if ( source[ i ] === '[' ) {
+				depth++;
+			} else if ( source[ i ] === ']' && --depth === 0 ) {
+				endIndex = i + 1;
+				break;
+			}
+			i++;
+		}
+		const values = [
+			...source
+				.slice( openBracket, endIndex )
+				.matchAll( /\bvalue:\s*(['"])(.*?)\1/g ),
+		].map( ( v ) => v[ 2 ] );
+		if ( values.length ) {
+			map[ name ] = values;
+		}
+	}
+	return map;
+}
+
+function collectInspectorFiles( slug ) {
+	const blockDir = path.resolve( rootDir, 'src/blocks', slug );
+	const files = [];
+	const mainInspector = path.join( blockDir, 'inspector.js' );
+	if ( fs.existsSync( mainInspector ) ) {
+		files.push( { rel: 'inspector.js', abs: mainInspector } );
+	}
+	const inspectorDir = path.join( blockDir, 'inspector' );
+	if (
+		fs.existsSync( inspectorDir ) &&
+		fs.statSync( inspectorDir ).isDirectory()
+	) {
+		const walk = ( dir ) => {
+			for ( const entry of fs
+				.readdirSync( dir, { withFileTypes: true } )
+				.sort( ( a, b ) => a.name.localeCompare( b.name ) ) ) {
+				const full = path.join( dir, entry.name );
+				if ( entry.isDirectory() ) {
+					walk( full );
+				} else if ( entry.isFile() && entry.name.endsWith( '.js' ) ) {
+					files.push( {
+						rel: path.relative( blockDir, full ),
+						abs: full,
+					} );
+				}
+			}
+		};
+		walk( inspectorDir );
+	}
+	return files;
+}
+
+function resolveOptions( expression, constants, localOptions = {} ) {
 	const expr = expression.trim();
 	if ( /^[A-Z][A-Z0-9_]*$/.test( expr ) ) {
-		return Array.isArray( constants[ expr ] )
-			? optionValues( constants[ expr ] )
-			: null;
+		if ( Array.isArray( constants[ expr ] ) ) {
+			return optionValues( constants[ expr ] );
+		}
+		if ( Array.isArray( localOptions[ expr ] ) ) {
+			return localOptions[ expr ];
+		}
+		return null;
 	}
 	if ( expr.startsWith( '[' ) && expr.endsWith( ']' ) ) {
 		const values = [ ...expr.matchAll( /\bvalue:\s*(['"])(.*?)\1/g ) ].map(
@@ -211,8 +295,8 @@ function resolveOptions( expression, constants ) {
 }
 
 /**
- * Reads every `options={...}` control in the block's inspector.js and maps the
- * attribute it writes through setAttributes to the option values it offers.
+ * Reads every `options={...}` control in the block's inspector.js (and split inspector/ modules)
+ * and maps the attribute it writes through setAttributes to the option values it offers.
  *
  * @param {string} slug      - Block directory slug.
  * @param {Object} rawAttrs  - Raw parsed block attributes map.
@@ -220,54 +304,62 @@ function resolveOptions( expression, constants ) {
  * @return {Object} Allowed values map keyed by attribute name.
  */
 function extractAllowedValues( slug, rawAttrs, constants ) {
-	const inspectorPath = path.resolve(
-		rootDir,
-		'src/blocks',
-		slug,
-		'inspector.js'
-	);
-	if ( ! fs.existsSync( inspectorPath ) ) {
+	const files = collectInspectorFiles( slug );
+	if ( files.length === 0 ) {
 		return {};
 	}
-	const source = fs.readFileSync( inspectorPath, 'utf8' );
 
 	const allowed = {};
 	const unresolved = [];
 	const re = /\boptions=\{/g;
-	let m;
-	while ( ( m = re.exec( source ) ) ) {
-		const line = source.slice( 0, m.index ).split( '\n' ).length;
-		const openIndex = m.index + m[ 0 ].length - 1;
-		const values = resolveOptions(
-			source.slice(
-				openIndex + 1,
-				findClosingBrace( source, openIndex ) - 1
-			),
-			constants
-		);
-		const tag = findEnclosingTag( source, m.index );
-		const keys = new Set(
-			[ ...( tag || '' ).matchAll( /setAttributes\(\s*\{\s*(\w+)\s*:/g ) ]
-				.map( ( k ) => k[ 1 ] )
-				.filter( ( k ) =>
-					Object.prototype.hasOwnProperty.call( rawAttrs, k )
-				)
-		);
 
-		if ( ! values || keys.size !== 1 ) {
-			unresolved.push( `inspector.js:${ line }` );
-			continue;
-		}
-
-		const [ key ] = keys;
-		if ( allowed[ key ] && ! isDeepStrictEqual( allowed[ key ], values ) ) {
-			throw new Error(
-				`"${ slug }" attribute "${ key }" has different option lists in inspector.js: ${ JSON.stringify(
-					allowed[ key ]
-				) } and ${ JSON.stringify( values ) } (line ${ line })`
+	for ( const { rel, abs } of files ) {
+		const source = fs.readFileSync( abs, 'utf8' );
+		const localOptions = extractLocalOptionArrays( source );
+		let m;
+		re.lastIndex = 0;
+		while ( ( m = re.exec( source ) ) ) {
+			const line = source.slice( 0, m.index ).split( '\n' ).length;
+			const openIndex = m.index + m[ 0 ].length - 1;
+			const values = resolveOptions(
+				source.slice(
+					openIndex + 1,
+					findClosingBrace( source, openIndex ) - 1
+				),
+				constants,
+				localOptions
 			);
+			const tag = findEnclosingTag( source, m.index );
+			const keys = new Set(
+				[
+					...( tag || '' ).matchAll(
+						/setAttributes\(\s*\{\s*(\w+)\s*:/g
+					),
+				]
+					.map( ( k ) => k[ 1 ] )
+					.filter( ( k ) =>
+						Object.prototype.hasOwnProperty.call( rawAttrs, k )
+					)
+			);
+
+			if ( ! values || keys.size !== 1 ) {
+				unresolved.push( `${ rel }:${ line }` );
+				continue;
+			}
+
+			const [ key ] = keys;
+			if (
+				allowed[ key ] &&
+				! isDeepStrictEqual( allowed[ key ], values )
+			) {
+				throw new Error(
+					`"${ slug }" attribute "${ key }" has different option lists in ${ rel }: ${ JSON.stringify(
+						allowed[ key ]
+					) } and ${ JSON.stringify( values ) } (line ${ line })`
+				);
+			}
+			allowed[ key ] = values;
 		}
-		allowed[ key ] = values;
 	}
 
 	if ( unresolved.length ) {
@@ -285,7 +377,7 @@ function extractAllowedValues( slug, rawAttrs, constants ) {
 	);
 }
 
-async function resolveSlideSchema( slug, rawAttrs, slideFields ) {
+async function resolveSlideSchema( slug, rawAttrs, slideFields, blockJson ) {
 	if ( slug === 'flexi-content-item' ) {
 		return {
 			slideField: '',
@@ -293,6 +385,28 @@ async function resolveSlideSchema( slug, rawAttrs, slideFields ) {
 				type: 'childBlock',
 				name: 'gslider-blocks/flexi-content-item',
 				parent: [ 'gslider-blocks/flexi-content' ],
+			},
+		};
+	}
+
+	if ( slug === 'post-carousel' ) {
+		return {
+			slideField: '',
+			slideItemSchema: {
+				type: 'dynamicQuery',
+				source: 'WP_Query',
+				render: blockJson.render || 'file:./render.php',
+				postFields: [
+					'id',
+					'title',
+					'excerpt',
+					'link',
+					'date',
+					'featuredImage',
+					'author',
+					'categories',
+					'tags',
+				],
 			},
 		};
 	}
@@ -377,7 +491,8 @@ async function generate() {
 		const { slideField, slideItemSchema } = await resolveSlideSchema(
 			slug,
 			rawAttrs,
-			slideFields
+			slideFields,
+			blockJson
 		);
 
 		const blockData = {
@@ -386,6 +501,7 @@ async function generate() {
 			title: blockJson.title || slug,
 			description: blockJson.description || '',
 			category: blockJson.category || 'gslider-blocks',
+			...( blockJson.render ? { isDynamic: true } : {} ),
 			slideField,
 			presets,
 			allowedEffects,

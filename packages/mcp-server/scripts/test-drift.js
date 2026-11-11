@@ -15,8 +15,19 @@ const BLOCK_SLUGS = [
 	'logo-carousel',
 	'flexi-content',
 	'flexi-content-item',
+	'post-carousel',
 	'base',
 ];
+
+const aliases = {
+	'@Components': path.join( rootDir, 'src/components' ),
+	'@Utils': path.join( rootDir, 'src/utils' ),
+	'@Constants': path.join( rootDir, 'src/constants' ),
+	'@Blocks': path.join( rootDir, 'src/blocks' ),
+	'@Controls': path.join( rootDir, 'blocks-config/gslider-controls' ),
+	'@Store': path.join( rootDir, 'src/store' ),
+	'@Attributes': path.join( rootDir, 'blocks-config/blocks-attributes' ),
+};
 
 async function extractBlockAttributes( slug ) {
 	const attrPath = path.resolve(
@@ -32,6 +43,7 @@ async function extractBlockAttributes( slug ) {
 		format: 'cjs',
 		platform: 'node',
 		loader: { '.js': 'jsx' },
+		alias: aliases,
 		external: [ '@wordpress/*' ],
 	} );
 
@@ -79,6 +91,19 @@ export function slideSchemaProblems( slug, block ) {
 		if ( block?.slideField ) {
 			problems.push(
 				`"${ slug }" is a child block and has no slide field`
+			);
+		}
+		return problems;
+	}
+	if ( slug === 'post-carousel' ) {
+		if ( block?.slideItemSchema?.type !== 'dynamicQuery' ) {
+			problems.push(
+				`"${ slug }" slideItemSchema must have type "dynamicQuery"`
+			);
+		}
+		if ( block?.slideField ) {
+			problems.push(
+				`"${ slug }" is a dynamic block and has no static slide field`
 			);
 		}
 		return problems;
@@ -224,6 +249,128 @@ export function allowedValuesProblems( slug, block ) {
 	return problems;
 }
 
+/**
+ * Checks a default or sample value against its declared attribute type.
+ *
+ * Covers `string`, `number`, `integer`, `boolean`, `object`, and `array`.
+ * Anything else (no type, null unions) is accepted, because no single JS
+ * shape can be required for it.
+ *
+ * @param {*}      value Default or sample value to check.
+ * @param {Object} def   Attribute (or property) definition object.
+ * @return {boolean} True when the value matches the declared type.
+ */
+function valueMatchesAttributeType( value, def ) {
+	switch ( def.type ) {
+		case 'string':
+			return typeof value === 'string';
+		case 'number':
+			return Number.isFinite( value );
+		case 'integer':
+			return Number.isInteger( value );
+		case 'boolean':
+			return typeof value === 'boolean';
+		case 'object':
+			return (
+				value !== null &&
+				typeof value === 'object' &&
+				! Array.isArray( value )
+			);
+		case 'array':
+			return Array.isArray( value );
+		default:
+			return true;
+	}
+}
+
+/**
+ * Finds attribute defaults whose JS type does not match their declared type.
+ *
+ * Walks top-level attribute definitions, nested array `items.properties`
+ * definitions, and the sample entries inside array defaults. Sourced
+ * attributes are skipped; null-union and unknown types are accepted without
+ * a shape assertion.
+ *
+ * @param {string} slug  Block slug, such as "testimonial".
+ * @param {Object} block Cached block module with an `attributes` map.
+ * @return {string[]} One message per type mismatch found.
+ */
+export function defaultTypeProblems( slug, block ) {
+	const problems = [];
+
+	/**
+	 * Type-checks a single default against its declared attribute type.
+	 *
+	 * @param {string} name Attribute name, dotted for nested properties.
+	 * @param {Object} def  Attribute (or property) definition object.
+	 */
+	const checkDefault = ( name, def ) => {
+		if ( ! def || typeof def !== 'object' || Array.isArray( def ) ) {
+			return;
+		}
+		if ( def.source !== undefined ) {
+			// Sourced attributes read their value from the HTML, not the comment.
+			return;
+		}
+		if ( ! ( 'default' in def ) || def.default === undefined ) {
+			return;
+		}
+		if ( ! valueMatchesAttributeType( def.default, def ) ) {
+			problems.push(
+				`Attribute "${ name }" in "${ slug }" declares type "${
+					def.type
+				}" but its default is ${ JSON.stringify( def.default ) }`
+			);
+		}
+	};
+
+	for ( const [ name, def ] of Object.entries( block.attributes || {} ) ) {
+		checkDefault( name, def );
+		if ( def?.type === 'array' && def.items?.properties ) {
+			for ( const [ propName, propDef ] of Object.entries(
+				def.items.properties
+			) ) {
+				checkDefault( `${ name }.${ propName }`, propDef );
+			}
+		}
+	}
+
+	// Sample items stitched into the array default must be type-correct too.
+	for ( const [ name, def ] of Object.entries( block.attributes || {} ) ) {
+		if ( def?.type !== 'array' || ! Array.isArray( def.default ) ) {
+			continue;
+		}
+		const properties = def.items?.properties || {};
+		for ( const [ itemIndex, item ] of def.default.entries() ) {
+			if ( ! item || typeof item !== 'object' || Array.isArray( item ) ) {
+				continue;
+			}
+			for ( const [ propName, value ] of Object.entries( item ) ) {
+				const propDef = properties[ propName ];
+				if ( ! propDef ) {
+					continue;
+				}
+				if ( ! valueMatchesAttributeType( value, propDef ) ) {
+					problems.push(
+						`Attribute "${ name }.default[${ itemIndex }].${ propName }" in "${ slug }" declares type "${
+							propDef.type
+						}" but its sample value is ${ JSON.stringify( value ) }`
+					);
+				}
+			}
+		}
+	}
+
+	return problems;
+}
+
+/**
+ * Runs the full schema drift check across all supported blocks.
+ *
+ * For each block slug, validates the generated schema in `src/core/schemas`
+ * (slide schema, allowed values, default types) and compares its attributes
+ * against the live block source. Exits non-zero when any problem is found.
+ */
 async function runDriftCheck() {
 	const schemasDir = path.resolve( __dirname, '../src/core/schemas' );
 	let hasDrift = false;
@@ -245,6 +392,11 @@ async function runDriftCheck() {
 		}
 
 		for ( const problem of allowedValuesProblems( slug, cachedBlock ) ) {
+			console.error( `FAIL: ${ problem }.` );
+			hasDrift = true;
+		}
+
+		for ( const problem of defaultTypeProblems( slug, cachedBlock ) ) {
 			console.error( `FAIL: ${ problem }.` );
 			hasDrift = true;
 		}

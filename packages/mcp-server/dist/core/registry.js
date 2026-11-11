@@ -5,6 +5,7 @@ export const SUPPORTED_BLOCK_SLUGS = [
     'logo-carousel',
     'flexi-content',
     'flexi-content-item',
+    'post-carousel',
     'base',
 ];
 /**
@@ -19,6 +20,7 @@ export const BLOCK_ID_PREFIX = {
     'logo-carousel': 'gslider-logo-carousel',
     'flexi-content': 'gslider-flexi-content',
     'flexi-content-item': 'gslider-flexi-content-item',
+    'post-carousel': 'gslider-post-carousel',
 };
 function loadBlockSchema(slug) {
     const url = new URL(`./schemas/${slug}.json`, import.meta.url);
@@ -40,6 +42,7 @@ export function listBlocks() {
             title: block.title,
             description: block.description,
             category: block.category,
+            ...(block.isDynamic ? { isDynamic: true } : {}),
             slideField: block.slideField,
             totalAttributes: block.totalAttributes,
             presets: block.presets,

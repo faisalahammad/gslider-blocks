@@ -718,12 +718,8 @@ const Inspector = ( { attributes, setAttributes, clientId } ) => {
 	/** End Navigation Custom Arrows */
 
 	/** Start Load Google Font */
-	if ( logoCaptionFontFamily !== 'Default' ) {
-		LoadGoogleFont( logoCaptionFontFamily );
-	}
-	if ( logoTooltipFontFamily !== 'Default' ) {
-		LoadGoogleFont( logoTooltipFontFamily );
-	}
+	LoadGoogleFont( logoCaptionFontFamily );
+	LoadGoogleFont( logoTooltipFontFamily );
 	/** End Load Google Font */
 
 	/**

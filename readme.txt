@@ -195,6 +195,12 @@ This plugin may connect to or load resources from external third-party services 
 
 == Changelog ==
 
+= 1.2.3 – November 10, 2026 =
+* Blocks Manager: Fixed concurrent toggles losing each other's changes. Updates now run behind a database lock (where the database supports it) and re-read the stored value first.
+* Blocks Manager: Toggle errors now show the real failure reason for each block.
+* Blocks Manager: A failed dashboard load now shows an error with a retry button instead of showing every block as enabled.
+* Props: @faisalahammad, @noruzzaman.
+
 = 1.2.2 – November 9, 2026 =
 * Flexi Content: Added continuous smooth marquee ticker mode with per-device toggle, configurable scroll speed, pause-on-hover behavior, and reduced-motion support.
 * Flexi Content: Added vertical slider direction with dedicated fixed height controls, top/bottom arrow alignment, and Y-axis creative transitions.

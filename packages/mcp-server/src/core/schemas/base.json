@@ -97,7 +97,7 @@
       },
       "normalItemGradientColor": {
         "type": "string",
-        "default": null
+        "default": ""
       },
       "normalItemCustomGradientSwitcher": {
         "type": "boolean",
@@ -186,7 +186,7 @@
       },
       "itemBackgroundOverlayGradientColor": {
         "type": "string",
-        "default": null
+        "default": ""
       },
       "itemBackgroundOverlayCustomGradientSwitcher": {
         "type": "boolean",
@@ -474,7 +474,7 @@
           "secondaryButtonSponsored": false,
           "normalItemBackgroundType": "classic",
           "normalItemClassicColor": "#EDEDED",
-          "normalItemGradientColor": null,
+          "normalItemGradientColor": "",
           "normalItemCustomGradientSwitcher": false,
           "normalItemCustomGradientInputValue": "",
           "normalBackgroundImageUrl": {
@@ -524,7 +524,7 @@
           "itemBackgroundOverlaySwitcher": false,
           "itemBackgroundOverlayType": "classic",
           "itemBackgroundOverlayClassicColor": "#000",
-          "itemBackgroundOverlayGradientColor": null,
+          "itemBackgroundOverlayGradientColor": "",
           "itemBackgroundOverlayCustomGradientSwitcher": false,
           "itemBackgroundOverlayCustomGradientInputValue": "",
           "itemBackgroundOverlayOpacity": 0.5
@@ -547,7 +547,7 @@
           "secondaryButtonSponsored": false,
           "normalItemBackgroundType": "classic",
           "normalItemClassicColor": "#EDEDED",
-          "normalItemGradientColor": null,
+          "normalItemGradientColor": "",
           "normalItemCustomGradientSwitcher": false,
           "normalItemCustomGradientInputValue": "",
           "normalBackgroundImageUrl": {
@@ -597,7 +597,7 @@
           "itemBackgroundOverlaySwitcher": false,
           "itemBackgroundOverlayType": "classic",
           "itemBackgroundOverlayClassicColor": "#000",
-          "itemBackgroundOverlayGradientColor": null,
+          "itemBackgroundOverlayGradientColor": "",
           "itemBackgroundOverlayCustomGradientSwitcher": false,
           "itemBackgroundOverlayCustomGradientInputValue": "",
           "itemBackgroundOverlayOpacity": 0.5
@@ -620,7 +620,7 @@
           "secondaryButtonSponsored": false,
           "normalItemBackgroundType": "classic",
           "normalItemClassicColor": "#EDEDED",
-          "normalItemGradientColor": null,
+          "normalItemGradientColor": "",
           "normalItemCustomGradientSwitcher": false,
           "normalItemCustomGradientInputValue": "",
           "normalBackgroundImageUrl": {
@@ -670,7 +670,7 @@
           "itemBackgroundOverlaySwitcher": false,
           "itemBackgroundOverlayType": "classic",
           "itemBackgroundOverlayClassicColor": "#000",
-          "itemBackgroundOverlayGradientColor": null,
+          "itemBackgroundOverlayGradientColor": "",
           "itemBackgroundOverlayCustomGradientSwitcher": false,
           "itemBackgroundOverlayCustomGradientInputValue": "",
           "itemBackgroundOverlayOpacity": 0.5
@@ -749,7 +749,7 @@
           },
           "normalItemGradientColor": {
             "type": "string",
-            "default": null
+            "default": ""
           },
           "normalItemCustomGradientSwitcher": {
             "type": "boolean",
@@ -838,7 +838,7 @@
           },
           "itemBackgroundOverlayGradientColor": {
             "type": "string",
-            "default": null
+            "default": ""
           },
           "itemBackgroundOverlayCustomGradientSwitcher": {
             "type": "boolean",
@@ -1798,7 +1798,7 @@
     },
     "primaryButtonNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "primaryButtonNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -1818,7 +1818,7 @@
     },
     "primaryButtonHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "primaryButtonHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -2174,7 +2174,7 @@
     },
     "secondaryButtonNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "secondaryButtonNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -2194,7 +2194,7 @@
     },
     "secondaryButtonHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "secondaryButtonHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -2526,7 +2526,7 @@
     },
     "navigationArrowNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "navigationArrowNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -2546,7 +2546,7 @@
     },
     "navigationArrowHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "navigationArrowHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -3502,7 +3502,7 @@
     },
     "globalNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "globalNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -3571,7 +3571,7 @@
     },
     "globalHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "globalHoverCustomGradientSwitcher": {
       "type": "boolean",

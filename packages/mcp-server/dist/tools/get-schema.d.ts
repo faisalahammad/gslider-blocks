@@ -1,10 +1,10 @@
 import { z } from 'zod';
 export declare const getBlockSchemaInputZod: z.ZodObject<{
-    blockSlug: z.ZodEnum<["image-slider", "testimonial", "logo-carousel", "flexi-content", "flexi-content-item", "base"]>;
+    blockSlug: z.ZodEnum<["image-slider", "testimonial", "logo-carousel", "flexi-content", "flexi-content-item", "post-carousel", "base"]>;
 }, "strip", z.ZodTypeAny, {
-    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "flexi-content-item" | "base";
+    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "flexi-content-item" | "post-carousel" | "base";
 }, {
-    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "flexi-content-item" | "base";
+    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "flexi-content-item" | "post-carousel" | "base";
 }>;
 export declare const getBlockSchemaToolDefinition: {
     name: string;
@@ -14,7 +14,7 @@ export declare const getBlockSchemaToolDefinition: {
         properties: {
             blockSlug: {
                 type: string;
-                enum: readonly ["image-slider", "testimonial", "logo-carousel", "flexi-content", "flexi-content-item", "base"];
+                enum: readonly ["image-slider", "testimonial", "logo-carousel", "flexi-content", "flexi-content-item", "post-carousel", "base"];
                 description: string;
             };
         };

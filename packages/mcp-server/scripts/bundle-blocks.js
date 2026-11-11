@@ -22,6 +22,7 @@ export const BLOCK_SLUGS = [
 	'testimonial',
 	'image-slider',
 	'logo-carousel',
+	'post-carousel',
 	'flexi-content',
 	'flexi-content-item',
 ];

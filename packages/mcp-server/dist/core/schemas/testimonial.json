@@ -83,7 +83,7 @@
       },
       "normalItemGradientColor": {
         "type": "string",
-        "default": null
+        "default": ""
       },
       "normalItemCustomGradientSwitcher": {
         "type": "boolean",
@@ -172,7 +172,7 @@
       },
       "itemBackgroundOverlayGradientColor": {
         "type": "string",
-        "default": null
+        "default": ""
       },
       "itemBackgroundOverlayCustomGradientSwitcher": {
         "type": "boolean",
@@ -497,7 +497,7 @@
           },
           "normalItemBackgroundType": "classic",
           "normalItemClassicColor": "#EDEDED",
-          "normalItemGradientColor": null,
+          "normalItemGradientColor": "",
           "normalItemCustomGradientSwitcher": false,
           "normalItemCustomGradientInputValue": "",
           "normalBackgroundImageUrl": {
@@ -547,7 +547,7 @@
           "itemBackgroundOverlaySwitcher": false,
           "itemBackgroundOverlayType": "classic",
           "itemBackgroundOverlayClassicColor": "#000",
-          "itemBackgroundOverlayGradientColor": null,
+          "itemBackgroundOverlayGradientColor": "",
           "itemBackgroundOverlayCustomGradientSwitcher": false,
           "itemBackgroundOverlayCustomGradientInputValue": "",
           "itemBackgroundOverlayOpacity": 0.5
@@ -572,7 +572,7 @@
           },
           "normalItemBackgroundType": "classic",
           "normalItemClassicColor": "#EDEDED",
-          "normalItemGradientColor": null,
+          "normalItemGradientColor": "",
           "normalItemCustomGradientSwitcher": false,
           "normalItemCustomGradientInputValue": "",
           "normalBackgroundImageUrl": {
@@ -622,7 +622,7 @@
           "itemBackgroundOverlaySwitcher": false,
           "itemBackgroundOverlayType": "classic",
           "itemBackgroundOverlayClassicColor": "#000",
-          "itemBackgroundOverlayGradientColor": null,
+          "itemBackgroundOverlayGradientColor": "",
           "itemBackgroundOverlayCustomGradientSwitcher": false,
           "itemBackgroundOverlayCustomGradientInputValue": "",
           "itemBackgroundOverlayOpacity": 0.5
@@ -647,7 +647,7 @@
           },
           "normalItemBackgroundType": "classic",
           "normalItemClassicColor": "#EDEDED",
-          "normalItemGradientColor": null,
+          "normalItemGradientColor": "",
           "normalItemCustomGradientSwitcher": false,
           "normalItemCustomGradientInputValue": "",
           "normalBackgroundImageUrl": {
@@ -697,7 +697,7 @@
           "itemBackgroundOverlaySwitcher": false,
           "itemBackgroundOverlayType": "classic",
           "itemBackgroundOverlayClassicColor": "#000",
-          "itemBackgroundOverlayGradientColor": null,
+          "itemBackgroundOverlayGradientColor": "",
           "itemBackgroundOverlayCustomGradientSwitcher": false,
           "itemBackgroundOverlayCustomGradientInputValue": "",
           "itemBackgroundOverlayOpacity": 0.5
@@ -760,7 +760,7 @@
           },
           "normalItemGradientColor": {
             "type": "string",
-            "default": null
+            "default": ""
           },
           "normalItemCustomGradientSwitcher": {
             "type": "boolean",
@@ -849,7 +849,7 @@
           },
           "itemBackgroundOverlayGradientColor": {
             "type": "string",
-            "default": null
+            "default": ""
           },
           "itemBackgroundOverlayCustomGradientSwitcher": {
             "type": "boolean",
@@ -2454,7 +2454,7 @@
     },
     "quoteImageID": {
       "type": "number",
-      "default": ""
+      "default": 0
     },
     "quoteIconSize": {
       "type": "object",
@@ -2950,7 +2950,7 @@
     },
     "navigationArrowNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "navigationArrowNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -2970,7 +2970,7 @@
     },
     "navigationArrowHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "navigationArrowHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -3926,7 +3926,7 @@
     },
     "globalNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "globalNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -3995,7 +3995,7 @@
     },
     "globalHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "globalHoverCustomGradientSwitcher": {
       "type": "boolean",

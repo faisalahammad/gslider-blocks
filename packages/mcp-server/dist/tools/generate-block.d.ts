@@ -1,9 +1,9 @@
 import { z } from 'zod';
-export declare const GENERATABLE_SLUGS: readonly ["base", "testimonial", "image-slider", "logo-carousel", "flexi-content"];
+export declare const GENERATABLE_SLUGS: readonly ["base", "testimonial", "image-slider", "logo-carousel", "flexi-content", "post-carousel"];
 export type GeneratableSlug = (typeof GENERATABLE_SLUGS)[number];
-export declare const generateBlockInputZod: z.ZodObject<{
-    blockSlug: z.ZodEnum<["base", "testimonial", "image-slider", "logo-carousel", "flexi-content"]>;
-    slides: z.ZodArray<z.ZodObject<{
+export declare const generateBlockInputZod: z.ZodEffects<z.ZodObject<{
+    blockSlug: z.ZodEnum<["base", "testimonial", "image-slider", "logo-carousel", "flexi-content", "post-carousel"]>;
+    slides: z.ZodOptional<z.ZodArray<z.ZodObject<{
         subTitle: z.ZodOptional<z.ZodString>;
         title: z.ZodOptional<z.ZodString>;
         description: z.ZodOptional<z.ZodString>;
@@ -102,7 +102,7 @@ export declare const generateBlockInputZod: z.ZodObject<{
             alt?: string | undefined;
             level?: number | undefined;
         }[] | undefined;
-    }>, "many">;
+    }>, "many">>;
     layout: z.ZodOptional<z.ZodObject<{
         mode: z.ZodOptional<z.ZodEnum<["slider", "carousel"]>>;
         effect: z.ZodOptional<z.ZodString>;
@@ -225,8 +225,9 @@ export declare const generateBlockInputZod: z.ZodObject<{
     }>>;
     attributes: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strict", z.ZodTypeAny, {
-    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "base";
-    slides: {
+    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "post-carousel" | "base";
+    attributes?: Record<string, unknown> | undefined;
+    slides?: {
         link?: string | undefined;
         title?: string | undefined;
         subTitle?: string | undefined;
@@ -255,8 +256,7 @@ export declare const generateBlockInputZod: z.ZodObject<{
             alt?: string | undefined;
             level?: number | undefined;
         }[] | undefined;
-    }[];
-    attributes?: Record<string, unknown> | undefined;
+    }[] | undefined;
     layout?: {
         mode?: "slider" | "carousel" | undefined;
         effect?: string | undefined;
@@ -288,8 +288,9 @@ export declare const generateBlockInputZod: z.ZodObject<{
         paginationType?: string | undefined;
     } | undefined;
 }, {
-    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "base";
-    slides: {
+    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "post-carousel" | "base";
+    attributes?: Record<string, unknown> | undefined;
+    slides?: {
         link?: string | undefined;
         title?: string | undefined;
         subTitle?: string | undefined;
@@ -318,8 +319,133 @@ export declare const generateBlockInputZod: z.ZodObject<{
             alt?: string | undefined;
             level?: number | undefined;
         }[] | undefined;
-    }[];
+    }[] | undefined;
+    layout?: {
+        mode?: "slider" | "carousel" | undefined;
+        effect?: string | undefined;
+        columns?: number | {
+            Desktop?: number | undefined;
+            Tablet?: number | undefined;
+            Mobile?: number | undefined;
+        } | undefined;
+        gap?: number | {
+            Desktop?: number | undefined;
+            Tablet?: number | undefined;
+            Mobile?: number | undefined;
+        } | undefined;
+        speed?: number | undefined;
+        autoplay?: boolean | undefined;
+        autoplayDelay?: number | undefined;
+        loop?: boolean | undefined;
+        pauseOnHover?: boolean | undefined;
+        navigation?: boolean | {
+            Desktop?: boolean | undefined;
+            Tablet?: boolean | undefined;
+            Mobile?: boolean | undefined;
+        } | undefined;
+        pagination?: boolean | {
+            Desktop?: boolean | undefined;
+            Tablet?: boolean | undefined;
+            Mobile?: boolean | undefined;
+        } | undefined;
+        paginationType?: string | undefined;
+    } | undefined;
+}>, {
+    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "post-carousel" | "base";
     attributes?: Record<string, unknown> | undefined;
+    slides?: {
+        link?: string | undefined;
+        title?: string | undefined;
+        subTitle?: string | undefined;
+        description?: string | undefined;
+        buttonText?: string | undefined;
+        buttonUrl?: string | undefined;
+        secondaryButtonText?: string | undefined;
+        secondaryButtonUrl?: string | undefined;
+        backgroundColor?: string | undefined;
+        backgroundImageUrl?: string | undefined;
+        testimonialTitle?: string | undefined;
+        testimonialText?: string | undefined;
+        authorName?: string | undefined;
+        authorDesignation?: string | undefined;
+        authorImageUrl?: string | undefined;
+        authorImageAlt?: string | undefined;
+        rating?: number | undefined;
+        url?: string | undefined;
+        alt?: string | undefined;
+        caption?: string | undefined;
+        tooltipText?: string | undefined;
+        blocks?: {
+            type: "paragraph" | "heading" | "image" | "button";
+            text?: string | undefined;
+            url?: string | undefined;
+            alt?: string | undefined;
+            level?: number | undefined;
+        }[] | undefined;
+    }[] | undefined;
+    layout?: {
+        mode?: "slider" | "carousel" | undefined;
+        effect?: string | undefined;
+        columns?: number | {
+            Desktop?: number | undefined;
+            Tablet?: number | undefined;
+            Mobile?: number | undefined;
+        } | undefined;
+        gap?: number | {
+            Desktop?: number | undefined;
+            Tablet?: number | undefined;
+            Mobile?: number | undefined;
+        } | undefined;
+        speed?: number | undefined;
+        autoplay?: boolean | undefined;
+        autoplayDelay?: number | undefined;
+        loop?: boolean | undefined;
+        pauseOnHover?: boolean | undefined;
+        navigation?: boolean | {
+            Desktop?: boolean | undefined;
+            Tablet?: boolean | undefined;
+            Mobile?: boolean | undefined;
+        } | undefined;
+        pagination?: boolean | {
+            Desktop?: boolean | undefined;
+            Tablet?: boolean | undefined;
+            Mobile?: boolean | undefined;
+        } | undefined;
+        paginationType?: string | undefined;
+    } | undefined;
+}, {
+    blockSlug: "image-slider" | "testimonial" | "logo-carousel" | "flexi-content" | "post-carousel" | "base";
+    attributes?: Record<string, unknown> | undefined;
+    slides?: {
+        link?: string | undefined;
+        title?: string | undefined;
+        subTitle?: string | undefined;
+        description?: string | undefined;
+        buttonText?: string | undefined;
+        buttonUrl?: string | undefined;
+        secondaryButtonText?: string | undefined;
+        secondaryButtonUrl?: string | undefined;
+        backgroundColor?: string | undefined;
+        backgroundImageUrl?: string | undefined;
+        testimonialTitle?: string | undefined;
+        testimonialText?: string | undefined;
+        authorName?: string | undefined;
+        authorDesignation?: string | undefined;
+        authorImageUrl?: string | undefined;
+        authorImageAlt?: string | undefined;
+        rating?: number | undefined;
+        url?: string | undefined;
+        alt?: string | undefined;
+        caption?: string | undefined;
+        tooltipText?: string | undefined;
+        blocks?: {
+            type: "paragraph" | "heading" | "image" | "button";
+            text?: string | undefined;
+            url?: string | undefined;
+            alt?: string | undefined;
+            level?: number | undefined;
+        }[] | undefined;
+    }[] | undefined;
     layout?: {
         mode?: "slider" | "carousel" | undefined;
         effect?: string | undefined;
@@ -361,7 +487,7 @@ export declare const generateBlockToolDefinition: {
         properties: {
             blockSlug: {
                 type: string;
-                enum: readonly ["base", "testimonial", "image-slider", "logo-carousel", "flexi-content"];
+                enum: readonly ["base", "testimonial", "image-slider", "logo-carousel", "flexi-content", "post-carousel"];
                 description: string;
             };
             slides: {

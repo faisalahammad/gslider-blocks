@@ -1,0 +1,40 @@
+/* Post Carousel - Centered Spotlight Stage Modifier */
+
+:where(.gslider-post-carousel-wrapper.is-spotlight) {
+
+	.swiper-slide {
+		transition:
+			transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+			opacity 0.5s ease;
+		transform: scale(var(--gslider-spotlight-scale, 0.92));
+		opacity: var(--gslider-spotlight-opacity, 0.65);
+		z-index: 1;
+
+		&.swiper-slide-active {
+			transform: scale(1);
+			opacity: 1;
+			z-index: 3;
+
+			.gslider-post-carousel-card {
+				box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+			}
+		}
+	}
+
+	&.is-layout-overlay .gslider-post-carousel-image {
+		position: absolute !important;
+		inset: 0;
+		width: 100%;
+		height: 100% !important;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	:where(.gslider-post-carousel-wrapper.is-spotlight) {
+
+		.swiper-slide {
+			transition: none;
+		}
+	}
+}

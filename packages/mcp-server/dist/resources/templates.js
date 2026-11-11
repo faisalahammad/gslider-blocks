@@ -10,7 +10,25 @@
  * block's `styling.js`, so a template only renders fully after it is opened
  * and saved in the block editor.
  */
+import fs from 'fs';
 import { BLOCK_ID_PREFIX, getBlockSchema } from '../core/registry.js';
+function loadTemplateFixtures(folder) {
+    const dirUrl = new URL(`../templates/${folder}/`, import.meta.url);
+    if (!fs.existsSync(dirUrl)) {
+        return [];
+    }
+    return fs
+        .readdirSync(dirUrl)
+        .filter((file) => file.endsWith('.json'))
+        .sort()
+        .map((file) => {
+        const raw = JSON.parse(fs.readFileSync(new URL(file, dirUrl), 'utf8'));
+        return {
+            ...raw,
+            blockIdPrefix: BLOCK_ID_PREFIX[raw.blockSlug],
+        };
+    });
+}
 /**
  * Fills each slide with the block's first default slide item, so templates
  * carry the same per-slide fields the editor writes.
@@ -334,6 +352,7 @@ export const SLIDER_TEMPLATES = [
             paginationType: 'bullets',
         },
     },
+    ...loadTemplateFixtures('post-carousel'),
 ];
 /**
  * Lists all available slider templates for MCP resource discovery.
