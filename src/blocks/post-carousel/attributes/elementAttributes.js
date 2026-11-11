@@ -118,7 +118,7 @@ const elementAttributes = {
 	},
 	postCardNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	postCardNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -141,7 +141,7 @@ const elementAttributes = {
 	},
 	postCardHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	postCardHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -452,7 +452,7 @@ const elementAttributes = {
 	},
 	imageNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	imageNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -473,7 +473,7 @@ const elementAttributes = {
 	},
 	imageHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	imageHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -837,7 +837,7 @@ const elementAttributes = {
 	},
 	postTitleNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	postTitleNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -857,7 +857,7 @@ const elementAttributes = {
 	},
 	postTitleHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	postTitleHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -1482,7 +1482,7 @@ const elementAttributes = {
 	},
 	postCategoryNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	postCategoryNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -1503,7 +1503,7 @@ const elementAttributes = {
 	},
 	postCategoryHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	postCategoryHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -1965,7 +1965,7 @@ const elementAttributes = {
 	},
 	postTagNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	postTagNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -1986,7 +1986,7 @@ const elementAttributes = {
 	},
 	postTagHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	postTagHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -3175,7 +3175,7 @@ const elementAttributes = {
 	},
 	readMoreButtonNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	readMoreButtonNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -3195,7 +3195,7 @@ const elementAttributes = {
 	},
 	readMoreButtonHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	readMoreButtonHoverCustomGradientSwitcher: {
 		type: 'boolean',
@@ -3610,7 +3610,7 @@ const elementAttributes = {
 	},
 	readMoreButtonIconNormalGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	readMoreButtonIconNormalCustomGradientSwitcher: {
 		type: 'boolean',
@@ -3630,7 +3630,7 @@ const elementAttributes = {
 	},
 	readMoreButtonIconHoverGradientColor: {
 		type: 'string',
-		default: null,
+		default: '',
 	},
 	readMoreButtonIconHoverCustomGradientSwitcher: {
 		type: 'boolean',

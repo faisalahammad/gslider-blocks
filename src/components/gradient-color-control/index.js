@@ -44,7 +44,7 @@ const GradientColorControl = ( {
 			) : (
 				<BaseControl className="global-gradient-picker-wrapper">
 					<GradientPicker
-						value={ globalGradientColor }
+						value={ globalGradientColor || null }
 						onChange={ setGlobalGradientColor }
 						className="global-gradient-picker"
 						gradients={ [

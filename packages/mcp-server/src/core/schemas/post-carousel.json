@@ -787,7 +787,7 @@
     },
     "navigationArrowNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "navigationArrowNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -807,7 +807,7 @@
     },
     "navigationArrowHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "navigationArrowHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -1747,7 +1747,7 @@
     },
     "postCardNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "postCardNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -1767,7 +1767,7 @@
     },
     "postCardHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "postCardHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -2065,7 +2065,7 @@
     },
     "imageNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "imageNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -2085,7 +2085,7 @@
     },
     "imageHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "imageHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -2427,7 +2427,7 @@
     },
     "postTitleNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "postTitleNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -2447,7 +2447,7 @@
     },
     "postTitleHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "postTitleHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -3039,7 +3039,7 @@
     },
     "postCategoryNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "postCategoryNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -3059,7 +3059,7 @@
     },
     "postCategoryHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "postCategoryHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -3490,7 +3490,7 @@
     },
     "postTagNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "postTagNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -3510,7 +3510,7 @@
     },
     "postTagHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "postTagHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -4621,7 +4621,7 @@
     },
     "readMoreButtonNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "readMoreButtonNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -4641,7 +4641,7 @@
     },
     "readMoreButtonHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "readMoreButtonHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -5017,7 +5017,7 @@
     },
     "readMoreButtonIconNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "readMoreButtonIconNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -5037,7 +5037,7 @@
     },
     "readMoreButtonIconHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "readMoreButtonIconHoverCustomGradientSwitcher": {
       "type": "boolean",
@@ -5313,7 +5313,7 @@
     },
     "globalNormalGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "globalNormalCustomGradientSwitcher": {
       "type": "boolean",
@@ -5382,7 +5382,7 @@
     },
     "globalHoverGradientColor": {
       "type": "string",
-      "default": null
+      "default": ""
     },
     "globalHoverCustomGradientSwitcher": {
       "type": "boolean",

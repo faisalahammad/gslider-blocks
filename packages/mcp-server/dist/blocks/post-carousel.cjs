@@ -839,7 +839,7 @@ var carouselAttributes = {
   },
   navigationArrowNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   navigationArrowNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -859,7 +859,7 @@ var carouselAttributes = {
   },
   navigationArrowHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   navigationArrowHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -1844,7 +1844,7 @@ var elementAttributes = {
   },
   postCardNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   postCardNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -1866,7 +1866,7 @@ var elementAttributes = {
   },
   postCardHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   postCardHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -2172,7 +2172,7 @@ var elementAttributes = {
   },
   imageNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   imageNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -2192,7 +2192,7 @@ var elementAttributes = {
   },
   imageHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   imageHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -2548,7 +2548,7 @@ var elementAttributes = {
   },
   postTitleNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   postTitleNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -2568,7 +2568,7 @@ var elementAttributes = {
   },
   postTitleHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   postTitleHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -3181,7 +3181,7 @@ var elementAttributes = {
   },
   postCategoryNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   postCategoryNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -3201,7 +3201,7 @@ var elementAttributes = {
   },
   postCategoryHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   postCategoryHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -3652,7 +3652,7 @@ var elementAttributes = {
   },
   postTagNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   postTagNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -3672,7 +3672,7 @@ var elementAttributes = {
   },
   postTagHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   postTagHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -4834,7 +4834,7 @@ var elementAttributes = {
   },
   readMoreButtonNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   readMoreButtonNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -4854,7 +4854,7 @@ var elementAttributes = {
   },
   readMoreButtonHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   readMoreButtonHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -5256,7 +5256,7 @@ var elementAttributes = {
   },
   readMoreButtonIconNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   readMoreButtonIconNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -5276,7 +5276,7 @@ var elementAttributes = {
   },
   readMoreButtonIconHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   readMoreButtonIconHoverCustomGradientSwitcher: {
     type: "boolean",
@@ -5571,7 +5571,7 @@ var globalAttributes = {
   },
   globalNormalGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   globalNormalCustomGradientSwitcher: {
     type: "boolean",
@@ -5631,7 +5631,7 @@ var globalAttributes = {
   },
   globalHoverGradientColor: {
     type: "string",
-    default: null
+    default: ""
   },
   globalHoverCustomGradientSwitcher: {
     type: "boolean",
