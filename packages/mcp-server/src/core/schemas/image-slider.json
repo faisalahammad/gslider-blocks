@@ -33,6 +33,15 @@
       },
       "tooltipText": {
         "type": "string"
+      },
+      "videoSource": {
+        "type": "string"
+      },
+      "videoExternalUrl": {
+        "type": "string"
+      },
+      "videoExternalId": {
+        "type": "string"
       }
     }
   },
@@ -256,6 +265,15 @@
             "type": "string"
           },
           "tooltipText": {
+            "type": "string"
+          },
+          "videoSource": {
+            "type": "string"
+          },
+          "videoExternalUrl": {
+            "type": "string"
+          },
+          "videoExternalId": {
             "type": "string"
           }
         }

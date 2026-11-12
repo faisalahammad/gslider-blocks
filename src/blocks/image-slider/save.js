@@ -1,6 +1,18 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import renderSVG from '@Components/icon-picker/components/icon-picker/controls/renderIcon';
 
+// Same strict ID shapes view.js accepts, a tampered ID renders the plain image instead of a dead facade
+const VIDEO_ID_PATTERNS = {
+	youtube: /^[\w-]{11}$/,
+	vimeo: /^\d+(\/[\da-f]+)?$/,
+};
+
+// A slide plays an external video only when a provider ID was parsed and saved
+const isExternalVideo = ( item ) =>
+	( item.videoSource === 'youtube' || item.videoSource === 'vimeo' ) &&
+	!! item.videoExternalId &&
+	VIDEO_ID_PATTERNS[ item.videoSource ].test( item.videoExternalId );
+
 export default function Save( { attributes } ) {
 	const {
 		blockId,
@@ -206,7 +218,39 @@ export default function Save( { attributes } ) {
 									className="gslider-image-item"
 									data-hover-effect={ imageLinkHoverEffect }
 								>
-									{ lightboxDevices ? (
+									{ /* eslint-disable-next-line no-nested-ternary */ }
+									{ isExternalVideo( item ) ? (
+										<div
+											className="gslider-embed-video"
+											data-embed-type={ item.videoSource }
+											data-embed-id={
+												item.videoExternalId
+											}
+										>
+											{ /* Facade only, view.js loads the player iframe on play click */ }
+											<img
+												className="gslider-embed-video-poster"
+												src={ item.url }
+												alt={
+													item.alt ||
+													`video ${
+														images.indexOf( item ) +
+														1
+													}`
+												}
+												loading={
+													enableLazyLoad
+														? 'lazy'
+														: undefined
+												}
+											/>
+											<button
+												type="button"
+												className="gslider-embed-video-play"
+												aria-label="Play video"
+											></button>
+										</div>
+									) : lightboxDevices ? (
 										<a
 											href={ item.url }
 											data-fslightbox={ blockId }

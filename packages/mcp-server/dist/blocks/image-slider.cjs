@@ -107,7 +107,11 @@ var attributes = {
         alt: { type: "string" },
         link: { type: "string" },
         caption: { type: "string" },
-        tooltipText: { type: "string" }
+        tooltipText: { type: "string" },
+        /** Old slides have no video keys, which means the same as 'html5' */
+        videoSource: { type: "string" },
+        videoExternalUrl: { type: "string" },
+        videoExternalId: { type: "string" }
       }
     }
   },
@@ -2703,6 +2707,11 @@ var renderIcon_default = renderSVG;
 
 // ../../src/blocks/image-slider/save.js
 var import_jsx_runtime2 = require("react/jsx-runtime");
+var VIDEO_ID_PATTERNS = {
+  youtube: /^[\w-]{11}$/,
+  vimeo: /^\d+(\/[\da-f]+)?$/
+};
+var isExternalVideo = (item) => (item.videoSource === "youtube" || item.videoSource === "vimeo") && !!item.videoExternalId && VIDEO_ID_PATTERNS[item.videoSource].test(item.videoExternalId);
 function Save({ attributes: attributes2 }) {
   const {
     blockId,
@@ -2853,7 +2862,33 @@ function Save({ attributes: attributes2 }) {
                 className: "gslider-image-item",
                 "data-hover-effect": imageLinkHoverEffect,
                 children: [
-                  lightboxDevices ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                  isExternalVideo(item) ? /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+                    "div",
+                    {
+                      className: "gslider-embed-video",
+                      "data-embed-type": item.videoSource,
+                      "data-embed-id": item.videoExternalId,
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                          "img",
+                          {
+                            className: "gslider-embed-video-poster",
+                            src: item.url,
+                            alt: item.alt || `video ${images.indexOf(item) + 1}`,
+                            loading: enableLazyLoad ? "lazy" : void 0
+                          }
+                        ),
+                        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                          "button",
+                          {
+                            type: "button",
+                            className: "gslider-embed-video-play",
+                            "aria-label": "Play video"
+                          }
+                        )
+                      ]
+                    }
+                  ) : lightboxDevices ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
                     "a",
                     {
                       href: item.url,

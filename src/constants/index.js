@@ -300,6 +300,12 @@ export const OBJECT_FIT_OPTIONS = [
 	{ label: __( 'Scale-down', 'gslider-blocks' ), value: 'scale-down' },
 ];
 
+export const IMAGE_SLIDER_VIDEO_SOURCE = [
+	{ label: __( 'None', 'gslider-blocks' ), value: 'html5' },
+	{ label: __( 'YouTube', 'gslider-blocks' ), value: 'youtube' },
+	{ label: __( 'Vimeo', 'gslider-blocks' ), value: 'vimeo' },
+];
+
 export const GOOGLE_FONTS = async () => {
 	const pluginUrl = window.GSliderBlocksData?.pluginUrl || '';
 	const res = await fetch(

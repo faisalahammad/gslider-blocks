@@ -656,13 +656,21 @@ if ( ! class_exists( BlockParser::class, false ) ) {
 					continue;
 				}
 
+				// Old slides have no video keys, which means the same as 'html5'
+				$video_source = isset( $item['videoSource'] ) && in_array( $item['videoSource'], array( 'html5', 'youtube', 'vimeo' ), true )
+					? $item['videoSource']
+					: 'html5';
+
 				$slides[] = [
-					'id'          => $item['id'] ?? ( $index + 1 ),
-					'url'         => esc_url_raw( $item['url'] ?? '' ),
-					'alt'         => sanitize_text_field( $item['alt'] ?? '' ),
-					'caption'     => sanitize_text_field( $item['caption'] ?? '' ),
-					'link'        => esc_url_raw( $item['link'] ?? '' ),
-					'tooltipText' => sanitize_text_field( $item['tooltipText'] ?? '' ),
+					'id'               => $item['id'] ?? ( $index + 1 ),
+					'url'              => esc_url_raw( $item['url'] ?? '' ),
+					'alt'              => sanitize_text_field( $item['alt'] ?? '' ),
+					'caption'          => sanitize_text_field( $item['caption'] ?? '' ),
+					'link'             => esc_url_raw( $item['link'] ?? '' ),
+					'tooltipText'      => sanitize_text_field( $item['tooltipText'] ?? '' ),
+					'videoSource'      => $video_source,
+					'videoExternalUrl' => esc_url_raw( $item['videoExternalUrl'] ?? '' ),
+					'videoExternalId'  => sanitize_text_field( $item['videoExternalId'] ?? '' ),
 				];
 			}
 

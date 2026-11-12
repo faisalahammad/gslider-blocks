@@ -94,6 +94,229 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		sliderContainer.addEventListener( 'auxclick', openImageLink, true );
 	};
 
+	// Privacy friendly players, the ID pattern blocks unsafe values in the iframe src
+	const EMBED_VIDEOS = {
+		youtube: {
+			idPattern: /^[\w-]{11}$/,
+			getSrc: ( id ) =>
+				`https://www.youtube-nocookie.com/embed/${ id }?enablejsapi=1&autoplay=1&rel=0`,
+			title: 'YouTube video player',
+			origin: 'https://www.youtube-nocookie.com',
+			pauseMessage: { event: 'command', func: 'pauseVideo', args: '' },
+		},
+		vimeo: {
+			// Unlisted videos keep their privacy hash as "id/hash"
+			idPattern: /^\d+(\/[\da-f]+)?$/,
+			getSrc: ( id ) => {
+				const [ videoId, hash ] = id.split( '/' );
+				return `https://player.vimeo.com/video/${ videoId }?${
+					hash ? `h=${ hash }&` : ''
+				}dnt=1&autoplay=1`;
+			},
+			title: 'Vimeo video player',
+			origin: 'https://player.vimeo.com',
+			pauseMessage: { method: 'pause' },
+		},
+	};
+
+	/**
+	 * Pause the embed videos on slides that left the view, players load only after a play click.
+	 *
+	 * @param {Object} swiper - Swiper instance of this slider.
+	 * @return {boolean} True when a started video is still in view.
+	 */
+	const pauseEmbedVideos = ( swiper ) => {
+		const visibleCount = swiper.slidesPerViewDynamic();
+		let hasVisibleVideo = false;
+
+		swiper.slides.forEach( ( slide, index ) => {
+			// Carousel mode shows more than one slide, keep those playing
+			if (
+				index >= swiper.activeIndex &&
+				index < swiper.activeIndex + visibleCount
+			) {
+				if ( slide.querySelector( '.gslider-embed-video iframe' ) ) {
+					hasVisibleVideo = true;
+				}
+				return;
+			}
+
+			slide
+				.querySelectorAll( '.gslider-embed-video iframe' )
+				.forEach( ( iframe ) => {
+					// A player can not take a pause command until it has loaded and answered, so remove it and show the play button again
+					if ( ! iframe.dataset.loaded || ! iframe.dataset.ready ) {
+						iframe.previousElementSibling.hidden = false;
+						iframe.remove();
+						return;
+					}
+
+					const embed =
+						EMBED_VIDEOS[ iframe.parentElement.dataset.embedType ];
+					iframe.contentWindow?.postMessage(
+						JSON.stringify( embed.pauseMessage ),
+						embed.origin
+					);
+				} );
+		} );
+
+		return hasVisibleVideo;
+	};
+
+	// Blocked or failed embeds fire load too, so a pending player gets a bounded wake timeout
+	const embedWakeTimers = new WeakMap();
+
+	// A player is marked ready only after it answers, so no command is lost on an unstarted iframe
+	window.addEventListener( 'message', ( event ) => {
+		document
+			.querySelectorAll( '.gslider-embed-video iframe[data-pending]' )
+			.forEach( ( iframe ) => {
+				if ( iframe.contentWindow !== event.source ) {
+					return;
+				}
+				const embed =
+					EMBED_VIDEOS[ iframe.parentElement.dataset.embedType ];
+				if ( ! embed || event.origin !== embed.origin ) {
+					return;
+				}
+				// Providers post JSON strings, some also send plain objects
+				let data = event.data;
+				if ( typeof data === 'string' ) {
+					try {
+						data = JSON.parse( data );
+					} catch ( error ) {
+						return;
+					}
+				}
+				if ( ! data || typeof data !== 'object' ) {
+					return;
+				}
+				// YouTube answers onReady/initialDelivery, Vimeo answers ready or the ping pong
+				if (
+					[ 'onReady', 'initialDelivery', 'ready' ].includes(
+						data?.event
+					) ||
+					data?.method === 'ping'
+				) {
+					clearTimeout( embedWakeTimers.get( iframe ) );
+					delete iframe.dataset.pending;
+					iframe.dataset.ready = 'true';
+				}
+			} );
+	} );
+
+	/**
+	 * Pause players that left the view and resume the slider autoplay once none is visible.
+	 * A resize runs the same pass, because a breakpoint can push a video off-screen without changing the active slide.
+	 *
+	 * @param {Object} swiper - Swiper instance of this slider.
+	 */
+	const syncEmbedVideos = ( swiper ) => {
+		const hasVisibleVideo = pauseEmbedVideos( swiper );
+
+		// Visitor moved away from the video, so start the autoplay a play click stopped
+		if ( swiper.el.dataset.embedAutoplayStopped && ! hasVisibleVideo ) {
+			delete swiper.el.dataset.embedAutoplayStopped;
+			// Autoplay is false on breakpoints where it is turned off
+			if ( swiper.params.autoplay ) {
+				swiper.autoplay.start();
+			}
+		}
+	};
+
+	/**
+	 * Stop autoplay of the slider, so it does not slide away from the playing video.
+	 *
+	 * @param {HTMLElement} element - Element inside the video box.
+	 */
+	const stopEmbedAutoplay = ( element ) => {
+		const swiperElement = element.closest( '.swiper' );
+		if ( swiperElement?.swiper?.autoplay?.running ) {
+			swiperElement.swiper.autoplay.stop();
+			swiperElement.dataset.embedAutoplayStopped = 'true';
+		}
+	};
+
+	// A paused player stays in its slide, a click on its own play control only moves focus into the iframe
+	window.addEventListener( 'blur', () => {
+		// Focus reaches the iframe after the blur event
+		setTimeout( () => {
+			const { activeElement } = document;
+			if (
+				activeElement?.tagName === 'IFRAME' &&
+				activeElement.closest(
+					'.gslider-image-slider-wrapper .gslider-embed-video'
+				)
+			) {
+				stopEmbedAutoplay( activeElement );
+			}
+		} );
+	} );
+
+	// Delegated, so it also works for sliders added later
+	document.addEventListener( 'click', ( event ) => {
+		const button = event.target.closest(
+			'.gslider-image-slider-wrapper .gslider-embed-video-play'
+		);
+		// Swiper prevents the click that ends a drag
+		if ( ! button || event.defaultPrevented ) {
+			return;
+		}
+
+		const { embedType, embedId } = button.parentElement.dataset;
+		const embed = EMBED_VIDEOS[ embedType ];
+		if ( ! embed || ! embed.idPattern.test( embedId ) ) {
+			return;
+		}
+
+		const iframe = document.createElement( 'iframe' );
+		iframe.src = embed.getSrc( embedId );
+		iframe.title = embed.title;
+		iframe.allow =
+			'autoplay; encrypted-media; fullscreen; picture-in-picture';
+		iframe.allowFullscreen = true;
+		// Blocked, failed or silent embeds never announce readiness, so bring the play button back
+		const armWakeTimeout = () => {
+			clearTimeout( embedWakeTimers.get( iframe ) );
+			embedWakeTimers.set(
+				iframe,
+				setTimeout( () => {
+					if ( ! iframe.dataset.ready && iframe.isConnected ) {
+						button.hidden = false;
+						const swiper = iframe.closest( '.swiper' )?.swiper;
+						iframe.remove();
+						// Autoplay stopped for this video, so restart the slider now that it is gone
+						if ( swiper ) {
+							syncEmbedVideos( swiper );
+						}
+					}
+				}, 8000 )
+			);
+		};
+
+		iframe.addEventListener( 'load', () => {
+			iframe.dataset.loaded = 'true';
+			iframe.dataset.pending = 'true';
+			// Ask the player to start reporting, its first answer means it can take a pause command
+			const wake =
+				'youtube' === embedType
+					? { event: 'listening', id: 'gslider' }
+					: { method: 'ping' };
+			iframe.contentWindow?.postMessage(
+				JSON.stringify( wake ),
+				embed.origin
+			);
+			// A slow load should not eat the time the player gets to answer
+			armWakeTimeout();
+		} );
+		stopEmbedAutoplay( button );
+		// Keep the button hidden, it comes back when loading is cancelled
+		button.hidden = true;
+		button.after( iframe );
+		iframe.focus();
+		armWakeTimeout();
+	} );
+
 	const initializeSliders = () => {
 		// Select all slider containers
 		const sliders = document.querySelectorAll(
@@ -150,6 +373,19 @@ document.addEventListener( 'DOMContentLoaded', () => {
 							if ( paginationEl ) {
 								settings.pagination.el = paginationEl;
 							}
+						}
+
+						// Slides without videos keep the plain init, only pause players that exist
+						if (
+							sliderContainer.querySelector(
+								'.gslider-embed-video'
+							)
+						) {
+							settings.on = {
+								...settings.on,
+								slideChange: syncEmbedVideos,
+								resize: syncEmbedVideos,
+							};
 						}
 
 						// Initialize Swiper with parsed settings

@@ -1,5 +1,5 @@
 /* global refreshFsLightbox */
-/* eslint-disable no-unused-vars, react-hooks/exhaustive-deps, no-shadow, object-shorthand, jsdoc/require-param, no-nested-ternary */
+/* eslint-disable no-unused-vars, react-hooks/exhaustive-deps, no-shadow, object-shorthand, jsdoc/require-param, no-nested-ternary, import/no-unresolved */
 import { __ } from '@wordpress/i18n';
 import {
 	useBlockProps,
@@ -18,6 +18,9 @@ import {
 import { useState, useEffect, useRef } from '@wordpress/element';
 import renderSVG from '@Components/icon-picker/components/icon-picker/controls/renderIcon';
 import SwitchToBlockSettings from '@Utils/switchToBlockSettings';
+import SwitcherControl from '@Components/switcher-control';
+import InputControls from '@Components/input-control';
+import { IMAGE_SLIDER_VIDEO_SOURCE } from '@Constants';
 import Inspector from './inspector';
 
 // Swiper is loaded globally via FrontendAssets.php (swiper-bundle.min.js)
@@ -28,6 +31,7 @@ import {
 	ToolbarDeleteIcon,
 	ToolbarDuplicateIcon,
 	ToolbarLinkIcon,
+	ToolbarVideoIcon,
 } from '@Utils/svgIcons';
 import useBlockIdGenerator from '@Utils/useBlockIdGenerator';
 import generateImageSliderStyle from './styling';
@@ -39,7 +43,36 @@ const mapMedia = ( m ) => ( {
 	caption: m.caption || '',
 	link: '',
 	tooltipText: '',
+	videoSource: 'html5',
+	videoExternalUrl: '',
+	videoExternalId: '',
 } );
+
+/** Only a strict ID match is stored, so the ID is safe to put in an embed URL later */
+const VIDEO_ID_PATTERNS = {
+	youtube:
+		/^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([\w-]{11})(?![\w-])/i,
+	/** A showcase, album, channel or group name is not the video ID, an unlisted video keeps its hash as id/hash */
+	vimeo: /^(?:(?:https?:)?\/\/)?(?:[\w-]+\.)*vimeo\.com\/(?:(?:showcase|album|channels|groups)\/[^/?#]+\/|(?!(?:showcase|album|channels|groups)\/|\d+\/)[^/?#]+\/)*(\d+(?:\/[\da-f]+)?)(?:[/?#]|$)/i,
+};
+
+const getVideoExternalId = ( type, url ) => {
+	const value = ( url || '' ).trim();
+	const id = value.match( VIDEO_ID_PATTERNS[ type ] )?.[ 1 ] || '';
+	// Unlisted player links keep the hash in ?h= instead of the path
+	const hash =
+		type === 'vimeo' &&
+		! id.includes( '/' ) &&
+		value.match( /[?&]h=([\da-f]+)/i )?.[ 1 ];
+	const videoId = id && hash ? `${ id }/${ hash }` : id;
+	// Vimeo hashes are lowercase hex, the frontend only accepts that form
+	return type === 'vimeo' ? videoId.toLowerCase() : videoId;
+};
+
+/** A slide plays an external video only when a provider ID was parsed and saved */
+const isExternalVideo = ( item ) =>
+	( item.videoSource === 'youtube' || item.videoSource === 'vimeo' ) &&
+	!! item.videoExternalId;
 
 export default function Edit( {
 	attributes,
@@ -145,8 +178,8 @@ export default function Edit( {
 		setAttributes( { images: next } );
 	};
 
-	const onSelectGallery = ( images ) => {
-		const list = Array.isArray( images ) ? images : [ images ];
+	const onSelectGallery = ( selection ) => {
+		const list = Array.isArray( selection ) ? selection : [ selection ];
 		const next = list
 			.filter(
 				( m ) =>
@@ -154,7 +187,24 @@ export default function Edit( {
 					( m.type === 'image' ||
 						( m.mime && m.mime.startsWith( 'image/' ) ) )
 			)
-			.map( mapMedia );
+			.map( ( m ) => {
+				const fresh = mapMedia( m );
+				// Keep per-slide settings (link, tooltip, video) of images already in the slider
+				const existing = images.find( ( image ) => image.id === m.id );
+				if ( ! existing ) {
+					return fresh;
+				}
+				return {
+					...fresh,
+					link: existing.link ?? fresh.link,
+					tooltipText: existing.tooltipText ?? fresh.tooltipText,
+					videoSource: existing.videoSource ?? fresh.videoSource,
+					videoExternalUrl:
+						existing.videoExternalUrl ?? fresh.videoExternalUrl,
+					videoExternalId:
+						existing.videoExternalId ?? fresh.videoExternalId,
+				};
+			} );
 		setAttributes( { images: next } );
 	};
 
@@ -169,6 +219,12 @@ export default function Edit( {
 	const [ editingimageId, setEditingimageId ] = useState( null );
 	const [ tempLinkUrl, setTempLinkUrl ] = useState( '' );
 	const [ tempTooltipText, setTempTooltipText ] = useState( '' );
+
+	/** State for video editing popover, saved values wait in temp state so typing does not re-render the slider */
+	const [ editingVideoimageId, setEditingVideoimageId ] = useState( null );
+	const [ tempVideoSource, setTempVideoSource ] = useState( 'html5' );
+	const [ tempVideoUrl, setTempVideoUrl ] = useState( '' );
+	const [ tempVideoId, setTempVideoId ] = useState( '' );
 
 	/** Ref for panel settings focus management */
 	const panelRef = useRef( null );
@@ -369,6 +425,68 @@ export default function Edit( {
 	};
 
 	/**
+	 * Video management functions
+	 */
+	const handleEditVideo = ( image ) => {
+		setEditingVideoimageId( image.id );
+		setTempVideoSource( image.videoSource || 'html5' );
+		setTempVideoUrl( image.videoExternalUrl || '' );
+		setTempVideoId( image.videoExternalId || '' );
+	};
+
+	const handleVideoSourceChange = ( value ) => {
+		setTempVideoSource( value );
+		setTempVideoId( getVideoExternalId( value, tempVideoUrl ) );
+	};
+
+	const handleVideoUrlChange = ( value ) => {
+		setTempVideoUrl( value );
+		setTempVideoId( getVideoExternalId( tempVideoSource, value ) );
+	};
+
+	const applyVideoAttributes = (
+		imageId,
+		videoSource,
+		videoUrl,
+		videoId
+	) => {
+		const updatedimages = images.map( ( image ) =>
+			image.id === imageId
+				? {
+						...image,
+						videoSource,
+						videoExternalUrl: videoUrl,
+						videoExternalId: videoId,
+				  }
+				: image
+		);
+		setAttributes( { images: updatedimages } );
+		setEditingVideoimageId( null );
+		setTempVideoSource( 'html5' );
+		setTempVideoUrl( '' );
+		setTempVideoId( '' );
+	};
+
+	const handleSaveVideo = () => {
+		if ( editingVideoimageId === null ) {
+			return;
+		}
+		const hasVideo = tempVideoSource !== 'html5';
+		applyVideoAttributes(
+			editingVideoimageId,
+			hasVideo ? tempVideoSource : 'html5',
+			hasVideo ? tempVideoUrl : '',
+			hasVideo ? tempVideoId : ''
+		);
+	};
+
+	const handleRemoveVideo = () => {
+		if ( editingVideoimageId !== null ) {
+			applyVideoAttributes( editingVideoimageId, 'html5', '', '' );
+		}
+	};
+
+	/**
 	 * Renders toolbar controls for slide management
 	 * Provides buttons for adding and duplicating images
 	 */
@@ -517,7 +635,28 @@ export default function Edit( {
 												}
 											} }
 										>
-											{ enableLightbox?.[ deviceType ] ? (
+											{ isExternalVideo( item ) ? (
+												<div className="gslider-embed-video gslider-embed-video-editor">
+													<img
+														className="gslider-embed-video-poster"
+														src={ item.url }
+														alt={
+															item.alt ||
+															`video ${
+																images.indexOf(
+																	item
+																) + 1
+															}`
+														}
+													/>
+													<span
+														className="gslider-embed-video-play"
+														aria-hidden="true"
+													></span>
+												</div>
+											) : enableLightbox?.[
+													deviceType
+											  ] ? (
 												<a
 													href={ item.url }
 													data-fslightbox={ blockId }
@@ -743,6 +882,19 @@ export default function Edit( {
 													showTooltip={ true }
 												/>
 											) }
+
+											<Button
+												icon={ <ToolbarVideoIcon /> }
+												className="gslider-image-action-btn gslider-image-edit-btn"
+												onClick={ () =>
+													handleEditVideo( item )
+												}
+												label={ __(
+													'Edit Video',
+													'gslider-blocks'
+												) }
+												showTooltip={ true }
+											/>
 										</div>
 
 										{ editingimageId === item.id && (
@@ -835,6 +987,114 @@ export default function Edit( {
 															variant="tertiary"
 															onClick={ () =>
 																setEditingimageId(
+																	null
+																)
+															}
+															className="gslider-image-link-cancel-button"
+														>
+															{ __(
+																'Cancel',
+																'gslider-blocks'
+															) }
+														</Button>
+													</div>
+												</div>
+											</Popover>
+										) }
+
+										{ editingVideoimageId === item.id && (
+											<Popover
+												position="middle center"
+												onClose={ () =>
+													setEditingVideoimageId(
+														null
+													)
+												}
+												focusOnMount="firstElement"
+												className="gslider-image-link-popover gslider-video-popover"
+											>
+												<div className="gslider-image-link-popover-wrapper">
+													<SwitcherControl
+														label={ __(
+															'Video Source',
+															'gslider-blocks'
+														) }
+														options={
+															IMAGE_SLIDER_VIDEO_SOURCE
+														}
+														value={
+															tempVideoSource
+														}
+														onChange={
+															handleVideoSourceChange
+														}
+													/>
+													{ tempVideoSource !==
+														'html5' && (
+														<InputControls
+															label={ __(
+																'Video URL',
+																'gslider-blocks'
+															) }
+															value={
+																tempVideoUrl
+															}
+															onChangeValue={
+																handleVideoUrlChange
+															}
+															helpText={
+																tempVideoUrl &&
+																! tempVideoId
+																	? __(
+																			'Could not find a video ID in this URL.',
+																			'gslider-blocks'
+																	  )
+																	: __(
+																			'The video opens on click, the slide image stays as its poster.',
+																			'gslider-blocks'
+																	  )
+															}
+														/>
+													) }
+													<div className="gslider-image-link-popover-buttons-wrapper">
+														<Button
+															variant="primary"
+															disabled={
+																tempVideoSource !==
+																	'html5' &&
+																! tempVideoId
+															}
+															onClick={
+																handleSaveVideo
+															}
+															className="gslider-image-link-save-button"
+														>
+															{ __(
+																'Save',
+																'gslider-blocks'
+															) }
+														</Button>
+														{ isExternalVideo(
+															item
+														) && (
+															<Button
+																variant="secondary"
+																isDestructive
+																onClick={
+																	handleRemoveVideo
+																}
+																className="gslider-image-link-remove-button"
+															>
+																{ __(
+																	'Remove Video',
+																	'gslider-blocks'
+																) }
+															</Button>
+														) }
+														<Button
+															variant="tertiary"
+															onClick={ () =>
+																setEditingVideoimageId(
 																	null
 																)
 															}

@@ -826,11 +826,26 @@ class BlockParserTest {
 						'link'        => 'https://example.com',
 						'tooltipText' => 'Tip',
 					],
+					[
+						'id'               => 7,
+						'url'              => 'https://example.com/photo-video-poster.jpg',
+						'videoSource'      => 'youtube',
+						'videoExternalUrl' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+						'videoExternalId'  => 'dQw4w9WgXcQ',
+					],
+					[
+						'id'          => 8,
+						'url'         => 'https://example.com/photo-bad.mp4',
+						'videoSource' => 'badsource',
+					],
 				],
 			],
 			'gslider-blocks/image-slider'
 		);
-		$this->assert_true( 1 === $image['totalSlides'] && 'https://example.com/photo.jpg' === $image['slides'][0]['url'], 'image slides stay url items' );
+		$this->assert_true( 3 === $image['totalSlides'] && 'https://example.com/photo.jpg' === $image['slides'][0]['url'], 'image slides stay url items' );
+		$this->assert_true( 'html5' === $image['slides'][0]['videoSource'] && '' === $image['slides'][0]['videoExternalId'], 'old slides without video keys normalize to html5' );
+		$this->assert_true( 'youtube' === $image['slides'][1]['videoSource'] && 'dQw4w9WgXcQ' === $image['slides'][1]['videoExternalId'], 'external video slide keys reach decoupled consumers' );
+		$this->assert_true( 'html5' === $image['slides'][2]['videoSource'], 'an unknown video source normalizes to html5' );
 
 		$logo = $this->normalize(
 			[
