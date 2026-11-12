@@ -306,6 +306,19 @@ if (
 		'testimonial vertical outside pagination must not use the bottom margin'
 	);
 }
+// The generic pagination rule can emit a bottom offset. Vertical bullets are
+// centered with top: 50%, so every breakpoint must reset bottom or the element
+// stretches between both edges.
+const verticalBulletBottomResets = [
+	...verticalPaginationStyle.matchAll(
+		/\.swiper-pagination-vertical\.swiper-pagination-bullets \{ top: 50%; bottom: auto !important;/g
+	),
+];
+if ( verticalBulletBottomResets.length !== 3 ) {
+	fail(
+		`testimonial vertical outside bullets must reset bottom at all 3 breakpoints, found ${ verticalBulletBottomResets.length }`
+	);
+}
 console.log( 'ok testimonial vertical outside pagination positioning' );
 
 // Fraction pagination stays bottom positioned in vertical mode, so only

@@ -2383,6 +2383,7 @@ const generateBaseSliderStyle = ( attributes ) => {
             .${ blockId }.gslider-testimonial-wrapper .swiper-pagination-bullets.swiper-pagination-vertical,
             .${ blockId }.gslider-testimonial-wrapper .swiper-pagination-vertical.swiper-pagination-bullets {
                 top: 50%;
+                bottom: auto !important;
                 left: auto;
                 right: -${
 					paginationOutsideOffset?.Desktop
@@ -3288,6 +3289,7 @@ const generateBaseSliderStyle = ( attributes ) => {
                 .${ blockId }.gslider-testimonial-wrapper .swiper-pagination-bullets.swiper-pagination-vertical,
                 .${ blockId }.gslider-testimonial-wrapper .swiper-pagination-vertical.swiper-pagination-bullets {
                     top: 50%;
+                    bottom: auto !important;
                     left: auto;
                     right: -${
 						paginationOutsideOffset?.Tablet
@@ -4238,6 +4240,7 @@ const generateBaseSliderStyle = ( attributes ) => {
                 .${ blockId }.gslider-testimonial-wrapper .swiper-pagination-bullets.swiper-pagination-vertical,
                 .${ blockId }.gslider-testimonial-wrapper .swiper-pagination-vertical.swiper-pagination-bullets {
                     top: 50%;
+                    bottom: auto !important;
                     left: auto;
                     right: -${
 						paginationOutsideOffset?.Mobile

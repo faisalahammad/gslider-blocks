@@ -5966,6 +5966,7 @@ var generateBaseSliderStyle = (attributes2) => {
             .${blockId}.gslider-testimonial-wrapper .swiper-pagination-bullets.swiper-pagination-vertical,
             .${blockId}.gslider-testimonial-wrapper .swiper-pagination-vertical.swiper-pagination-bullets {
                 top: 50%;
+                bottom: auto !important;
                 left: auto;
                 right: -${paginationOutsideOffset?.Desktop ? `${paginationOutsideOffset.Desktop}${paginationOutsideOffsetUnits?.Desktop || "px"}` : "30px"} !important;
                 transform: translate3d(0, -50%, 0);
@@ -6264,6 +6265,7 @@ var generateBaseSliderStyle = (attributes2) => {
                 .${blockId}.gslider-testimonial-wrapper .swiper-pagination-bullets.swiper-pagination-vertical,
                 .${blockId}.gslider-testimonial-wrapper .swiper-pagination-vertical.swiper-pagination-bullets {
                     top: 50%;
+                    bottom: auto !important;
                     left: auto;
                     right: -${paginationOutsideOffset?.Tablet ? `${paginationOutsideOffset.Tablet}${paginationOutsideOffsetUnits?.Tablet || "px"}` : paginationOutsideOffset?.Desktop ? `${paginationOutsideOffset.Desktop}${paginationOutsideOffsetUnits?.Desktop || "px"}` : "30px"} !important;
                     transform: translate3d(0, -50%, 0);
@@ -6576,6 +6578,7 @@ var generateBaseSliderStyle = (attributes2) => {
                 .${blockId}.gslider-testimonial-wrapper .swiper-pagination-bullets.swiper-pagination-vertical,
                 .${blockId}.gslider-testimonial-wrapper .swiper-pagination-vertical.swiper-pagination-bullets {
                     top: 50%;
+                    bottom: auto !important;
                     left: auto;
                     right: -${paginationOutsideOffset?.Mobile ? `${paginationOutsideOffset.Mobile}${paginationOutsideOffsetUnits?.Mobile || "px"}` : paginationOutsideOffset?.Tablet ? `${paginationOutsideOffset.Tablet}${paginationOutsideOffsetUnits?.Tablet || "px"}` : paginationOutsideOffset?.Desktop ? `${paginationOutsideOffset.Desktop}${paginationOutsideOffsetUnits?.Desktop || "px"}` : "30px"} !important;
                     transform: translate3d(0, -50%, 0);
