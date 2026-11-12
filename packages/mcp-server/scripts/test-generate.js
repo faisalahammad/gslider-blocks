@@ -242,6 +242,100 @@ if ( ! isDeepStrictEqual( verticalHeights, [ '500px', '420px', '350px' ] ) ) {
 }
 console.log( 'ok testimonial vertical height independence' );
 
+// Vertical sliders using outside pagination must place the bullets outside
+// the slider. Swiper tags the pagination element with swiper-pagination-vertical
+// when the direction is vertical, so the outside offset has to be applied on
+// the vertical axis. Horizontal sliders must keep the horizontal rule only.
+const horizontalPaginationStyle = testimonialBlock.styling( {
+	...testimonialDefaults,
+	paginationPositionType: 'outside',
+} );
+if ( horizontalPaginationStyle.includes( 'swiper-pagination-vertical' ) ) {
+	fail(
+		'testimonial horizontal pagination must not use vertical pagination rules'
+	);
+}
+if (
+	! horizontalPaginationStyle.includes(
+		'.gslider-testimonial-wrapper.has-pagination { margin-bottom:'
+	)
+) {
+	fail(
+		'testimonial horizontal outside pagination must keep the bottom margin'
+	);
+}
+if (
+	horizontalPaginationStyle.includes(
+		'.gslider-testimonial-wrapper.has-pagination { margin-right:'
+	)
+) {
+	fail(
+		'testimonial horizontal outside pagination must not use the right margin'
+	);
+}
+
+const verticalPaginationStyle = testimonialBlock.styling( {
+	...testimonialDefaults,
+	direction: 'vertical',
+	paginationPositionType: 'outside',
+} );
+if (
+	! verticalPaginationStyle.includes(
+		'.swiper-pagination-bullets.swiper-pagination-vertical'
+	)
+) {
+	fail(
+		'testimonial vertical outside pagination must target the vertical pagination class'
+	);
+}
+if (
+	! verticalPaginationStyle.includes(
+		'.gslider-testimonial-wrapper.has-pagination { margin-right:'
+	)
+) {
+	fail(
+		'testimonial vertical outside pagination must reserve space on the right'
+	);
+}
+if (
+	verticalPaginationStyle.includes(
+		'.gslider-testimonial-wrapper.has-pagination { margin-bottom:'
+	)
+) {
+	fail(
+		'testimonial vertical outside pagination must not use the bottom margin'
+	);
+}
+console.log( 'ok testimonial vertical outside pagination positioning' );
+
+// Fraction pagination stays bottom positioned in vertical mode, so only
+// bullets may switch the outside space reservation to the right margin.
+const verticalFractionStyle = testimonialBlock.styling( {
+	...testimonialDefaults,
+	direction: 'vertical',
+	paginationType: 'fraction',
+	paginationPositionType: 'outside',
+} );
+if (
+	! verticalFractionStyle.includes(
+		'.gslider-testimonial-wrapper.has-pagination { margin-bottom:'
+	)
+) {
+	fail(
+		'testimonial vertical fraction outside pagination must keep the bottom margin'
+	);
+}
+if (
+	verticalFractionStyle.includes(
+		'.gslider-testimonial-wrapper.has-pagination { margin-right:'
+	)
+) {
+	fail(
+		'testimonial vertical fraction outside pagination must not reserve right margin'
+	);
+}
+console.log( 'ok testimonial vertical fraction outside pagination margin' );
+
 for ( const slug of slugs ) {
 	await rejects(
 		{

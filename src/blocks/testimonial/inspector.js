@@ -6,6 +6,7 @@ import {
 	useMemo,
 	memo,
 	useCallback,
+	useRef,
 } from '@wordpress/element';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
@@ -830,6 +831,36 @@ const Inspector = ( {
 		} ) );
 	}, [] );
 
+	/**
+	 * Percentage height cannot resolve against the slider wrapper, so the
+	 * vertical height control rejects the % unit. The shared unit control
+	 * always writes the clamped value after the unit, so the pending flag
+	 * keeps the stored height untouched when % is picked.
+	 */
+	const skipVerticalHeightUpdateRef = useRef( false );
+
+	const handleVerticalHeightUnitChange = useCallback(
+		( value ) => {
+			if ( value?.[ deviceType ] === '%' ) {
+				skipVerticalHeightUpdateRef.current = true;
+				return;
+			}
+			setAttributes( { verticalHeightUnits: value } );
+		},
+		[ deviceType, setAttributes ]
+	);
+
+	const handleVerticalHeightValueChange = useCallback(
+		( value ) => {
+			if ( skipVerticalHeightUpdateRef.current ) {
+				skipVerticalHeightUpdateRef.current = false;
+				return;
+			}
+			setAttributes( { verticalHeight: value } );
+		},
+		[ setAttributes ]
+	);
+
 	/** Format Spacing */
 	const formatSpacingSide = ( value, unit ) =>
 		value === '' || value === undefined || value === null
@@ -1170,12 +1201,8 @@ const Inspector = ( {
 						<ResponsiveRangeControl
 							label={ __( 'Slider Height', 'gslider-blocks' ) }
 							rangeValue={ verticalHeight }
-							onChangeValue={ ( value ) =>
-								setAttributes( { verticalHeight: value } )
-							}
-							onUnitChange={ ( value ) =>
-								setAttributes( { verticalHeightUnits: value } )
-							}
+							onChangeValue={ handleVerticalHeightValueChange }
+							onUnitChange={ handleVerticalHeightUnitChange }
 							deviceType={ deviceType }
 							units={ verticalHeightUnits }
 							resetFallbackValue={ {
@@ -1188,7 +1215,7 @@ const Inspector = ( {
 
 						<p>
 							{ __(
-								'Vertical sliders always use this fixed height. Use px or vh, a percent height is ignored.',
+								'Vertical sliders always use this fixed height. Use px, vh, vw, em or rem. A percent height is not supported.',
 								'gslider-blocks'
 							) }
 						</p>
