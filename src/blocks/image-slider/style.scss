@@ -133,6 +133,7 @@
 	// The slide box is capped and clipped, so a video item fills the full slide
 	.gslider-image-item:has(.gslider-embed-video) {
 		width: 100%;
+		height: 100%;
 		transform: none !important;
 	}
 
@@ -140,7 +141,7 @@
 	.gslider-embed-video {
 		position: relative;
 		width: 100%;
-		aspect-ratio: 16 / 9;
+		height: 100%;
 		background-color: #000;
 		overflow: hidden;
 
@@ -148,7 +149,7 @@
 			position: absolute;
 			inset: 0;
 			width: 100%;
-			height: 100%;
+			height: 100% !important;
 			object-fit: cover;
 		}
 
