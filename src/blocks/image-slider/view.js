@@ -98,8 +98,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const EMBED_VIDEOS = {
 		youtube: {
 			idPattern: /^[\w-]{11}$/,
-			getSrc: ( id ) =>
-				`https://www.youtube-nocookie.com/embed/${ id }?enablejsapi=1&autoplay=1&rel=0`,
+			getSrc: ( id ) => {
+				const origin =
+					window.location.origin && window.location.origin !== 'null'
+						? `&origin=${ encodeURIComponent(
+								window.location.origin
+						  ) }`
+						: '';
+				return `https://www.youtube-nocookie.com/embed/${ id }?enablejsapi=1&autoplay=1&rel=0${ origin }`;
+			},
 			title: 'YouTube video player',
 			origin: 'https://www.youtube-nocookie.com',
 			pauseMessage: { event: 'command', func: 'pauseVideo', args: '' },
@@ -283,6 +290,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				setTimeout( () => {
 					if ( ! iframe.dataset.ready && iframe.isConnected ) {
 						button.hidden = false;
+						if ( iframe.ownerDocument?.activeElement === iframe ) {
+							button.focus();
+						}
 						const swiper = iframe.closest( '.swiper' )?.swiper;
 						iframe.remove();
 						// Autoplay stopped for this video, so restart the slider now that it is gone
