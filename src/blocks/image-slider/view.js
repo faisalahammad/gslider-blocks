@@ -276,6 +276,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			return;
 		}
 
+		const poster = button.parentElement.querySelector(
+			'.gslider-embed-video-poster'
+		);
 		const iframe = document.createElement( 'iframe' );
 		iframe.src = embed.getSrc( embedId );
 		iframe.title = embed.title;
@@ -290,6 +293,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				setTimeout( () => {
 					if ( ! iframe.dataset.ready && iframe.isConnected ) {
 						button.hidden = false;
+						if ( poster ) {
+							poster.hidden = false;
+						}
 						if ( iframe.ownerDocument?.activeElement === iframe ) {
 							button.focus();
 						}
@@ -320,8 +326,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			armWakeTimeout();
 		} );
 		stopEmbedAutoplay( button );
-		// Keep the button hidden, it comes back when loading is cancelled
+		// Keep the button and poster hidden, they come back when loading is cancelled
 		button.hidden = true;
+		if ( poster ) {
+			poster.hidden = true;
+		}
 		button.after( iframe );
 		iframe.focus();
 		armWakeTimeout();
