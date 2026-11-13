@@ -151,9 +151,21 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			slide
 				.querySelectorAll( '.gslider-embed-video iframe' )
 				.forEach( ( iframe ) => {
-					// A player can not take a pause command until it has loaded and answered, so remove it and show the play button again
+					// A player can not take a pause command until it has loaded and answered, so remove it and restore facade
 					if ( ! iframe.dataset.loaded || ! iframe.dataset.ready ) {
-						iframe.previousElementSibling.hidden = false;
+						const box = iframe.parentElement;
+						const playBtn = box?.querySelector(
+							'.gslider-embed-video-play'
+						);
+						const posterEl = box?.querySelector(
+							'.gslider-embed-video-poster'
+						);
+						if ( playBtn ) {
+							playBtn.hidden = false;
+						}
+						if ( posterEl ) {
+							posterEl.hidden = false;
+						}
 						iframe.remove();
 						return;
 					}
