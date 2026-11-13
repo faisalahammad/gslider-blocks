@@ -18,6 +18,7 @@
 
 	.gslider-image-slider-content-wrapper {
 		box-sizing: border-box;
+		width: 100%;
 		height: clamp(250px, 50vh, 500px);
 		overflow: hidden;
 		position: relative;
@@ -63,6 +64,7 @@
 	// image item with hover effects
 	.gslider-image-item {
 		position: relative;
+		width: 100%;
 
 		img {
 			display: block;

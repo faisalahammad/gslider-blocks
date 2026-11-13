@@ -896,7 +896,7 @@ const generateImageSliderStyle = ( attributes ) => {
             ${
 				layoutHeight.Desktop
 					? `height: ${ layoutHeight.Desktop }${ layoutHeightUnits.Desktop };`
-					: 'auto'
+					: ''
 			}
             ${
 				imagePaddingDesktopCssStyle
@@ -1795,7 +1795,7 @@ const generateImageSliderStyle = ( attributes ) => {
                 ${
 					layoutHeight.Tablet
 						? `height: ${ layoutHeight.Tablet }${ layoutHeightUnits.Tablet };`
-						: 'auto'
+						: ''
 				}
                 ${
 					imagePaddingTabletCssStyle
@@ -2323,7 +2323,7 @@ const generateImageSliderStyle = ( attributes ) => {
                 ${
 					layoutHeight.Mobile
 						? `height: ${ layoutHeight.Mobile }${ layoutHeightUnits.Mobile };`
-						: 'auto'
+						: ''
 				}
                 ${
 					imagePaddingMobileCssStyle
