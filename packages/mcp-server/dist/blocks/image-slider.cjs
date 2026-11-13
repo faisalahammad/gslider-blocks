@@ -3802,7 +3802,7 @@ var generateImageSliderStyle = (attributes2) => {
         }
         
         .${blockId}.gslider-image-slider-wrapper .gslider-image-slider-content-wrapper {
-            ${layoutHeight.Desktop ? `height: ${layoutHeight.Desktop}${layoutHeightUnits.Desktop};` : "auto"}
+            ${layoutHeight.Desktop ? `height: ${layoutHeight.Desktop}${layoutHeightUnits.Desktop};` : ""}
             ${imagePaddingDesktopCssStyle ? `padding: ${imagePaddingDesktopCssStyle};` : ""}
             ${imageBorder ? `border: ${imageBorder};` : ""}
 			${imageBorderDesktopCssStyle ? `border-width: ${imageBorderDesktopCssStyle};` : ""}  
@@ -4151,7 +4151,7 @@ var generateImageSliderStyle = (attributes2) => {
             }
 
             .${blockId}.gslider-image-slider-wrapper .gslider-image-slider-content-wrapper {
-                ${layoutHeight.Tablet ? `height: ${layoutHeight.Tablet}${layoutHeightUnits.Tablet};` : "auto"}
+                ${layoutHeight.Tablet ? `height: ${layoutHeight.Tablet}${layoutHeightUnits.Tablet};` : ""}
                 ${imagePaddingTabletCssStyle ? `padding: ${imagePaddingTabletCssStyle};` : ""}
 			    ${imageBorderTabletCssStyle ? `border-width: ${imageBorderTabletCssStyle};` : ""}  
                 ${imageBorderRadiusTabletCssStyle ? `border-radius: ${imageBorderRadiusTabletCssStyle} !important;` : ""}
@@ -4355,7 +4355,7 @@ var generateImageSliderStyle = (attributes2) => {
             }
 
             .${blockId}.gslider-image-slider-wrapper .gslider-image-slider-content-wrapper {
-                ${layoutHeight.Mobile ? `height: ${layoutHeight.Mobile}${layoutHeightUnits.Mobile};` : "auto"}
+                ${layoutHeight.Mobile ? `height: ${layoutHeight.Mobile}${layoutHeightUnits.Mobile};` : ""}
                 ${imagePaddingMobileCssStyle ? `padding: ${imagePaddingMobileCssStyle};` : ""}
                 ${imageBorderMobileCssStyle ? `border-width: ${imageBorderMobileCssStyle};` : ""}  
                 ${imageBorderRadiusMobileCssStyle ? `border-radius: ${imageBorderRadiusMobileCssStyle} !important;` : ""}
